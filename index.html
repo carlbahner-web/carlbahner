@@ -1,0 +1,1229 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- THE SITE'S NAME AND ITS LINK PREVIEW, Carl's answers on the launch quiz (3 Nov 2026,
+         https://claude.ai/artifact/5LWQs73jHMp7yRByiUZgP1): the tab "Carl Bahner"; a shared link shows the room as it
+         opens, his name and his own line, "Mixer, educator, and sonic chaos gremlin." -->
+    <title>Carl Bahner</title>
+    <meta name="description" content="Mixer, educator, and sonic chaos gremlin." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://carlbahner.com/" />
+    <meta property="og:title" content="Carl Bahner" />
+    <meta property="og:description" content="Mixer, educator, and sonic chaos gremlin." />
+    <meta property="og:image" content="https://carlbahner.com/assets/share.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        /* the page round the room's card: Homegrown's quiet cream (tokens.css --paper) */
+        background: #fefdf9;
+      }
+      /* THE ROOM'S CARD (src/stage.mjs): 16:9 whatever the window, centred, sized and placed by fitStage; its
+         corner Homegrown's 12 and its line drawn over the room's edge (drawBox, front) */
+      #stage {
+        position: fixed;
+        z-index: 0;
+        border-radius: 12px;
+        --line: #2c2c2a;
+      }
+      /* THE LOADING SCREEN: "we need a loading screen because things load-in at different times" (Carl, 3 Nov 2026). The
+         room's cream over it, his CB drum logo turning in the middle ("can the record be the spinning cb logo?", Carl, 3 Nov
+         2026; a record until then; art/site/cb-drum-logo.png in charcoal), until every drawing, the turntable's pieces and
+         the fonts are in (src/studio.mjs `loaded`), then it fades. No words on it. */
+      #loading {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: #fcf7e8;
+        pointer-events: none;
+        transition: opacity 0.6s ease, visibility 0s linear 0.6s;
+      }
+      #loading img {
+        width: min(22%, 28vh);
+        aspect-ratio: 1;
+        object-fit: contain;
+        animation: loading-turn 1.8s linear infinite;
+      }
+      @keyframes loading-turn {
+        to {
+          transform: rotate(1turn);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #loading img {
+          animation: none;
+        }
+      }
+      body.loaded #loading {
+        opacity: 0;
+        visibility: hidden;
+      }
+      #stage > .wob.front {
+        z-index: 3;
+      }
+      #stage > .wob.front path {
+        fill: none;
+      }
+      #room {
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        width: 100%;
+        height: 100%;
+        display: block;
+        cursor: grab;
+        touch-action: none;
+      }
+      #room.grabbing {
+        cursor: grabbing;
+      }
+      #arrange {
+        position: fixed;
+        right: 12px;
+        bottom: 12px;
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 232px;
+        max-height: calc(100% - 24px);
+        overflow: auto;
+        padding: 6px 8px;
+        border: 1.5px solid #2c2c2a;
+        border-radius: 10px;
+        background: rgb(237 230 218 / 0.94);
+        color: #2c2c2a;
+        font:
+          600 12px/1.2 system-ui,
+          sans-serif;
+      }
+      #arrange[hidden],
+      #arrange [hidden],
+      #arrange.folded > :not(.editing) {
+        display: none !important;
+      }
+      #arrange label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        min-height: 22px;
+      }
+      #arrange input[type="range"] {
+        width: 120px;
+        margin: 0;
+      }
+      #arrange input[type="color"] {
+        width: 36px;
+        height: 20px;
+        padding: 0;
+        border: 1px solid #2c2c2a;
+        border-radius: 4px;
+      }
+      #arrange button {
+        padding: 3px 8px;
+        border: 1.5px solid #2c2c2a;
+        border-radius: 8px;
+        background: #f6cc60;
+        color: #2c2c2a;
+        font: inherit;
+        cursor: pointer;
+      }
+      #arrange .editing {
+        justify-content: flex-start;
+      }
+      #arrange.folded .editing,
+      #arrange .editing {
+        padding-bottom: 4px;
+      }
+      #arrange:not(.folded) .editing {
+        border-bottom: 1.5px solid #2c2c2a;
+      }
+      #arrange .grip,
+      #arrange .fold {
+        padding: 0 6px;
+        background: none;
+        border: 0;
+        font-size: 16px;
+        line-height: 1;
+      }
+      #arrange .grip {
+        cursor: move;
+        touch-action: none;
+      }
+      #arrange .fold {
+        margin-left: auto;
+      }
+      #arrange select {
+        flex: 1;
+        min-width: 0;
+        font: inherit;
+        padding: 2px 4px;
+        border: 1.5px solid #2c2c2a;
+        border-radius: 8px;
+        background: #ede6da;
+        color: #2c2c2a;
+      }
+      #arrange .modes {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      #arrange .modes button {
+        padding: 2px 6px;
+        background: #ede6da;
+      }
+      #arrange .modes button[aria-pressed="true"] {
+        background: #2c2c2a;
+        color: #ede6da;
+      }
+      /* ---------- THE WAY ROUND THE SITE (src/nav.mjs): the windows, in the room's own paper and line ---------- */
+      /* DM Sans, Homegrown's body face (public/fonts/DMSans-latin.woff2, copied as assets/dmsans.woff2) */
+      @font-face {
+        font-family: "DM Sans";
+        src: url("assets/dmsans.woff2") format("woff2");
+        font-weight: 100 1000;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "DW Fairfield";
+        src: url("assets/dwfairfield.woff2") format("woff2");
+        font-display: swap;
+      }
+      :root {
+        --ink: #2c2c2a;
+        /* THREE TEXT SIZES ON THE CARDS, every job one of them: Homegrown's rule (tokens.css, "Four text sizes, and every
+           job has exactly one", Carl, 4 Sept 2026), taken here on his word: "what do we use in homegrown for size
+           consistency?", shown it, then "yes" (3 Nov 2026). The site has no page title, so three: a heading, what you read
+           (every paragraph, quote, button and what you type), and the small words (song lines and lengths, who said a
+           quote, form labels). Body bigger than Homegrown's, as he asked of the cards on 2 Nov ("yeah", to bigger text);
+           small is Homegrown's small against its body (0.8 to 0.95). Locked by tests/sizes.mjs. */
+        --fs-heading: 1.7rem;
+        --fs-body: 1.17rem;
+        --fs-small: 0.985rem;
+        --paper: #ede6da;
+        --mustard: #f0af1b;
+        --teal: #1f5a5e;
+        --rust: #bf7538;
+      }
+      #room {
+        transition: opacity 0.14s;
+      }
+      #room.faded {
+        opacity: 0;
+      }
+      #things {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+      }
+      .win-open #things {
+        visibility: hidden;
+      }
+      /* one button a thing, over it, for the keyboard: invisible, since the room draws its focus on the thing */
+      .thing {
+        position: absolute;
+        padding: 0;
+        border: 0;
+        background: none;
+        opacity: 0;
+      }
+      #veil {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+      }
+      #veil[hidden],
+      #win[hidden],
+      #turn[hidden] {
+        display: none;
+      }
+      #win {
+        position: absolute;
+        z-index: 2;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        padding: 30px 28px 28px;
+        /* A HOMEGROWN CARD (app.css .card, tokens.css): cream, its line 2px at the faded ink (--ink-clearly, 38%),
+           drawn and still by drawBox in src/nav.mjs; no grain and no shadow, as Homegrown's cards have none.
+           "you need to look at the css of homegrown to do the card design and boiling" (Carl, 1 Nov 2026) */
+        background: none;
+        --fill: #fcf7e8;
+        --line: rgba(44, 44, 42, 0.38);
+        color: var(--ink);
+        font: 18px/1.2 "DW Fairfield", Georgia, serif;
+        transition:
+          transform 0.42s cubic-bezier(0.2, 0.8, 0.2, 1),
+          opacity 0.3s;
+        overflow: hidden;
+      }
+      /* the drawn line round a box (drawBox in src/nav.mjs), as app.css .wobble draws Homegrown's */
+      .wob {
+        position: absolute;
+        inset: -6px;
+        width: calc(100% + 12px);
+        height: calc(100% + 12px);
+        z-index: -1;
+        pointer-events: none;
+        overflow: visible;
+      }
+      .wob path {
+        fill: var(--fill, transparent);
+        stroke: var(--line, var(--ink));
+        stroke-width: 2px;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+      }
+      /* everything inside the card keeps the full ink (app.css .card > :not(svg)) */
+      #win .body,
+      #win .close {
+        --line: var(--ink);
+      }
+      #win .body {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        display: flex;
+      }
+      /* WHILE THERE IS MORE TO SCROLL, ITS EDGE FADES: "can the bottoms/tops of the card contents fade out when they're
+         scrollable? i think we did this in homegrown somewhere?" (Carl, 3 Nov 2026). Homegrown's sidebar does it
+         (app.css .nav[data-more], "Add a soft fade", 12 Oct 2026): a mask, so it fades whatever is under it. src/nav.mjs
+         sets data-up while there is more above and data-down while there is more below. */
+      #win .body[data-up],
+      #win .body[data-down],
+      #win .body > [data-up],
+      #win .body > [data-down] {
+        --fu: 0px;
+        --fd: 0px;
+        mask-image: linear-gradient(to bottom, transparent, #000 var(--fu), #000 calc(100% - var(--fd)), transparent);
+      }
+      #win .body[data-up],
+      #win .body > [data-up] {
+        --fu: 36px;
+      }
+      #win .body[data-down],
+      #win .body > [data-down] {
+        --fd: 36px;
+      }
+      /* the line under a card's title, in his heading face at the reading size: the contact card's "Hey Carl" line,
+         "CONTACT (and then use the hey carl line as a subheadline)" (Carl, 3 Nov 2026) */
+      .words h3.sub {
+        margin: -4px 56px 4px 0;
+        font: 400 var(--fs-body)/1.2 "DW Fairfield", Georgia, serif;
+      }
+      .words h2.next {
+        margin-top: 22px;
+      }
+      /* SHEET: down the right side of the window, the thing framed in the room left of it */
+      #win.sheet {
+        top: 16px;
+        right: 16px;
+        bottom: 16px;
+        /* "I feel like the cards could be a bit wider yeah?" (Carl, 2 Nov 2026): 520px and 40% until then */
+        width: min(620px, 46%);
+        transform: translateX(calc(100% + 40px));
+      }
+      #win.sheet.in {
+        transform: none;
+      }
+      /* the portfolio's card, down the left: "let's move the card to the left side of the screen" (Carl, 2 Nov 2026) */
+      #win.sheet.left {
+        right: auto;
+        left: 16px;
+        transform: translateX(calc(-100% - 40px));
+      }
+      #win.sheet.left.in {
+        transform: none;
+      }
+      /* THE PAPER SETTLES: it lands past its place and comes back, with some give ("they're quite subtle",
+         Carl, 6 Oct 2026, of the first, which only just overshot) */
+      .touches #win.sheet {
+        transition:
+          transform 0.62s cubic-bezier(0.2, 1.7, 0.4, 1),
+          opacity 0.3s;
+      }
+      /* THE CARD SCALES WITH THE ROOM (src/stage.mjs --k): laid out as on his laptop, 620px wide, and drawn bigger or
+         smaller with the room, so nothing rewraps: "I want the card contents to scale with the resizing" (Carl, 3 Nov
+         2026). It replaces the short window's own layout (a phone on its side), which rewrapped everything. */
+      body:not(.upright) #win.sheet {
+        width: 620px;
+        zoom: var(--k, 1);
+      }
+      /* upright, the card fills the phone's width and its words scale with that width */
+      .upright #win .body {
+        zoom: var(--k, 1);
+      }
+      /* what the window sits in: the room's card on a laptop, and on a phone upright what scrolls it */
+      #winscroll {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+        border-radius: 12px;
+      }
+      #win {
+        pointer-events: auto;
+      }
+      /* A PHONE UPRIGHT (src/stage.mjs upright): the card comes up with its top at the middle of the screen, the thing
+         framed above it, and is as long as its words; the card scrolls up over the room, its top never moving on the
+         card: "the cards open on the bottom half instead of the top half. Then they are able to scroll down/be taller to
+         fit" (Carl, 2 Nov 2026), then "Top of the card should stay fixed and the card's container height of whatever can
+         get taller/longer to fit content". --half is set by src/stage.mjs. */
+      /* THEN PINNED: the card stays in the bottom half at any window size and scrolls inside itself, so the thing above it
+         stays in sight: "the card too needs to stay pinned (relative to the resized windows) so I can scroll to the other
+         sleeves without covering up the player in the top half" (Carl, 3 Nov 2026). Until then the card grew as long as its
+         words and the whole of it scrolled up over the room (his 2 Nov words above). The layer round it lets the room's
+         taps through again; the card's own body takes the finger. */
+      .upright #win.sheet {
+        position: absolute;
+        inset: var(--half, 50vh) 8px 8px;
+        width: auto;
+        margin: 0;
+        padding: 24px 18px 20px;
+        transform: translateY(calc(var(--half, 50vh) + 40px));
+        transition:
+          transform 0.62s cubic-bezier(0.2, 1, 0.4, 1),
+          opacity 0.3s;
+      }
+      .upright #win.sheet.in {
+        transform: none;
+      }
+      .upright #win .body {
+        display: block;
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+      }
+      .upright #win .body > * {
+        overflow: visible;
+        min-width: 0;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #win,
+        #room {
+          transition-duration: 0.12s;
+        }
+        #win.sheet {
+          transform: none;
+          opacity: 0;
+        }
+        #win.sheet.in {
+          opacity: 1;
+        }
+        .upright #win.sheet {
+          transform: none;
+          transition: opacity 0.12s;
+        }
+      }
+      #win .close {
+        position: absolute;
+        z-index: 1;
+        top: 12px;
+        right: 12px;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: none;
+        background: none;
+        --fill: #f6cc60;
+        cursor: pointer;
+      }
+      #win .close svg:not(.wob) {
+        width: 20px;
+        height: 20px;
+        stroke: var(--ink);
+        stroke-width: 2.6;
+        stroke-linecap: round;
+        fill: none;
+      }
+      [data-kbd] #win button:focus-visible,
+      [data-kbd] #win input:focus-visible {
+        outline: 3px solid var(--rust);
+        outline-offset: 3px;
+      }
+      /* THE SHELLS: Carl's empty spaces, dashed, waiting for his words and pictures */
+      .shell {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        min-width: 0;
+      }
+      .slot {
+        position: relative;
+        border: 2px dashed rgb(44 44 42 / 0.4);
+        border-radius: 10px;
+      }
+      .slot-names .slot::after {
+        content: attr(data-slot);
+        position: absolute;
+        left: 8px;
+        top: 6px;
+        font-size: 13px;
+        opacity: 0.5;
+      }
+      .slot.title {
+        min-height: 46px;
+        margin-right: 56px;
+      }
+      .slot.text {
+        flex: 1;
+        min-height: 180px;
+      }
+      .slot.photo {
+        width: 62%;
+        aspect-ratio: 4 / 5;
+        flex: none;
+      }
+      /* CARL'S WORDS (src/nav.mjs WORDS): titles in DW Fairfield, the rest in a plain face that reads at length,
+         his coloured words in the room's rust */
+      .words {
+        overflow-y: auto;
+        /* room for a button's drawn line, which runs 6px outside it, so the scrolling box never clips its sides: "Buttons cut
+           off" (Carl, 3 Nov 2026, on his phone), drawn out to the card's own edge; the words stay where they were */
+        padding-left: 8px;
+        margin-left: -8px;
+        padding-right: 8px;
+        margin-right: -4px;
+        /* Homegrown's body: DM Sans at --fs-body (1.05rem); its headings DW Fairfield at --fs-heading (1.7rem) */
+        /* up from Homegrown's 1.05rem to read easier on a laptop: "is the text size too small?", then "yeah" (Carl, 2 Nov
+           2026). Every card's words, not the bio alone. */
+        font: var(--fs-body)/1.4 "DM Sans", system-ui, sans-serif;
+      }
+      .words h2 {
+        margin: 0 56px 4px 0;
+        font: 400 var(--fs-heading)/0.95 "DW Fairfield", Georgia, serif;
+      }
+      .words p {
+        margin: 0;
+      }
+      .words .hi {
+        color: var(--rust);
+        font-weight: 700;
+      }
+      .words .stars {
+        margin: 0;
+        padding-left: 1.2em;
+        display: grid;
+        gap: 6px;
+      }
+      /* HOMEGROWN'S BUTTON (app.css .btn): DM Sans bold capitals at --fs-body, 0.02em apart, mustard with a charcoal
+         line, at least 30px tall and 7rem wide, 16px each side; the window's one action boils (drawBox `live`) */
+      .words-button {
+        align-self: flex-start;
+        position: relative;
+        z-index: 0;
+        min-height: 1.875rem;
+        min-width: 7rem;
+        padding: 6px 16px;
+        border: none;
+        background: none;
+        --fill: #f6cc60;
+        --line: #2c2c2a;
+        color: #2c2c2a;
+        font: 700 var(--fs-body)/1.2 "DM Sans", system-ui, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+      }
+      .words-button:active {
+        transform: scale(0.97);
+      }
+      /* THE QUOTES, given room: "can we make the quotes card look better? It's all kinda 'jammed together as a placeholder'
+         looking" (Carl, 2 Nov 2026). Each its own block well apart from the next, its photo the card's width, a big mustard
+         quote mark hung over the words, the words larger, and who said it set apart beneath, the name in small capitals */
+      /* well apart from each other, and from the button under the last, but the first sits the card's ordinary 14px under
+         its title: "can we sweep for unnecessary padding? like in this for example" (Carl, 3 Nov 2026, of 52px under WHAT
+         THEY SAID) */
+      .quote + .quote,
+      .quote + .words-button {
+        margin-top: 38px;
+      }
+      .quote {
+        margin: 0;
+        display: grid;
+        gap: 0;
+      }
+      .words h2 .hi {
+        white-space: nowrap;
+      }
+      /* the logos under the bio, running past (src/nav.mjs THE LOGOS under the bio): smaller than their page had them,
+         faded at both ends as the cards' scrolling edges are */
+      .logo-strip {
+        clear: both;
+        overflow: hidden;
+        margin-top: 22px;
+        mask-image: linear-gradient(to right, transparent, #000 36px, #000 calc(100% - 36px), transparent);
+      }
+      .logo-run {
+        display: flex;
+        width: max-content;
+        align-items: center;
+        animation: logos-run 25s linear infinite; /* 1.6 times its first 40s: "maybe 1.6 X speed" (Carl, 3 Nov 2026) */
+      }
+      .logo-strip:hover .logo-run {
+        animation-play-state: paused;
+      }
+      .logo-run img {
+        height: 34px;
+        margin-right: 30px;
+        object-fit: contain;
+      }
+      @keyframes logos-run {
+        to {
+          transform: translateX(-50%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .logo-strip {
+          mask-image: none;
+        }
+        .logo-run {
+          animation: none;
+          width: auto;
+          flex-wrap: wrap;
+          gap: 18px 0;
+        }
+        .logo-run img[aria-hidden] {
+          display: none;
+        }
+      }
+      /* the logos on the drum's page: a grid, each sized to its own shape, never stretched */
+      /* the drum's page is the logos alone ("maybe the logos are all I need tbh?", Carl, 2 Nov 2026), so they fill it */
+      .logos {
+        display: grid;
+        width: 100%;
+        box-sizing: border-box;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 30px 26px;
+        align-items: center;
+        justify-items: center;
+        padding: 6px 4px;
+      }
+      .logos img {
+        max-width: 100%;
+        max-height: 62px;
+        object-fit: contain;
+      }
+      /* the bio in ordinary flow, so its words can wrap round the photo (a column of boxes cannot float) */
+      .shell.bio {
+        display: block;
+      }
+      .shell.bio > p {
+        margin: 0 0 14px;
+      }
+      .shell.bio > h2.next {
+        clear: both;
+      }
+      .shell.bio > h2 {
+        margin-bottom: 14px;
+      }
+      /* floated left, the bio's words wrapping round it: "for the bio, can the text wrap?" (Carl, 2 Nov 2026) */
+      /* his photo on the bio, its line drawn and boiling as the quote photos' are: "oh i meant the biography photo, the one
+         of me in the bio page" (Carl, 3 Nov 2026, of "can you boil the third person biography button?") */
+      .bio-photo-box {
+        position: relative;
+        float: left;
+        margin: 4px 16px 8px 0;
+        width: min(42%, 220px);
+        aspect-ratio: 3 / 4;
+        --line: var(--ink);
+      }
+      .bio-photo-box > .wob {
+        z-index: 1;
+      }
+      .bio-photo-box > .wob path {
+        fill: none;
+      }
+      .bio-photo {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: inherit;
+      }
+      /* a quote's photo, its line drawn and boiling over it (src/nav.mjs drawBox, corner a third of its height) */
+      .quote-photo-box {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        margin-bottom: 10px;
+        --line: var(--ink);
+      }
+      .quote-photo-box > .wob {
+        z-index: 1;
+      }
+      .quote-photo-box > .wob path {
+        fill: none;
+      }
+      .quote-photo {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: inherit;
+      }
+      .quote blockquote {
+        margin: 0;
+        font: italic var(--fs-body)/1.42 "DM Sans", system-ui, sans-serif;
+      }
+      .quote blockquote::before {
+        content: "\201C";
+        display: block;
+        height: 0.5em;
+        margin: 4px 0 2px -0.05em;
+        /* Georgia's: DW Fairfield has no curly quote, and the fallback drew it tiny. Its size is the mark's own, a drawing
+           more than a word, as Homegrown's wordmark and knob are (THREE TEXT SIZES) */
+        font: 700 5rem/1 Georgia, "Times New Roman", serif;
+        color: var(--mustard);
+      }
+      .quote figcaption {
+        display: grid;
+        gap: 3px;
+        margin-top: 16px;
+        padding-left: 14px;
+        border-left: 3px solid var(--mustard);
+      }
+      .quote figcaption b {
+        font-size: var(--fs-small);
+        letter-spacing: 0.08em;
+      }
+      .quote figcaption span {
+        font-size: var(--fs-small);
+        opacity: 0.62;
+      }
+      .track-name {
+        flex: 1;
+        min-width: 0;
+        font-size: var(--fs-small);
+      }
+      .tracks li.on .track-name {
+        font-weight: 700;
+      }
+      a.words-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+      }
+      /* his socials, a row of his drawn icons under the form */
+      .socials {
+        display: flex;
+        gap: 14px;
+        margin-top: 6px;
+      }
+      .socials a {
+        display: block;
+        width: 64px;
+        height: 64px;
+        transition: transform 0.15s ease;
+      }
+      .socials a:hover,
+      .socials a:focus-visible {
+        transform: scale(1.08) rotate(-3deg);
+      }
+      .socials img {
+        width: 100%;
+        height: 100%;
+      }
+      .form {
+        display: grid;
+        gap: 10px;
+      }
+      .form label {
+        display: grid;
+        gap: 4px;
+        font-size: var(--fs-small);
+      }
+      .form .two {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .form .group {
+        font-weight: 700;
+        font-size: var(--fs-small);
+      }
+      /* HOMEGROWN'S FIELD (app.css .fieldbox): the box drawn round the field, white, its line at 55% ink */
+      .fieldbox {
+        position: relative;
+        z-index: 0;
+        display: block;
+        --fill: #fff;
+        --line: rgba(44, 44, 42, 0.55);
+      }
+      .form .fieldbox input,
+      .form .fieldbox textarea {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 8px 12px;
+        border: none;
+        background: none;
+        color: var(--ink);
+        font: var(--fs-body)/1.3 "DM Sans", system-ui, sans-serif;
+        resize: vertical;
+      }
+      .form .tick {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      /* the drum's page: the logos alone (the tour photos it was to hold went, 2 Nov 2026) */
+      .shell.photos {
+        display: block;
+        padding-right: 40px; /* clear of the close button */
+      }
+      /* the sleeves: a grid of squares, each a track's name and length under it */
+      /* six sleeves, in threes, or twos when the card is narrow: "if i did 6, could we do groups of 2s or 3s depending on
+         the resizing?" (Carl, 2 Nov 2026). The card's own width decides, not the window's (a phone and a laptop's card) */
+      .player {
+        container-type: inline-size;
+      }
+      /* then four: two by two for a moment, then three across again, smaller, so the next row shows and there are plainly
+         more: "id like the artwork to be a bit smaller so it's clear there are more than two and if i need to scroll, it's
+         obvious" (Carl, 2 Nov 2026). Two across when the card is narrow, as before */
+      .sleeves {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px 12px;
+        padding: 4px 8px 4px 4px; /* room for each sleeve's drawn line, which the scrolling card would clip */
+      }
+      @container (max-width: 440px) {
+        .sleeves {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      /* each sleeve as tall as its own name, so a longer name beside it never stretches it out of square */
+      .sleeve-pick {
+        align-self: start;
+        align-content: start;
+        display: grid;
+        gap: 4px;
+        padding: 0;
+        border: none;
+        background: none;
+        text-align: left;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+      }
+      .slot.sleeve {
+        box-sizing: border-box;
+        width: 100%;
+        aspect-ratio: 1;
+        transition: transform 0.2s;
+      }
+      /* an empty sleeve (no cover yet) still gets a cream face for its record to slide out from behind */
+      .slot.sleeve {
+        background: #fcf7e8;
+      }
+      /* a sleeve with his cover on it: the picture, a still ink line, no dashes */
+      .slot.sleeve.cover-art {
+        background-color: transparent;
+        background-size: cover;
+        background-position: center;
+        border: 2px solid var(--ink);
+      }
+      /* A RECORD, on the page: his record drawing (assets/deck-record.webp), the song's cover in its label, zoomed as his
+         kit zooms it (--pp-label-zoom 1.9), the spindle hole drawn over it */
+      .vinyl {
+        border-radius: 50%;
+        background: url("assets/deck-record.webp") center / 100% 100% no-repeat;
+      }
+      .vinyl-label {
+        position: absolute;
+        left: 29.5%;
+        top: 29.5%;
+        width: 41%;
+        height: 41%;
+        border-radius: 50%;
+        background-size: 100%; /* the whole cover, as on the deck (props.mjs LABEL_ZOOM) */
+        background-position: center;
+        box-shadow: 0 0 0 2px #1b1b1a;
+      }
+      .vinyl-label::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 10.7%;
+        height: 10.7%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background: #1b1b1a;
+        box-shadow: 0 0 0 3px #f4ead8;
+      }
+      .flier {
+        position: fixed;
+        pointer-events: none;
+        will-change: transform;
+      }
+      /* the sleeve and the record in it: under the mouse the record slides out of the sleeve to the right */
+      .sleeve-stack {
+        position: relative;
+      }
+      .sleeve-peek {
+        position: absolute;
+        inset: 3%;
+        transition:
+          transform 0.42s cubic-bezier(0.22, 0.75, 0.28, 1),
+          opacity 0.2s;
+      }
+      .sleeve-stack .slot.sleeve {
+        position: relative;
+        z-index: 1;
+      }
+      .sleeve-pick {
+        position: relative;
+        z-index: 0;
+      }
+      .sleeve-pick:hover,
+      .sleeve-pick:focus-visible {
+        z-index: 3;
+      }
+      .sleeve-pick:hover .sleeve-peek,
+      .sleeve-pick:focus-visible .sleeve-peek {
+        transform: translateX(30%);
+      }
+      /* its record out of it, flying or on the deck: the sleeve reads as empty */
+      .sleeve-pick[data-state="flying"] .sleeve-peek,
+      .sleeve-pick[data-state="out"] .sleeve-peek,
+      .sleeve-pick[data-state="deck"] .sleeve-peek {
+        opacity: 0;
+        transition: none;
+      }
+      .sleeve-pick[data-state="deck"] .slot.sleeve {
+        opacity: 0.55;
+      }
+      .sleeve-pick[data-state="deck"] .track-name {
+        font-weight: 700;
+      }
+      .sleeve-pick.on .track-name {
+        font-weight: 700;
+      }
+      .sleeve-pick .track-name {
+        font-size: var(--fs-small);
+      }
+      .sleeve-pick .len {
+        min-width: 0;
+        text-align: left;
+        font-size: var(--fs-small);
+      }
+      .transport {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+      }
+      .transport .now {
+        justify-content: center;
+        gap: 2px;
+      }
+      .player-top {
+        display: flex;
+        gap: 16px;
+        align-items: stretch;
+      }
+      .slot.cover {
+        width: 42%;
+        aspect-ratio: 1;
+        flex: none;
+      }
+      .now {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+      .slot.playing {
+        min-height: 38px;
+        flex: 1;
+      }
+      .play {
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: none;
+        background: none;
+        position: relative;
+        z-index: 0;
+        --fill: #fff;
+        cursor: pointer;
+      }
+      .play.big {
+        width: 60px;
+        height: 60px;
+        --fill: #f6cc60;
+      }
+      .play svg:not(.wob) {
+        width: 46%;
+        height: 46%;
+        fill: var(--ink);
+      }
+      .play .i-pause,
+      .playing .play.big .i-play,
+      li.on .play .i-play {
+        display: none;
+      }
+      .playing .play.big .i-pause,
+      li.on .play .i-pause {
+        display: block;
+      }
+      .scrub {
+        width: 100%;
+        margin: 0;
+        appearance: none;
+        background: none;
+        height: 24px;
+        cursor: pointer;
+      }
+      .scrub::-webkit-slider-runnable-track {
+        height: 2.5px;
+        background: var(--ink);
+        border-radius: 2px;
+      }
+      .scrub::-moz-range-track {
+        height: 2.5px;
+        background: var(--ink);
+      }
+      .scrub::-webkit-slider-thumb {
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        margin-top: -8px;
+        border: 2px solid var(--ink);
+        border-radius: 50%;
+        background: var(--mustard);
+      }
+      .scrub::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+        border: 2px solid var(--ink);
+        border-radius: 50%;
+        background: var(--mustard);
+      }
+      .time {
+        min-height: 18px;
+        font-size: var(--fs-small);
+        font-variant-numeric: tabular-nums;
+      }
+      .tracks {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 10px;
+      }
+      .tracks li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .slot.track {
+        flex: 1;
+        min-height: 36px;
+      }
+      .tracks li.on .slot.track {
+        background: rgb(240 175 27 / 0.28);
+      }
+      .len {
+        min-width: 34px;
+        text-align: right;
+        font-size: var(--fs-small);
+      }
+      /* TURN YOUR PHONE: the room waits behind a drawing of a phone turning ("1: Turn it", Carl, 6 Oct 2026) */
+      #turn {
+        position: fixed;
+        inset: 0;
+        z-index: 4;
+        display: grid;
+        place-items: center;
+        background: var(--teal);
+      }
+      #turn svg {
+        width: 46vw;
+        max-width: 200px;
+        overflow: visible;
+        fill: none;
+        stroke: var(--ink);
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      #turn .phone {
+        fill: var(--mustard);
+        transform-origin: 60px 64px;
+        animation: turn 3.6s cubic-bezier(0.6, 0, 0.3, 1) infinite;
+      }
+      #turn .arrow {
+        stroke: var(--paper);
+      }
+      @keyframes turn {
+        0%,
+        25% {
+          transform: none;
+        }
+        55%,
+        100% {
+          transform: rotate(-90deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #turn .phone {
+          animation: none;
+          transform: rotate(-90deg);
+        }
+      }
+      /* THE VIEW EDITOR (src/viewtune.mjs), in its own artifact only (build-editor.sh) */
+      #edit-views {
+        position: fixed;
+        left: 12px;
+        top: 12px; /* top-left: the console's things sit low, and bottom-left covered the dog in the map's view */
+        z-index: 6;
+        width: 300px;
+        max-height: calc(100% - 24px);
+        overflow: auto;
+        display: grid;
+        gap: 6px;
+        padding: 10px 12px;
+        border: 2px solid #2c2c2a;
+        border-radius: 12px;
+        background: #fcf7e8;
+        color: #2c2c2a;
+        font: 600 13px/1.2 "DM Sans", system-ui, sans-serif;
+      }
+      #edit-views label {
+        display: grid;
+        grid-template-columns: 92px 1fr 48px;
+        align-items: center;
+        gap: 6px;
+      }
+      #edit-views label:has(select) {
+        grid-template-columns: 92px 1fr;
+      }
+      #edit-views select {
+        font: inherit;
+        padding: 3px 6px;
+        border: 1.5px solid #2c2c2a;
+        border-radius: 8px;
+        background: #fff;
+      }
+      #edit-views input[type="range"] {
+        width: 100%;
+        margin: 0;
+      }
+      #edit-views .ev-num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      #edit-views .ev-buttons {
+        display: flex;
+        gap: 6px;
+      }
+      #edit-views button {
+        flex: 1;
+        padding: 6px 8px;
+        border: 1.5px solid #2c2c2a;
+        border-radius: 8px;
+        background: #f6cc60;
+        color: #2c2c2a;
+        font: 700 12px/1.2 "DM Sans", system-ui, sans-serif;
+        cursor: pointer;
+      }
+      #edit-views .ev-head {
+        margin: 6px 0 0;
+        font-weight: 700;
+      }
+      #edit-views .ev-status {
+        margin: 0;
+        min-height: 16px;
+        color: #a8462b;
+      }
+      /* THE SOUND BUTTON (src/sound.mjs): the garden's speaker on its corner card (app.css .garden-sound), bottom right
+         of the room's card: "Bottom right" (Carl, 2 Nov 2026, the room sound quiz). It sits over a window's sheet when
+         one is open, above it (z-index 3 to the sheet's 2) */
+      #sound {
+        position: absolute;
+        z-index: 3;
+        right: 12px;
+        bottom: 12px;
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        padding: 8px;
+        border: none;
+        background: none;
+        --fill: #fcf7e8;
+        --line: #2c2c2a;
+        cursor: pointer;
+      }
+      #sound[hidden] {
+        display: none;
+      }
+      #sound img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      [data-kbd] #sound:focus-visible {
+        outline: 3px solid var(--rust);
+        outline-offset: 3px;
+      }
+      #arrange :focus-visible {
+        outline: 2px solid #bf7538;
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+    <canvas
+      id="room"
+      role="img"
+      aria-label="A teal wall and a cream wall meeting in a corner, under an orange ceiling, on a brown floor. Drag to move, scroll to zoom."
+    ></canvas>
+    <div id="things"></div>
+    <div id="loading" aria-hidden="true"><img src="assets/loading-cb.webp" alt="" /></div>
+    <div id="veil" hidden></div>
+    <div id="winscroll">
+    <div id="win" role="dialog" aria-modal="true" hidden>
+      <button type="button" class="close" aria-label="Close">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 4.8 L15.4 15.2 M15.2 4.6 L4.7 15.3" /></svg>
+      </button>
+      <div class="body"></div>
+    </div>
+    </div>
+    </div>
+    <div id="turn" hidden>
+      <svg viewBox="0 0 120 128" aria-hidden="true">
+        <path class="arrow" data-boil d="M26 30 C 34 12, 70 4, 92 22 M84 13 L93 23 L81 27" />
+        <path class="phone" data-boil d="M42 32 h36 a7 7 0 0 1 7 7 v54 a7 7 0 0 1 -7 7 h-36 a7 7 0 0 1 -7 -7 v-54 a7 7 0 0 1 7 -7 Z M54 92 h12" />
+      </svg>
+    </div>
+    <div id="arrange" hidden><button type="button">Save</button></div>
+    <script type="module" src="src/studio.mjs"></script>
+  </body>
+</html>
