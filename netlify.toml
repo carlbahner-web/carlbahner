@@ -1,0 +1,17 @@
+# carlbahner.com on Netlify: "i'd rather stay in netlify tbh" (Carl, 3 Nov 2026).
+# build-site.sh lays out only what a visitor's browser loads; Netlify serves 404.html for any address the site has no
+# page for, which sends it to the room (his old site's /for-artists and the like).
+[build]
+  command = "bash build-site.sh dist"
+  publish = "dist"
+
+# the pictures, sounds, fonts and code are kept by a returning visitor's browser for a week rather than fetched again,
+# which spares his Netlify credits (the songs alone are 28 MB); the page itself is always checked, so a change shows
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+[[headers]]
+  for = "/vendor/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
