@@ -493,6 +493,15 @@ it"): his title StudioLand, his words for it (sent the same day: "a career schoo
 castle stands on a hill drawn by the cut script ("Can we add a simple procedural hill under the castle so it sits a bit
 higher?").
 
+
+**The edges lean the view, 3 Nov 2026**: "i feel like i've asked multiple times to have it pan/tilt when the mouse is on
+the edges" (Carl). From his opening view (his widest) his limits leave no room to turn, so the edge-turn moved it about a
+degree and, held level, never tilted. Now a mouse resting at an edge also pushes the lens in a little and turns and tilts
+the view by the room that frees (THE EDGES LEAN THE VIEW in `src/studio.mjs`), so it never shows past his limits, and it
+eases back as the mouse leaves. On a phone the card's scrolling body reaches into the card's padding so no button's line
+is clipped ("the buttons are getting cut off a little bit"), and the snow globe stands a degree anticlockwise ("it looks
+tilted weird").
+
 ## Laptop first. Phones wait.
 
 **Carl, 5 Oct 2026: "dont do phone yet i'll make them turn it sideways anyway. let's jsut get

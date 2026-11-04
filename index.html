@@ -427,6 +427,18 @@
         overflow: visible;
         min-width: 0;
       }
+      /* on a phone the card's whole body scrolls, so it is what clips: it reaches 8px into the card's own padding each
+         side, its words staying where they were, so a button's or a field's drawn line (6px outside it) is never cut:
+         "for the cards, especially on mobile, there is something weird happening with the padding and the buttons are
+         getting cut off a little bit" (Carl, 3 Nov 2026) */
+      .upright #win .body {
+        padding-inline: 8px;
+        margin-inline: -8px;
+      }
+      .upright #win .words {
+        margin-inline: 0;
+        padding-inline: 0;
+      }
       @media (prefers-reduced-motion: reduce) {
         #win,
         #room {

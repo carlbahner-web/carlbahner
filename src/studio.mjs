@@ -1085,6 +1085,17 @@ function place() {
   const aim = window.__studio?.aim;
   if (aim) camera.lookAt(aim.x, aim.y, aim.z);
   let fov = lensAt(cam.fov, stand);
+  // THE EDGES LEAN THE VIEW: pushed in, and turned and tilted by the room that frees, inside what the view already shows
+  const lean = Math.max(Math.abs(peek.x), Math.abs(peek.y));
+  if (lean > 0 && !aim) {
+    const narrow = fov * (1 - PEEK_IN * lean),
+      half = (f) => (f * Math.PI) / 360,
+      freeV = half(fov) - half(narrow), // the half-angle freed top to bottom
+      freeH = Math.atan(camera.aspect * Math.tan(half(fov))) - Math.atan(camera.aspect * Math.tan(half(narrow))); // and side to side
+    camera.rotateY(-peek.x * freeH * 0.98);
+    camera.rotateX(-peek.y * freeV * 0.98);
+    fov = narrow;
+  }
   if (LEAN.k > 0 && LEAN.pos) {
     const e = leanEase(LEAN.k),
       mix = (a, b) => a + (b - a) * e,
@@ -1302,18 +1313,39 @@ cv.addEventListener("pointermove", (e) => {
   edgeAt = { x: (e.clientX - b.left) / b.width, y: (e.clientY - b.top) / b.height };
 });
 const edgeOf = (v) => (v < EDGE ? -((1 - v / EDGE) ** 2) : v > 1 - EDGE ? ((v - (1 - EDGE)) / EDGE) ** 2 : 0);
+/* THE EDGES LEAN THE VIEW: "i feel like i've asked multiple times to have it pan/tilt when the mouse is on the edges"
+   (Carl, 3 Nov 2026). It was there, but from the opening view, which is his widest, his limits leave no room to turn, and
+   the view is held level, so the edges moved it about a degree and could not tilt it. So the edges now also LEAN it:
+   the lens pushes in a little (PEEK_IN at the very edge) and the view turns and tilts that way by just the room the push
+   frees, so it moves plainly yet never shows past what the opening view shows (past his limits). Leaving the edge eases
+   it back. It is drawn on top of the camera's turn (place), never changing where the camera is, so a drag, a click and
+   a flight start from where they always did. */
+const PEEK_IN = 0.16, // how far the lens pushes in at the very edge, a share of it
+  PEEK_MS = 450; // how quickly it leans in, and back
+const peek = { x: 0, y: 0 };
+function stepPeek(dt) {
+  const want = !edgeAt || drag || down.size || nav.busy() || nav.isOpen?.() || upright() ? [0, 0] : [edgeOf(edgeAt.x), edgeOf(edgeAt.y)];
+  const a = REDUCED ? 1 : 1 - Math.exp((-dt * 1000) / PEEK_MS);
+  const was = [peek.x, peek.y];
+  peek.x += (want[0] - peek.x) * a;
+  peek.y += (want[1] - peek.y) * a;
+  if (Math.abs(peek.x - want[0]) < 1e-4) peek.x = want[0];
+  if (Math.abs(peek.y - want[1]) < 1e-4) peek.y = want[1];
+  return peek.x !== was[0] || peek.y !== was[1];
+}
 function edgeTurn(dt) {
-  if (!edgeAt || drag || down.size || nav.busy() || upright()) return false;
+  const leaned = stepPeek(dt);
+  if (!edgeAt || drag || down.size || nav.busy() || upright()) return leaned;
   const ex = edgeOf(edgeAt.x),
     ey = edgeOf(edgeAt.y);
-  if (!ex && !ey) return false;
+  if (!ex && !ey) return leaned;
   // the other way from a drag: a drag pulls the room with the mouse; resting at the right edge looks to the right
   const k = perPx() * EDGE_PX_S * dt,
     was = [cam.tyaw, cam.tpitch];
   cam.tyaw -= ex * k;
   if (!level) cam.tpitch -= ey * k;
   clamp();
-  return cam.tyaw !== was[0] || cam.tpitch !== was[1];
+  return leaned || cam.tyaw !== was[0] || cam.tpitch !== was[1];
 }
 const end = (e) => {
   if (press && down.size === 1 && e.type === "pointerup") {

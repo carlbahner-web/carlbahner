@@ -458,7 +458,7 @@ export const PROPS = [
     along: 0.96, // where the picture frame stood, so it is in the opening view: the candle's spot is half off it
     inset: 0.16,
     up: 0,
-    tilt: 0,
+    tilt: 1, // a degree anticlockwise: "can you rotate the snowglobe a bit, counter clockwise? it may onlyl be a degree or so, but it looks tilted weird" (Carl, 3 Nov 2026)
     follow: 0.2,
     flag: 0.1371,
     bits: [
