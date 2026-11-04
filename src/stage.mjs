@@ -36,7 +36,7 @@ export function fitStage() {
   const m = Math.min(innerWidth, innerHeight) < 500 ? 6 : 16; // the margin: smaller on a phone on its side
   // the view editor's own copy keeps a column on the left for its panel, so the panel never covers the room: "the
   // panel covers the page dude so i can't see" (Carl, 2 Nov 2026)
-  const side = window.STUDIO_EDITOR || window.WORDS_EDITOR ? 336 : 0; // the word editor's too (src/wordtune.mjs)
+  const side = window.STUDIO_EDITOR || window.WORDS_EDITOR || window.SNAP_EDITOR ? 336 : 0; // the word editor's too (src/wordtune.mjs)
   const W = Math.max(0, innerWidth - side - 2 * m),
     H = Math.max(0, innerHeight - 2 * m);
   const tall = upright();
@@ -51,7 +51,7 @@ export function fitStage() {
      at his laptop's room (CARD_REF wide: a 1440 by 900 window), and drawn bigger or smaller with the room (index.html
      #win's zoom), so its words wrap the same way at every size. Upright, its words scale with the phone's width from a
      390-wide phone's. */
-  el.style.setProperty("--k", String(tall ? innerWidth / 390 : w / CARD_REF));
+  el.style.setProperty("--k", String(tall ? (window.PHONE_PREVIEW ? w : innerWidth) / 390 : w / CARD_REF));
   box = { left: x, top: (innerHeight - h) / 2, width: w, height: h };
   return box;
 }

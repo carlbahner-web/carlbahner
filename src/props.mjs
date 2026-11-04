@@ -2179,7 +2179,19 @@ export const WORD_AT = {
   "my-people": { wall: "cream", x: 2.236, y: 1.66, w: 1.66, s: 0.335, dir: "across", rot: 0 },
   tour: { wall: "cream", x: 1.255, y: 1.205, w: 1.66, s: 0.34, dir: "down", rot: 0 },
 };
-const wordAt = (key) => ({ ...HW_AT, ...(WORD_AT[key] || {}) });
+/* A PHONE'S OWN SPOTS: "i need an artifa5 that allows me to control the per-swipe-camera and the placement of the words.
+   Phone/mobile version only please" (Carl, 4 Nov 2026). On a phone's stops (src/nav.mjs ONE THING AT A TIME ON A PHONE) a
+   word with a spot here sits there instead, at the size he set; the laptop keeps WORD_AT. Set on the phone stop editor
+   (src/phonetune.mjs) and written in here once he has saved them. */
+export const WORD_AT_PHONE = {};
+let phoneWords = false; // on a phone's stops (src/nav.mjs)
+export const setPhoneWords = (on) => {
+  if (phoneWords === !!on) return;
+  phoneWords = !!on;
+  if (HW.text) placeWords(wordAt(HW.key));
+};
+export const hasPhoneWords = (key) => phoneWords && !!WORD_AT_PHONE[key];
+const wordAt = (key) => ({ ...HW_AT, ...(WORD_AT[key] || {}), ...((phoneWords && WORD_AT_PHONE[key]) || {}) });
 const PPM = 600; // canvas pixels a metre of wall
 const FACE = (f) => `${f}px "DW Fairfield", Georgia, serif`;
 // the words drawn at their size, wrapped to their width (or stacked a letter under a letter), on a canvas their own size
@@ -2269,7 +2281,8 @@ export function buildHoverWords() {
 }
 /* where the words sit, his to move on the word editor. With a key, that word's own spot; with none, every word's */
 export function setHoverWordsAt(at, key = null) {
-  if (key) WORD_AT[key] = { ...wordAt(key), ...at };
+  if (key && phoneWords) WORD_AT_PHONE[key] = { ...wordAt(key), ...at };
+  else if (key) WORD_AT[key] = { ...wordAt(key), ...at };
   else Object.assign(HW_AT, at);
   placeWords(wordAt(key || HW.key));
 }

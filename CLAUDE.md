@@ -523,6 +523,12 @@ phone beside its thing is drawn smaller there, never under 0.6 of his size (`fra
 Then "Can we make the boil a bit more pronounced, and only boil the active page's item (so like on the about page the
 drum should boil but not the eye art)" (4 Nov 2026): on a stop its thing alone boils, 1.7 times as hard (`SNAP_BOIL`,
 `?boil=`); on the room as it opens every thing boils as on a laptop.
+**The phone stop editor, 4 Nov 2026**: "i need an artifa5 that allows me to control the per-swipe-camera and the placement
+of the words. Phone/mobile version only please" (Carl). https://claude.ai/artifact/G1HMjc718zjxSUSj6U7mNp, built by
+`build-phone.sh` (`src/phonetune.mjs`): the room phone-shaped beside a panel; pick a stop, drag the room to turn its camera
+(the wheel zooms), drag its word, size, width, direction and quarter turns. Saved at `phone/stops`; read it back with
+ArtifactData and write it into `PHONE_CAMS` (`src/nav.mjs`) and `WORD_AT_PHONE` (`src/props.mjs`), which the phone's stops
+use over the automatic framing and the laptop's spots.
 
 ## Laptop first. Phones wait.
 

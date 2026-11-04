@@ -27,7 +27,7 @@
      them" (Carl, 6 Oct 2026). So the press is a real squash and spring back, the dog blinks twice, and
      the paper lands with more give. studio/NAVIGATION.md has the rest. */
 import { view, upright, CARD_REF, UPRIGHT_CARD } from "./stage.mjs";
-import { setLid, setMapLights, setDeck, FADE_MS, preloadPictures, setHoverWords, hoverWordsCorners, setHoverWordsScale, deckPoints, ARM_SWING_MS, drawControls, deckControls, DECK_HIT, pressKey, releaseKeys, DECK_LIFT, DROP_MS } from "./props.mjs";
+import { setLid, setMapLights, setDeck, FADE_MS, preloadPictures, setHoverWords, hoverWordsCorners, setHoverWordsScale, setPhoneWords, hasPhoneWords, deckPoints, ARM_SWING_MS, drawControls, deckControls, DECK_HIT, pressKey, releaseKeys, DECK_LIFT, DROP_MS } from "./props.mjs";
 import { goToView, cameraFor } from "./viewtune.mjs";
 import { cue } from "./cues.mjs";
 import { inkMask, MASK_N, wobbleLine, wobblePath, BOIL_ORDER, BOIL_MS } from "./garden-bits.mjs";
@@ -47,6 +47,11 @@ import { inkMask, MASK_N, wobbleLine, wobblePath, BOIL_ORDER, BOIL_MS } from "./
    link's own id): written as the bio moved from the frame onto the drum, so ABOUT goes with the bio and SYNCS with the
    logos, whichever thing opens them. */
 export const SAYS = { portfolio: "Listen", bio: "About", artists: "Quotes", tour: "Syncs", "my-people": "You+Me", contact: "Contact", mug: "Podcast", book: "Homegrown", studioland: "StudioLand" };
+/* EACH PHONE STOP'S OWN CAMERA: "i need an artifa5 that allows me to control the per-swipe-camera and the placement of the
+   words. Phone/mobile version only please" (Carl, 4 Nov 2026). Keyed as SAYS is ("room" for the room as it opens), each
+   { yaw, pitch, fov }; a stop with none is framed by `framed`. Set on the phone stop editor (src/phonetune.mjs) and
+   written in here once he has saved them. */
+export const PHONE_CAMS = {};
 export const THINGS = [
   { id: "console", hash: "portfolio", kind: "player", name: "Record console" },
   /* the picture frame opened the bio until 3 Nov 2026, the drum the logos ("COOL SYNC THINGS"); then "I want to put my
@@ -997,8 +1002,9 @@ export function startNav(v) {
      the wall, lit as a mouse over it lights it on a laptop. A tap opens it. Dots along the bottom say how many and which,
      and until the first swipe the view leans a little toward the next one now and then. No words to say so: the room's
      own ink and light (CLAUDE.md, which things can be used shows on the thing itself). */
-  const SNAP = Q.get("snap") === "1";
+  const SNAP = Q.get("snap") === "1" || !!window.SNAP_EDITOR;
   const snapping = () => SNAP && upright();
+  const keyOf = (t) => (t ? t.hash || t.id : "room");
   const SNAP_MS = 650; // a glide from one thing to the next: quicker than a flight in, as a swipe is
   /* Carl, 4 Nov 2026, of the first try: "they should be in visual order. Like it starts in the center view but I can't
      swipe to look left. And the text needs to be seen, and maybe we zoom in a bit for relevant size of things". So the
@@ -1012,11 +1018,12 @@ export function startNav(v) {
   let stops = null, // [null (the room as it opens), ...things left to right]
     stopAt = 0,
     stopCache = new Map(),
-    swiped = false,
-    nudgeAt = 0;
+    swiped = !!window.SNAP_EDITOR, // no nudging in the editor
+    nudgeAt = 0,
+    openingPose = null;
   const dots = Object.assign(document.createElement("nav"), { id: "snap-dots", hidden: true });
   dots.setAttribute("aria-label", "Things in the room");
-  document.body.append(dots);
+  document.querySelector("#stage").append(dots); // in the room, so the editor's phone-shaped room has them too
   /* ONLY THE STOP'S THING BOILS, AND MORE: "Can we make the boil a bit more pronounced, and only boil the active page's
      item (so like on the about page the drum should boil but not the eye art)" (Carl, 4 Nov 2026). On the room as it
      opens, every thing that opens boils as on a laptop, so the visitor sees what there is. `?boil=` tries another. */
@@ -1032,13 +1039,15 @@ export function startNav(v) {
     boilStop();
     hovered = t || null;
     sayFor(t || null);
-    setHoverWordsScale(t ? stopPose(stopAt).k : 1);
+    // his phone spot for a word is at the size he set; otherwise as small as `framed` needed
+    setHoverWordsScale(t && !hasPhoneWords(keyOf(t)) ? stopPose(stopAt).k : 1);
     v.dirty();
   }
   function stopPose(i) {
     if (stopCache.has(i)) return stopCache.get(i);
-    const t = stops[i];
-    const p = t ? framed(t) : { ...stops.opening, k: 1 };
+    const t = stops[i],
+      own = PHONE_CAMS[keyOf(t)];
+    const p = own ? { ...own, k: 1 } : t ? framed(t) : { ...stops.opening, k: 1 };
     stopCache.set(i, p);
     return p;
   }
@@ -1091,16 +1100,19 @@ export function startNav(v) {
   }
   function startSnap() {
     if (!snapping() || stops) return;
+    setPhoneWords(true);
     // left to right as they stand: a turn left is a larger yaw (framePts), the room as it opens among them
-    const opening = { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov };
+    // the phone's own opening, taken once (a later reorder starts from wherever the camera is)
+    const opening = (openingPose ||= { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov });
     stops = [null, ...things];
     stops.opening = opening;
     // by where each stop looks, so every swipe turns the view the same way (a stop's words can pull it past the next)
-    const at = new Map(stops.map((t, i) => [t, t ? stopPose(i).yaw : opening.yaw]));
+    const at = new Map(stops.map((t, i) => [t, stopPose(i).yaw]));
     stops = [...stops].sort((a, b) => at.get(b) - at.get(a));
     stops.opening = opening;
     stopCache = new Map();
     stopAt = stops.indexOf(null);
+    if (PHONE_CAMS.room) set(stopPose(stopAt)); // his camera for the room as it opens
     sayStop();
     dots.replaceChildren(
       ...stops.map((t, i) => {
@@ -1141,7 +1153,7 @@ export function startNav(v) {
     if (!open && !flight) set(stopPose(stopAt)), sayStop();
   });
   // off a phone's stops (turned on its side), the words at his size again
-  addEventListener("resize", () => !snapping() && setHoverWordsScale(1));
+  addEventListener("resize", () => !snapping() && (setHoverWordsScale(1), setPhoneWords(false)));
 
   /* ---------- the phone held upright: asked to turn ---------- */
   const turnCard = document.querySelector("#turn");
@@ -1290,6 +1302,40 @@ export function startNav(v) {
     // a click or a tap that did not drag
     // a swipe on a phone's stops (ONE THING AT A TIME ON A PHONE): the next thing, or the one before
     snapping: () => !!(snapping() && stops),
+    // the phone stop editor (src/phonetune.mjs): the stops in order, go to one, its camera, and laying a camera on one
+    snapEdit: {
+      list: () => (stops || []).map((t) => ({ key: keyOf(t), name: t ? t.name : "The room as it opens", says: wordsOf(t) })),
+      at: () => stopAt,
+      go(i) {
+        if (!stops || i < 0 || i >= stops.length) return;
+        stopAt = i;
+        set(stopPose(i));
+        sayStop();
+        drawDots();
+      },
+      cam: () => ({ yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov }),
+      scale: () => (stops ? stopPose(stopAt).k : 1), // how small `framed` drew the stop's word
+      setCam(p) {
+        const key = keyOf(stops[stopAt]);
+        if (p) PHONE_CAMS[key] = { yaw: +p.yaw, pitch: +p.pitch, fov: +p.fov };
+        else delete PHONE_CAMS[key];
+        stopCache.delete(stopAt);
+        set(stopPose(stopAt));
+        sayStop();
+      },
+      // the words changed: drawn again at their size, and the camera kept where it is
+      words: () => sayStop(),
+      // a fresh order once saved cameras are loaded, staying on the same stop
+      reorder() {
+        if (!stops) return;
+        const key = keyOf(stops[stopAt]);
+        stops = null;
+        stopCache = new Map();
+        startSnap();
+        const i = stops.findIndex((t) => keyOf(t) === key);
+        if (i >= 0) this.go(i);
+      },
+    },
     snap(dir) {
       swiped = true;
       if (flight?.soft) flight = null;

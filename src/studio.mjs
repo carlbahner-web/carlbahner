@@ -38,6 +38,7 @@ import { LIGHTS, lightUniforms, setLights } from "./light.mjs";
 import { startNav, SAYS } from "./nav.mjs";
 import { startViews, stepViews, editViews, cameraFor } from "./viewtune.mjs";
 import { editWords } from "./wordtune.mjs";
+import { editPhone } from "./phonetune.mjs";
 import { startSound } from "./sound.mjs";
 
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1193,6 +1194,7 @@ function wallAt(clientX, clientY) {
   return best;
 }
 editWords({ says: SAYS, wallAt });
+editPhone({ nav, wallAt }); // the phone stop editor, in its own artifact (build-phone.sh)
 editViews({ phone: { values: PHONE, set: setPhone }, open: { views: nav.views, names: nav.viewNames, go: (h) => nav.go(h), cameraKeys: (v) => nav.cameraKeys(v), setCamera: (v) => nav.setCamera(v) } });
 // THE ROOM'S SOUNDS (src/sound.mjs): off until a visitor turns them on, and Carl's room sound page's way in
 const sound = startSound({ nav, props, reduced: REDUCED });
