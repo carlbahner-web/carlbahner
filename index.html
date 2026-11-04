@@ -738,6 +738,7 @@
       /* his socials, a row of his drawn icons under the form */
       .socials {
         display: flex;
+        justify-content: center; /* "center the email and instagram icons" (Carl, 3 Nov 2026) */
         gap: 14px;
         margin-top: 6px;
       }
@@ -791,6 +792,29 @@
         color: var(--ink);
         font: var(--fs-body)/1.3 "DM Sans", system-ui, sans-serif;
         resize: vertical;
+      }
+      /* the toast a sent message raises over the top of its card (src/nav.mjs SENT, SAID WHERE IT IS SEEN) */
+      #win .toast {
+        position: absolute;
+        z-index: 4;
+        top: 42%;
+        left: 50%;
+        padding: 16px 34px;
+        --fill: #f6cc60;
+        --line: #2c2c2a;
+        color: #2c2c2a;
+        font: 700 var(--fs-body)/1.2 "DM Sans", system-ui, sans-serif;
+        letter-spacing: 0.02em;
+        transform: translate(-50%, -12px);
+        opacity: 0;
+        transition:
+          opacity 0.25s,
+          transform 0.25s cubic-bezier(0.2, 1, 0.4, 1);
+        cursor: pointer;
+      }
+      #win .toast.in {
+        opacity: 1;
+        transform: translate(-50%, 0);
       }
       /* the line under Submit when a message did not send (src/nav.mjs WHAT HAPPENS AFTER SEND), in the room's rust */
       .form .form-note {
@@ -1223,7 +1247,7 @@
          card's form is drawn by src/nav.mjs after load, so this hidden copy names it and its fields for Netlify. The card
          posts to it (src/nav.mjs WHAT HAPPENS AFTER SEND); nobody sees this one. -->
     <form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
-      <input name="bot-field" /><input name="name" /><input name="email" /><input name="subject" /><textarea name="message"></textarea><input name="news" />
+      <input name="bot-field" /><input name="name" /><input name="email" /><input name="subject" /><textarea name="message"></textarea>
     </form>
     <div id="stage">
     <canvas

@@ -1530,6 +1530,18 @@ function socials() {
   }
   return row;
 }
+// the toast a sent message raises over the top of its card (SENT, SAID WHERE IT IS SEEN): Homegrown's mustard, its line
+// drawn, gone after three seconds or on a tap
+function sentToast() {
+  document.querySelector("#win .toast")?.remove();
+  const t = el("div", "toast", { role: "status", textContent: "SENT!" });
+  document.querySelector("#win").append(t);
+  drawBox(t);
+  requestAnimationFrame(() => t.classList.add("in"));
+  const go = () => (t.classList.remove("in"), setTimeout(() => t.remove(), 300));
+  t.addEventListener("click", go);
+  setTimeout(go, 3000);
+}
 function contactForm() {
   const f = el("form", "form");
   const field = (label, input) => {
@@ -1541,14 +1553,12 @@ function contactForm() {
   };
   const row = el("div", "two");
   row.append(field("First Name (required)", el("input", "", { name: "first", required: true, autocomplete: "given-name" })), field("Last Name (required)", el("input", "", { name: "last", required: true, autocomplete: "family-name" })));
-  const news = el("label", "tick");
-  news.append(el("input", "", { type: "checkbox", name: "news" }), el("span", "", { textContent: "Sign up for news and updates" }));
+  // the news and updates tick is off: "we tan turn off the new and updates box" (Carl, 3 Nov 2026)
   f.append(
     el("div", "group", { textContent: "Name" }),
     row,
     field("Email (required)", el("input", "", { type: "email", name: "email", required: true, autocomplete: "email" })),
-    news,
-    field("Subject (required)", el("input", "", { name: "subject", required: true, value: "I need the right mix engineer!" })),
+    field("Subject (required)", el("input", "", { name: "subject", required: true, defaultValue: "I need the right mix engineer!" })), // a default, so the form's reset puts it back
     field("Message (required)", el("textarea", "", { name: "message", required: true, rows: 5 })),
     el("button", "words-button act", { type: "submit" }),
   );
@@ -1577,7 +1587,7 @@ function contactForm() {
     if (button.disabled) return;
     const v = Object.fromEntries(new FormData(f));
     const name = `${v.first} ${v.last}`.trim();
-    const body = { name, email: v.email, _replyto: v.email, _subject: v.subject, message: v.message, news: v.news ? "Yes, sign me up" : "No", _template: "box", _captcha: "false" };
+    const body = { name, email: v.email, _replyto: v.email, _subject: v.subject, message: v.message, _template: "box", _captcha: "false" };
     button.disabled = true;
     note.hidden = true;
     cue("form-send");
@@ -1593,7 +1603,7 @@ function contactForm() {
          him one); anywhere else, or if Netlify will not take it (forms not switched on for the site), FormSubmit. */
       let sent = false;
       if (/(^|\.)carlbahner\.(com|netlify\.app)$/.test(location.hostname)) {
-        const n = await fetch("/", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ "form-name": "contact", name, email: v.email, subject: v.subject, message: v.message, news: body.news }).toString(), signal: stop.signal }).catch(() => null);
+        const n = await fetch("/", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ "form-name": "contact", name, email: v.email, subject: v.subject, message: v.message }).toString(), signal: stop.signal }).catch(() => null);
         sent = !!n?.ok;
         if (!sent) console.warn("Netlify did not take the message:", n?.status);
       }
@@ -1605,11 +1615,16 @@ function contactForm() {
       label.textContent = "SENT!";
       f.reset();
       if (THANKS) say([THANKS]);
+      /* SENT, SAID WHERE IT IS SEEN: "can we make the "sent" notification a popup or toast? it stays at the bottom of the
+         page and actually gets automatically scrolled below the fold" (Carl, 3 Nov 2026). A toast at the top of the card,
+         over whatever is scrolled there, for a few seconds; the button keeps saying SENT! below */
+      sentToast();
     } catch (err) {
       console.warn("the contact form did not send:", err?.message || err, answer);
       label.textContent = "SUBMIT";
       button.disabled = false;
       say(["That didn\u2019t send. Try again, or email me at ", el("a", "", { href: "mailto:" + MAIL_TO, textContent: MAIL_TO }), "."]);
+      note.scrollIntoView({ block: "nearest", behavior: "smooth" }); // in sight, not under the fold
     } finally {
       clearTimeout(late);
     }
