@@ -405,6 +405,15 @@
       .upright #win.sheet.in {
         transform: none;
       }
+      /* THE HOME STRETCH: on a phone, once someone starts filling in a card's form, the card rises to fill the screen:
+         "once i start typing, i'd like the card to take up the whole page since we don't need the dog to be in the way
+         once they're at the home stretch of reaching out" (Carl, 3 Nov 2026). It stays up until the card closes. */
+      .upright #win.sheet.full {
+        top: 8px;
+      }
+      .upright #win.sheet {
+        transition-property: transform, opacity, top;
+      }
       .upright #win .body {
         display: block;
         flex: 1;
@@ -782,6 +791,15 @@
         color: var(--ink);
         font: var(--fs-body)/1.3 "DM Sans", system-ui, sans-serif;
         resize: vertical;
+      }
+      /* the line under Submit when a message did not send (src/nav.mjs WHAT HAPPENS AFTER SEND), in the room's rust */
+      .form .form-note {
+        margin: 0;
+        font-size: var(--fs-small);
+        color: var(--rust);
+      }
+      .form .form-note a {
+        color: inherit;
       }
       .form .tick {
         display: flex;

@@ -689,6 +689,13 @@ export function startNav(v) {
   };
   body.addEventListener("scroll", edges, { passive: true, capture: true });
   win.addEventListener("scroll", () => win.scrollTop && (win.scrollTop = 0), { passive: true });
+  // THE HOME STRETCH (index.html): a field on the card taken on a phone upright, and the card fills the screen
+  win.addEventListener("focusin", (e) => {
+    if (!upright() || !e.target.matches?.("input, textarea, select")) return;
+    win.classList.add("full");
+    // the field stays in sight once the card has risen
+    setTimeout(() => e.target.scrollIntoView({ block: "center", behavior: "smooth" }), 650);
+  });
   new ResizeObserver(edges).observe(body);
   // and once its pictures are in, which makes it longer
   body.addEventListener("load", edges, true);
@@ -699,6 +706,7 @@ export function startNav(v) {
     // in close now: it boils round its outline alone until it is closed, the rest still (props.mjs, ITS OWN BOIL)
     boiling(t);
     body.textContent = "";
+    win.classList.remove("full"); // each card opens where cards open (THE HOME STRETCH ends with its card)
     body.scrollTop = 0;
     win.parentElement.scrollTop = 0; // a phone upright: the card back at the middle (index.html #winscroll)
     body.append(SHELLS[t.kind](t, (hash) => openThing(things.find((x) => x.hash === hash))));
@@ -1501,6 +1509,8 @@ function actionButton(B, go) {
    confirm the very first message, by an email to it. If the post cannot get through (a page that may not reach it),
    the visitor's own email opens with the message written in, to the same address. */
 const MAIL_TO = "carlbahner@gmail.com";
+// the thank-you once a message has gone, his words: none yet, so the button saying SENT! is all for now
+const THANKS = null;
 /* HIS SOCIALS, his own drawings (sent 2 Nov 2026, kept in art/site/socials/), in a row under the form on the dog's page:
    "contact page works" (Carl, 2 Nov 2026). Then "no youtube yet, just the email (yes same address) and my instagram",
    "save youtube for a later date". One with no link yet is left out until it has one. */
@@ -1540,9 +1550,28 @@ function contactForm() {
     news,
     field("Subject (required)", el("input", "", { name: "subject", required: true, value: "I need the right mix engineer!" })),
     field("Message (required)", el("textarea", "", { name: "message", required: true, rows: 5 })),
-    el("button", "words-button act", { type: "submit", textContent: "SUBMIT" }),
+    el("button", "words-button act", { type: "submit" }),
   );
   const button = f.querySelector("button[type=submit]");
+  // its words in their own span, so changing them leaves its drawn line and fill (drawBox's picture inside it) alone:
+  // setting the button's own text wiped them, which is the "button just went flat" (Carl, 3 Nov 2026)
+  const label = el("span", "", { textContent: "SUBMIT" });
+  button.append(label);
+  /* WHAT HAPPENS AFTER SEND: "i filled out the form and hit send but the button just went flat and i didnt get any thank
+     you or notification or anything and nothing went to my email" (Carl, 3 Nov 2026). The send now waits for FormSubmit
+     to say it took the message (its answer's `success`, not only that it answered: its very first answer is a request
+     to confirm the address, which delivers nothing), gives up after 15 seconds, and says which way it went: sent, the
+     button says so and the form clears (THANKS, his words, will follow it once he has written them); not sent, a line
+     under the button says so, with his address to write to instead, and the button can be pressed again. Until then a
+     failed send quietly opened the visitor's own email, which a page shown in a frame (his live link) is not allowed to
+     do, so nothing happened at all. */
+  const note = el("p", "form-note", { hidden: true });
+  f.append(note);
+  const say = (bits) => {
+    note.textContent = "";
+    note.append(...bits);
+    note.hidden = false;
+  };
   f.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (button.disabled) return;
@@ -1550,19 +1579,26 @@ function contactForm() {
     const name = `${v.first} ${v.last}`.trim();
     const body = { name, email: v.email, _replyto: v.email, _subject: v.subject, message: v.message, news: v.news ? "Yes, sign me up" : "No", _template: "box", _captcha: "false" };
     button.disabled = true;
+    note.hidden = true;
     cue("form-send");
-    button.textContent = "SENDING\u2026";
+    label.textContent = "SENDING\u2026";
+    const stop = new AbortController();
+    const late = setTimeout(() => stop.abort(), 15000);
+    let answer = null;
     try {
-      const r = await fetch("https://formsubmit.co/ajax/" + MAIL_TO, { method: "POST", headers: { "content-type": "application/json", accept: "application/json" }, body: JSON.stringify(body) });
-      if (!r.ok) throw new Error(r.status);
-      button.textContent = "SENT!";
+      const r = await fetch("https://formsubmit.co/ajax/" + MAIL_TO, { method: "POST", headers: { "content-type": "application/json", accept: "application/json" }, body: JSON.stringify(body), signal: stop.signal });
+      answer = await r.json().catch(() => null);
+      if (!r.ok || !(answer?.success === true || answer?.success === "true")) throw new Error(answer?.message || "HTTP " + r.status);
+      label.textContent = "SENT!";
       f.reset();
-    } catch {
-      // nothing reached FormSubmit: the visitor's own email, written in
-      const text = `${v.message}\n\n${name}\n${v.email}${v.news ? "\nSign me up for news and updates" : ""}`;
-      location.href = `mailto:${MAIL_TO}?subject=${encodeURIComponent(v.subject)}&body=${encodeURIComponent(text)}`;
-      button.textContent = "SUBMIT";
+      if (THANKS) say([THANKS]);
+    } catch (err) {
+      console.warn("the contact form did not send:", err?.message || err, answer);
+      label.textContent = "SUBMIT";
       button.disabled = false;
+      say(["That didn\u2019t send. Try again, or email me at ", el("a", "", { href: "mailto:" + MAIL_TO, textContent: MAIL_TO }), "."]);
+    } finally {
+      clearTimeout(late);
     }
   });
   return f;
