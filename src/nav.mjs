@@ -154,10 +154,20 @@ export const WORDS = {
   },
   // the snow globe's card: his words for StudioLand, sent 3 Nov 2026 ("StudioLand: a career school for ..."), its first
   // letter made a capital under the title; its button goes to StudioLand: "It should go to welcometostudioland.com"
+  /* and StudioLand MGMT under it, on the same card: "I think they should both be in the snow globe" (Carl, 3 Nov 2026),
+     with his words for it sent the same day ("StudioLand MGMT: a producer management company ..."). Each has its own
+     button out, neither boiling: two equal ways on, not one action */
   studioland: {
     title: "StudioLand",
     text: ["A career school for producers and mixing engineers who are great at the craft but tired of feast-or-famine. We help them build the brand, systems, and client pipeline to go full-time."],
-    link: { words: "VISIT STUDIOLAND", href: "https://welcometostudioland.com" },
+    link: { words: "VISIT STUDIOLAND", href: "https://welcometostudioland.com", calm: true },
+    more: [
+      {
+        title: "StudioLand MGMT",
+        text: ["A producer management company that matches passionate artists with the producers and engineers born to be on their records. Our roster has worked on some of the most influential albums of the last 25 years."],
+        link: { words: "VISIT STUDIOLAND MGMT", href: "https://studiolandmgmt.com", calm: true },
+      },
+    ],
   },
   contact: {
     // "CONTACT (and then use the hey carl line as a subheadline)" (Carl, 3 Nov 2026)
@@ -1492,7 +1502,13 @@ const SHELLS = {
     if (W.blank) box.append(slot("his words", "text"));
     // its one action, last on the card: to another card, or out to a site (`link`, a new tab)
     if (W.button) box.append(actionButton(W.button, go));
-    if (W.link) box.append(el("a", "words-button act", { href: W.link.href, target: "_blank", rel: "noopener", textContent: W.link.words }));
+    const out = (L) => el("a", "words-button" + (L.calm ? "" : " act"), { href: L.href, target: "_blank", rel: "noopener", textContent: L.words });
+    if (W.link) box.append(out(W.link));
+    // more on the same card, each its own title, words and way out (the snow globe's StudioLand MGMT)
+    for (const M of W.more || []) {
+      box.append(said(M.title, "h2", "next"), ...(M.text || []).map((t) => said(t)));
+      if (M.link) box.append(out(M.link));
+    }
     if (t.hash === "contact") box.append(contactForm(), socials());
     return box;
   },

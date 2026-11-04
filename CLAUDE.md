@@ -489,7 +489,7 @@ lays out the real site. **On Netlify, the contact form goes to Netlify's own for
 "I'm gonna replace the candle with a snow globe with this inside it", and "It should go to welcometostudioland.com".
 `tools/cut_globe.py` builds it; it stands where the picture frame stood, in the opening view, and the frame (which opens
 nothing) moved to the candle's old place at the console's far end. The wall says STUDIOLAND. Then it opens a card rather than the site ("It should zoom in actually, to a card that has a little info about
-it"): his title StudioLand, his words for it (sent the same day: "a career school for producers and mixing engineers..."), and VISIT STUDIOLAND out to the site; the
+it"): his title StudioLand, his words for it (sent the same day: "a career school for producers and mixing engineers..."), and VISIT STUDIOLAND out to the site, then StudioLand MGMT under it with his words and its own way out ("I think they should both be in the snow globe"); the
 castle stands on a hill drawn by the cut script ("Can we add a simple procedural hill under the castle so it sits a bit
 higher?").
 
