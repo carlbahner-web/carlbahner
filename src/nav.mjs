@@ -242,11 +242,16 @@ export function startNav(v) {
   const wordsOf = (t) => (t ? SAYS[t.hash || t.id] || t.says || (WORDS[t.hash]?.title || "").replace(/\*/g, "") || null : null);
   const sayFor = (t) => setHoverWords(wordsOf(t), t ? t.hash || t.id : null);
   // ON A PHONE, THEY GLOW IN TURN (below, in step): no mouse to hover, so each thing that opens lights up in turn
-  const TOUCH = matchMedia("(hover: none)").matches,
-    PULSE_MS = 1600, // one swell and fade
-    PULSE_GAP_MS = 1400, // the next starts as this one fades
-    PULSE_REST_MS = 1800, // a rest before it goes round again
-    PULSE_PEAK = 0.75; // a little short of the full light a hover brings
+  /* Its first timing (a 1.6 s swell, the next 1.4 s later, then a 1.8 s rest, at three-quarters light): "The timing feels
+     arbitrary and def not often enough to grab attention" (Carl, 3 Nov 2026). So now an even beat with no rest, each
+     one rising as the one before it is at its brightest, at the full light a hover brings: a steady wave along the
+     room. `?pulse=`, `?gap=`, `?rest=` (ms) and `?peak=` (0 to 1) try others on a phone. */
+  const Q = new URLSearchParams(location.search),
+    TOUCH = matchMedia("(hover: none)").matches,
+    PULSE_MS = +(Q.get("pulse") || 1000), // one swell and fade
+    PULSE_GAP_MS = +(Q.get("gap") || 500), // the next starts as this one peaks
+    PULSE_REST_MS = +(Q.get("rest") || 0), // no rest: round again straight away
+    PULSE_PEAK = +(Q.get("peak") || 1); // the full light a hover brings
   let pulseOrder = null,
     pulseAt = 0,
     pulseCycle = 0;

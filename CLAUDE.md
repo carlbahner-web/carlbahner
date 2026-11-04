@@ -505,7 +505,8 @@ tilted weird", then "try 3 more").
 **On a phone the things that open glow in turn, 3 Nov 2026**: "On mobile, we need a totally different visual cue. I was
 thinking, what if the different clickable items glow? But like, not all the time or at the same time, maybe a pulse like the
 countries or the fireflies?" (Carl). With no mouse to hover, each thing in sight that opens takes its turn to swell into the
-hover's light and fade, left to right, then a rest and round again (ON A PHONE, THEY GLOW IN TURN in `src/nav.mjs`); never
+hover's light and fade, left to right, on an even beat with no rest, each rising as the one before it peaks (a first, slower
+timing with rests: "The timing feels arbitrary and def not often enough to grab attention") (ON A PHONE, THEY GLOW IN TURN in `src/nav.mjs`); never
 while a card is open or the camera is flying, and not for someone who asks for less motion.
 
 ## Laptop first. Phones wait.
