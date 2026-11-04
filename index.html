@@ -1219,6 +1219,12 @@
     </style>
   </head>
   <body>
+    <!-- THE CONTACT FORM, AS NETLIFY SEES IT: Netlify finds a site's forms by reading its pages as they are built, and the
+         card's form is drawn by src/nav.mjs after load, so this hidden copy names it and its fields for Netlify. The card
+         posts to it (src/nav.mjs WHAT HAPPENS AFTER SEND); nobody sees this one. -->
+    <form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input name="bot-field" /><input name="name" /><input name="email" /><input name="subject" /><textarea name="message"></textarea><input name="news" />
+    </form>
     <div id="stage">
     <canvas
       id="room"

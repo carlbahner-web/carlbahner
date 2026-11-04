@@ -1586,9 +1586,22 @@ function contactForm() {
     const late = setTimeout(() => stop.abort(), 15000);
     let answer = null;
     try {
-      const r = await fetch("https://formsubmit.co/ajax/" + MAIL_TO, { method: "POST", headers: { "content-type": "application/json", accept: "application/json" }, body: JSON.stringify(body), signal: stop.signal });
-      answer = await r.json().catch(() => null);
-      if (!r.ok || !(answer?.success === true || answer?.success === "true")) throw new Error(answer?.message || "HTTP " + r.status);
+      /* ON HIS OWN SITE, NETLIFY TAKES IT: the site is on Netlify ("i'd rather stay in netlify tbh", Carl, 3 Nov 2026),
+         and the first sends through FormSubmit from it did not arrive ("this isn't a test link, that's from the live
+         netlify site"). So on carlbahner.com and its netlify.app address the message goes to Netlify's own forms (the
+         hidden form in index.html, which Netlify reads when it builds; its Forms page keeps every message and emails
+         him one); anywhere else, or if Netlify will not take it (forms not switched on for the site), FormSubmit. */
+      let sent = false;
+      if (/(^|\.)carlbahner\.(com|netlify\.app)$/.test(location.hostname)) {
+        const n = await fetch("/", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ "form-name": "contact", name, email: v.email, subject: v.subject, message: v.message, news: body.news }).toString(), signal: stop.signal }).catch(() => null);
+        sent = !!n?.ok;
+        if (!sent) console.warn("Netlify did not take the message:", n?.status);
+      }
+      if (!sent) {
+        const r = await fetch("https://formsubmit.co/ajax/" + MAIL_TO, { method: "POST", headers: { "content-type": "application/json", accept: "application/json" }, body: JSON.stringify(body), signal: stop.signal });
+        answer = await r.json().catch(() => null);
+        if (!r.ok || !(answer?.success === true || answer?.success === "true")) throw new Error(answer?.message || "HTTP " + r.status);
+      }
       label.textContent = "SENT!";
       f.reset();
       if (THANKS) say([THANKS]);

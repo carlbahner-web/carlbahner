@@ -485,7 +485,7 @@ a separate sync page, i think you're right... make them smaller to fit under the
 with four songs"), built here until then and moved to its own repo for the launch. His launch quiz answers (https://claude.ai/artifact/5LWQs73jHMp7yRByiUZgP1): the tab
 says "Carl Bahner"; a shared link shows the room as it opens (`assets/share.jpg`), his name and his line "Mixer, educator,
 and sonic chaos gremlin."; visitor counts, yes; old addresses go to the room (`404.html`). `studio/build-site.sh <folder>`
-lays out the real site. **The snow globe, 3 Nov 2026**, his drawing with his Brand Castle from Homegrown's classroom inside, its flag waving:
+lays out the real site. **On Netlify, the contact form goes to Netlify's own forms** (a hidden copy of it in `index.html` for Netlify to find), FormSubmit only if Netlify will not take it: the first FormSubmit sends from the live site did not arrive ("this isn't a test link, that's from the live netlify site", 3 Nov 2026). **The snow globe, 3 Nov 2026**, his drawing with his Brand Castle from Homegrown's classroom inside, its flag waving:
 "I'm gonna replace the candle with a snow globe with this inside it", and "It should go to welcometostudioland.com".
 `tools/cut_globe.py` builds it; it stands where the picture frame stood, in the opening view, and the frame (which opens
 nothing) moved to the candle's old place at the console's far end. The wall says STUDIOLAND. Then it opens a card rather than the site ("It should zoom in actually, to a card that has a little info about
