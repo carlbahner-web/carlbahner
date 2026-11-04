@@ -533,6 +533,11 @@ use over the automatic framing and the laptop's spots.
 of the front" (Carl). A third surface, `wall: "console"`, flat on the console's front (CONSOLE FRONT in `src/props.mjs`);
 either editor drags a word onto it as onto a wall (`wallAt` in `src/studio.mjs` tries it first). The words draw last
 (`renderOrder`), so the console no longer covers them; the drawings in front still hide them.
+**The words outlined, cream everywhere, sharp, 4 Nov 2026** (Carl): "can we add a contrast stroke to all the text? relative to
+the perceived size, not like, a fixed pixel size because they're at different zooms", "can we make the "about" font cream
+instead of charcoal?" and "podcast word looks really blurry". A charcoal outline drawn into each word's picture, 0.07 of
+its letters' size outside them (THE OUTLINE, `WORD_STROKE`, `?stroke=`), so it scales with them; cream on every surface;
+and the graphics chip's slant filtering on the words, since PODCAST is seen almost edge-on (`setWordsAnisotropy`).
 
 ## Laptop first. Phones wait.
 

@@ -2193,6 +2193,14 @@ export const setPhoneWords = (on) => {
 export const hasPhoneWords = (key) => phoneWords && !!WORD_AT_PHONE[key];
 const wordAt = (key) => ({ ...HW_AT, ...(WORD_AT[key] || {}), ...((phoneWords && WORD_AT_PHONE[key]) || {}) });
 const PPM = 600; // canvas pixels a metre of wall
+// how much of the letters' size their charcoal outline shows outside them (THE OUTLINE); `?stroke=` tries another
+const WORD_STROKE = +(new URLSearchParams(location.search).get("stroke") || 0.07);
+let WORD_ANISO = 1;
+// the most slant filtering the graphics chip offers (src/studio.mjs, once its renderer is made)
+export function setWordsAnisotropy(n) {
+  WORD_ANISO = n || 1;
+  if (HW.tex && HW.tex.anisotropy !== WORD_ANISO) (HW.tex.anisotropy = WORD_ANISO), (HW.tex.needsUpdate = true);
+}
 const FACE = (f) => `${f}px "DW Fairfield", Georgia, serif`;
 // the words drawn at their size, wrapped to their width (or stacked a letter under a letter), on a canvas their own size
 function drawWords(text, at) {
@@ -2223,8 +2231,10 @@ function drawWords(text, at) {
   }
   g.font = FACE(F);
   const widest = Math.max(1, ...lines.map((l) => g.measureText(l).width));
-  const W = Math.min(4096, Math.ceil(at.dir === "down" ? widest + F * 0.2 : Math.max(at.w * PPM, widest))),
-    H = Math.min(4096, Math.ceil(lines.length * lineH() + F * 0.2));
+  // room round the letters for their outline (THE OUTLINE, below)
+  const pad = Math.ceil(F * WORD_STROKE);
+  const W = Math.min(4096, Math.ceil(at.dir === "down" ? widest + F * 0.2 : Math.max(at.w * PPM, widest)) + 2 * pad),
+    H = Math.min(4096, Math.ceil(lines.length * lineH() + F * 0.2) + 2 * pad);
   HW.cv.width = W;
   HW.cv.height = H;
   g.clearRect(0, 0, W, H);
@@ -2232,11 +2242,25 @@ function drawWords(text, at) {
   g.fillStyle = "#f4ead8";
   g.textAlign = "center";
   g.textBaseline = "middle";
-  lines.forEach((l, i) => g.fillText(l, W / 2, H / 2 + (i - (lines.length - 1) / 2) * lineH()));
+  /* THE OUTLINE: "can we add a contrast stroke to all the text? relative to the perceived size, not like, a fixed pixel
+     size because they're at different zooms" (Carl, 4 Nov 2026). A charcoal line round the cream letters, as wide as a
+     share of the letters' own size (WORD_STROKE of it showing outside), drawn into the word's picture, so it grows and
+     shrinks with them at any zoom. Then cream on every surface: "can we make the "about" font cream instead of
+     charcoal?" (the same day; the cream wall's words were charcoal until then, where cream alone would vanish). */
+  g.lineJoin = "round";
+  g.lineWidth = 2 * F * WORD_STROKE;
+  g.strokeStyle = "#2c2c2a";
+  const y = (i) => H / 2 + (i - (lines.length - 1) / 2) * lineH();
+  lines.forEach((l, i) => g.strokeText(l, W / 2, y(i)));
+  lines.forEach((l, i) => g.fillText(l, W / 2, y(i)));
   // a new texture at the canvas's new size (one already sent to the graphics chip keeps its first size)
   HW.tex?.dispose();
   HW.tex = new CanvasTexture(HW.cv);
   HW.tex.colorSpace = NoColorSpace;
+  /* sharp seen at a slant: "podcast word looks really blurry bud idk why" (Carl, 4 Nov 2026). PODCAST runs down the teal
+     wall by the corner, seen almost edge-on, and a picture seen that slanted was read at a much blurrier size than it
+     shows; the graphics chip's slant filtering (anisotropy) reads it sharp. */
+  HW.tex.anisotropy = WORD_ANISO;
   HW.mesh.material.uniforms.map.value = HW.tex;
   HW.wh = [W / PPM, H / PPM];
 }
@@ -2248,7 +2272,6 @@ function placeWords(at, text = HW.text) {
   HW.mesh.geometry.dispose();
   HW.mesh.geometry = new PlaneGeometry(w, h);
   HW.mesh.rotation.set(0, 0, (-(at.rot || 0) * Math.PI) / 180);
-  HW.mesh.material.uniforms.ink.value = hex3(at.wall === "cream" ? "#2c2c2a" : "#f4ead8");
   // flat on the cream wall facing into the room, or on the teal wall as the map is (placeProp, `wall`)
   if (at.wall === "cream") HW.group.rotation.set(0, 0, 0), HW.group.position.set(at.x, at.y, 0.021);
   // on the console's front, measured along the teal wall as the teal wall's are (CONSOLE FRONT, below)
@@ -2267,9 +2290,9 @@ export function buildHoverWords() {
     new PlaneGeometry(1, 1),
     new ShaderMaterial({
       vertexShader: "varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
-      fragmentShader: "uniform sampler2D map; uniform float k; uniform vec3 ink; varying vec2 vUv; void main() { vec4 c = texture2D(map, vUv); if (c.a * k < 0.01) discard; gl_FragColor = vec4(ink, c.a * k); }",
-      // cream on the teal wall, the room's charcoal on the cream one, where cream would vanish
-      uniforms: { map: { value: null }, k: { value: 0 }, ink: { value: hex3("#f4ead8") } },
+      // the word's own colours, cream letters in their charcoal outline (THE OUTLINE)
+      fragmentShader: "uniform sampler2D map; uniform float k; varying vec2 vUv; void main() { vec4 c = texture2D(map, vUv); if (c.a * k < 0.01) discard; gl_FragColor = vec4(c.rgb, c.a * k); }",
+      uniforms: { map: { value: null }, k: { value: 0 } },
       transparent: true,
       depthWrite: false,
     }),

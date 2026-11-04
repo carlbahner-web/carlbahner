@@ -33,7 +33,7 @@ import {
   setPaint,
 } from "./room.mjs";
 import { hashN, BOIL_ORDER, BOIL_MS } from "./garden-bits.mjs";
-import { buildProps, setProp, faceProps, tickProps, colorProp, follows, followers, lampLights, lidAt, picturesIn, buildHoverWords, consoleFront } from "./props.mjs";
+import { buildProps, setProp, faceProps, tickProps, colorProp, follows, followers, lampLights, lidAt, picturesIn, buildHoverWords, consoleFront, setWordsAnisotropy } from "./props.mjs";
 import { LIGHTS, lightUniforms, setLights } from "./light.mjs";
 import { startNav, SAYS } from "./nav.mjs";
 import { startViews, stepViews, editViews, cameraFor } from "./viewtune.mjs";
@@ -51,6 +51,7 @@ const cv = document.querySelector("#room");
 const renderer = new WebGLRenderer({ canvas: cv, antialias: true });
 // a phone upright draws at 1.5 of its pixels at most, a whole screen of the room's shaders being a lot for a phone
 renderer.setPixelRatio(Math.min(innerHeight > innerWidth ? 1.5 : 2, devicePixelRatio || 1));
+setWordsAnisotropy(renderer.capabilities.getMaxAnisotropy()); // the words sharp at a slant (props.mjs)
 const scene = new Scene();
 const camera = new PerspectiveCamera(FOV, 1, 0.1, 200);
 
