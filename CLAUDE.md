@@ -496,11 +496,11 @@ higher?").
 
 **The edges lean the view, 3 Nov 2026**: "i feel like i've asked multiple times to have it pan/tilt when the mouse is on
 the edges" (Carl). From his opening view (his widest) his limits leave no room to turn, so the edge-turn moved it about a
-degree and, held level, never tilted. Now a mouse resting at an edge also pushes the lens in a little and turns and tilts
-the view by the room that frees (THE EDGES LEAN THE VIEW in `src/studio.mjs`), so it never shows past his limits, and it
-eases back as the mouse leaves. On a phone the card's scrolling body reaches into the card's padding so no button's line
-is clipped ("the buttons are getting cut off a little bit"), and the snow globe stands a degree anticlockwise ("it looks
-tilted weird").
+degree and, held level, never tilted. A lean that pushed the lens in was refused ("it does a weird zoom in, not panning"), so a mouse resting at an edge
+turns the view up to 6 degrees side to side and 4 up and down past his limits, no zoom (THE EDGES LEAN THE VIEW in
+`src/studio.mjs`), easing back as the mouse leaves. On a phone the card's scrolling body reaches into the card's padding so no button's line
+is clipped ("the buttons are getting cut off a little bit"), and the snow globe stands 4 degrees anticlockwise ("it looks
+tilted weird", then "try 3 more").
 
 ## Laptop first. Phones wait.
 

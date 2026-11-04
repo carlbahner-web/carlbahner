@@ -1086,15 +1086,9 @@ function place() {
   if (aim) camera.lookAt(aim.x, aim.y, aim.z);
   let fov = lensAt(cam.fov, stand);
   // THE EDGES LEAN THE VIEW: pushed in, and turned and tilted by the room that frees, inside what the view already shows
-  const lean = Math.max(Math.abs(peek.x), Math.abs(peek.y));
-  if (lean > 0 && !aim) {
-    const narrow = fov * (1 - PEEK_IN * lean),
-      half = (f) => (f * Math.PI) / 360,
-      freeV = half(fov) - half(narrow), // the half-angle freed top to bottom
-      freeH = Math.atan(camera.aspect * Math.tan(half(fov))) - Math.atan(camera.aspect * Math.tan(half(narrow))); // and side to side
-    camera.rotateY(-peek.x * freeH * 0.98);
-    camera.rotateX(-peek.y * freeV * 0.98);
-    fov = narrow;
+  if ((peek.x || peek.y) && !aim) {
+    camera.rotateY((-peek.x * PEEK_H * Math.PI) / 180);
+    camera.rotateX((-peek.y * PEEK_V * Math.PI) / 180);
   }
   if (LEAN.k > 0 && LEAN.pos) {
     const e = leanEase(LEAN.k),
@@ -1315,12 +1309,15 @@ cv.addEventListener("pointermove", (e) => {
 const edgeOf = (v) => (v < EDGE ? -((1 - v / EDGE) ** 2) : v > 1 - EDGE ? ((v - (1 - EDGE)) / EDGE) ** 2 : 0);
 /* THE EDGES LEAN THE VIEW: "i feel like i've asked multiple times to have it pan/tilt when the mouse is on the edges"
    (Carl, 3 Nov 2026). It was there, but from the opening view, which is his widest, his limits leave no room to turn, and
-   the view is held level, so the edges moved it about a degree and could not tilt it. So the edges now also LEAN it:
-   the lens pushes in a little (PEEK_IN at the very edge) and the view turns and tilts that way by just the room the push
-   frees, so it moves plainly yet never shows past what the opening view shows (past his limits). Leaving the edge eases
-   it back. It is drawn on top of the camera's turn (place), never changing where the camera is, so a drag, a click and
-   a flight start from where they always did. */
-const PEEK_IN = 0.16, // how far the lens pushes in at the very edge, a share of it
+   the view is held level, so the edges moved it about a degree and could not tilt it. Then a lean that pushed the lens
+   in to free room, refused the same day: "when i move my mouse to the edge it does a weird zoom in, not panning". So now
+   a mouse resting at an edge turns the view that way by up to PEEK_H degrees side to side and PEEK_V up and down, past
+   his limits by that much and no more (looked at at twice these: the room holds, the clock and the marching machine come
+   in on the left, more wall and lamp on the right), with no zoom; leaving the edge eases it back. It is drawn on top of
+   the camera's turn (place), never changing where the camera is, so a drag, a click and a flight start from where they
+   always did. `?peekh=` and `?peekv=` try others. */
+const PEEK_H = +(new URLSearchParams(location.search).get("peekh") || 6), // degrees it turns at the very edge, side to side
+  PEEK_V = +(new URLSearchParams(location.search).get("peekv") || 4), // and up and down
   PEEK_MS = 450; // how quickly it leans in, and back
 const peek = { x: 0, y: 0 };
 function stepPeek(dt) {
