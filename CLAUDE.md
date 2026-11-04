@@ -529,6 +529,10 @@ of the words. Phone/mobile version only please" (Carl). https://claude.ai/artifa
 (the wheel zooms), drag its word, size, width, direction and quarter turns. Saved at `phone/stops`; read it back with
 ArtifactData and write it into `PHONE_CAMS` (`src/nav.mjs`) and `WORD_AT_PHONE` (`src/props.mjs`), which the phone's stops
 use over the automatic framing and the laptop's spots.
+**Words on the console's front, 4 Nov 2026**: "i want to be able to put words on the front of the console, like on the plane
+of the front" (Carl). A third surface, `wall: "console"`, flat on the console's front (CONSOLE FRONT in `src/props.mjs`);
+either editor drags a word onto it as onto a wall (`wallAt` in `src/studio.mjs` tries it first). The words draw last
+(`renderOrder`), so the console no longer covers them; the drawings in front still hide them.
 
 ## Laptop first. Phones wait.
 

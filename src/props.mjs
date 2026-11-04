@@ -2251,6 +2251,8 @@ function placeWords(at, text = HW.text) {
   HW.mesh.material.uniforms.ink.value = hex3(at.wall === "cream" ? "#2c2c2a" : "#f4ead8");
   // flat on the cream wall facing into the room, or on the teal wall as the map is (placeProp, `wall`)
   if (at.wall === "cream") HW.group.rotation.set(0, 0, 0), HW.group.position.set(at.x, at.y, 0.021);
+  // on the console's front, measured along the teal wall as the teal wall's are (CONSOLE FRONT, below)
+  else if (at.wall === "console") HW.group.rotation.set(0, Math.PI / 2, 0), HW.group.position.set(consoleFront().x, at.y, at.x);
   else HW.group.rotation.set(0, Math.PI / 2, 0), HW.group.position.set(0.021, at.y, at.x);
   bitsChanged = true;
 }
@@ -2273,6 +2275,8 @@ export function buildHoverWords() {
     }),
   );
   m.visible = false;
+  // drawn after everything else: on the console's front (CONSOLE FRONT) the console, drawn after it, covered it
+  m.renderOrder = 10;
   HW.mesh = m;
   HW.group = new Group();
   HW.group.add(m);
@@ -2287,6 +2291,18 @@ export function setHoverWordsAt(at, key = null) {
   placeWords(wordAt(key || HW.key));
 }
 export const hoverWordsAt = (key) => wordAt(key);
+/* CONSOLE FRONT: "i want to be able to put words on the front of the console, like on the plane of the front" (Carl, 4 Nov
+   2026). A third surface for the words, `wall: "console"`: the plane of the console's front, a few millimetres proud of it,
+   x along the teal wall from the corner as the teal wall's words are. Its box: x the front's distance out from the teal
+   wall, z0 to z1 its span along the wall, y0 to y1 floor to top (src/studio.mjs wallAt). */
+export function consoleFront() {
+  const m = all.find((q) => q.userData.prop.id === "console"),
+    p = m?.userData.prop;
+  if (!p) return { x: 0.716, z0: 0, z1: 0, y0: 0, y1: 0 };
+  const w = p.w,
+    h = p.w * (m.userData.aspect || 1);
+  return { x: (p.gap || 0.02) + (p.depth || 0) + 0.006, z0: p.alongTeal, z1: p.alongTeal + w, y0: 0, y1: h };
+}
 /* the words drawn smaller about their middle, on a phone's stops only (src/nav.mjs ONE THING AT A TIME ON A PHONE):
    his sizes are a laptop's, and on a narrow phone a word framed beside its thing can be wider than the screen */
 export function setHoverWordsScale(k = 1) {

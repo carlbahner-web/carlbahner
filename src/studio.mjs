@@ -33,7 +33,7 @@ import {
   setPaint,
 } from "./room.mjs";
 import { hashN, BOIL_ORDER, BOIL_MS } from "./garden-bits.mjs";
-import { buildProps, setProp, faceProps, tickProps, colorProp, follows, followers, lampLights, lidAt, picturesIn, buildHoverWords } from "./props.mjs";
+import { buildProps, setProp, faceProps, tickProps, colorProp, follows, followers, lampLights, lidAt, picturesIn, buildHoverWords, consoleFront } from "./props.mjs";
 import { LIGHTS, lightUniforms, setLights } from "./light.mjs";
 import { startNav, SAYS } from "./nav.mjs";
 import { startViews, stepViews, editViews, cameraFor } from "./viewtune.mjs";
@@ -1183,6 +1183,13 @@ function wallAt(clientX, clientY) {
     f = un(1),
     d = f.map((v, i) => v - o[i]);
   let best = null;
+  // the console's front first: nearer than the teal wall behind it, and only where the console is (props.mjs CONSOLE FRONT)
+  const cf = consoleFront();
+  if (Math.abs(d[0]) > 1e-9) {
+    const t = (cf.x - o[0]) / d[0],
+      p = o.map((v, i) => v + d[i] * t);
+    if (t > 0 && p[2] >= cf.z0 && p[2] <= cf.z1 && p[1] >= cf.y0 && p[1] <= cf.y1) best = { t, wall: "console", x: p[2], y: p[1] };
+  }
   for (const [wall, axis, along] of [["teal", 0, 2], ["cream", 2, 0]]) {
     if (Math.abs(d[axis]) < 1e-9) continue;
     const t = (0.021 - o[axis]) / d[axis];
