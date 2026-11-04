@@ -63,9 +63,14 @@ await walk("laptop", { width: 1440, height: 900 }, async ({ page, state, shot, s
   s = await state();
   expect(!s.open && s.hash === "", "laptop: Esc did not close the window");
   await shot("Esc: back where it was");
-  await page.mouse.click(110, 505); // the picture frame, which opens nothing since 3 Nov 2026
+  // where the picture frame stood, the snow globe since 3 Nov 2026: its StudioLand card, and Esc closes it
+  await page.mouse.click(110, 505);
   await settle();
-  expect(!(await state()).open, "laptop: clicking the picture frame opened something");
+  s = await state();
+  expect(s.hash === "#studioland" && s.kind === "page", "laptop: clicking the snow globe did not open StudioLand's card");
+  await page.keyboard.press("Escape");
+  await settle();
+  expect(!(await state()).open, "laptop: Esc did not close StudioLand's card");
   await page.mouse.click(1000, 120);
   await settle();
   expect(!(await state()).open, "laptop: clicking the soffit opened something");
