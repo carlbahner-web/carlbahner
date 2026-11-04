@@ -46,7 +46,7 @@ import { inkMask, MASK_N, wobbleLine, wobblePath, BOIL_ORDER, BOIL_MS } from "./
    Bass drum SYNCS, Eye painting YOU+ME, Dog CONTACT, Mug PODCAST, Book HOMEGROWN". Keyed by the page a thing opens (or a
    link's own id): written as the bio moved from the frame onto the drum, so ABOUT goes with the bio and SYNCS with the
    logos, whichever thing opens them. */
-export const SAYS = { portfolio: "Listen", bio: "About", artists: "Quotes", tour: "Syncs", "my-people": "You+Me", contact: "Contact", mug: "Podcast", book: "Homegrown", globe: "StudioLand" };
+export const SAYS = { portfolio: "Listen", bio: "About", artists: "Quotes", tour: "Syncs", "my-people": "You+Me", contact: "Contact", mug: "Podcast", book: "Homegrown", studioland: "StudioLand" };
 export const THINGS = [
   { id: "console", hash: "portfolio", kind: "player", name: "Record console" },
   /* the picture frame opened the bio until 3 Nov 2026, the drum the logos ("COOL SYNC THINGS"); then "I want to put my
@@ -65,8 +65,9 @@ export const THINGS = [
   { id: "book", link: "https://homegrownapp.io", name: "Book", says: "Homegrown" },
   // his Secret Sonics podcast on Spotify, the link sent 2 Nov 2026
   { id: "mug", link: "https://open.spotify.com/show/6xqoB0hvyyspcK9biajV0N?si=5f744953785247e7", name: "Mug", says: "Secret Sonics" },
-  // StudioLand, from the snow globe with his castle in it: "It should go to welcometostudioland.com" (Carl, 3 Nov 2026)
-  { id: "globe", link: "https://welcometostudioland.com", name: "Snow globe", says: "StudioLand" },
+  /* StudioLand, from the snow globe with his castle in it: "It should go to welcometostudioland.com", then "It should
+     zoom in actually, to a card that has a little info about it" (Carl, 3 Nov 2026). Its card ends on the way there. */
+  { id: "globe", hash: "studioland", kind: "page", name: "Snow globe" },
 ];
 
 // six at first: "if i did 6" (Carl, 2 Nov 2026), each a placeholder tone and an empty sleeve until his song came
@@ -150,6 +151,13 @@ export const WORDS = {
     after: ["If you're nodding along right now, we should probably *talk\u2026 and I promise I won't make you sound like everyone else.*"],
     // his site's button, which goes to the form: the dog here
     button: { words: "HOLY MOLY I WANT TO TALK TO YOU ABOUT MY MUSIC", to: "contact" },
+  },
+  // the snow globe's card: its words are his, and wait for him (`blank`, an empty space until he sends them); its button
+  // goes to StudioLand: "It should go to welcometostudioland.com" (Carl, 3 Nov 2026)
+  studioland: {
+    title: "StudioLand",
+    blank: true,
+    link: { words: "VISIT STUDIOLAND", href: "https://welcometostudioland.com" },
   },
   contact: {
     // "CONTACT (and then use the hey carl line as a subheadline)" (Carl, 3 Nov 2026)
@@ -1472,8 +1480,11 @@ const SHELLS = {
       f.append(c);
       box.append(f);
     }
-    // its one action, last on the card
+    // words still to come from him: an empty space, as the shells had (`blank`)
+    if (W.blank) box.append(slot("his words", "text"));
+    // its one action, last on the card: to another card, or out to a site (`link`, a new tab)
     if (W.button) box.append(actionButton(W.button, go));
+    if (W.link) box.append(el("a", "words-button act", { href: W.link.href, target: "_blank", rel: "noopener", textContent: W.link.words }));
     if (t.hash === "contact") box.append(contactForm(), socials());
     return box;
   },

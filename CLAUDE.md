@@ -486,7 +486,10 @@ and sonic chaos gremlin."; visitor counts, yes; old addresses go to the room (`4
 lays out the real site. **The snow globe, 3 Nov 2026**, his drawing with his Brand Castle from Homegrown's classroom inside, its flag waving:
 "I'm gonna replace the candle with a snow globe with this inside it", and "It should go to welcometostudioland.com".
 `tools/cut_globe.py` builds it; it stands where the picture frame stood, in the opening view, and the frame (which opens
-nothing) moved to the candle's old place at the console's far end. The wall says STUDIOLAND.
+nothing) moved to the candle's old place at the console's far end. The wall says STUDIOLAND. Then it opens a card rather than the site ("It should zoom in actually, to a card that has a little info about
+it"): his title StudioLand, an empty space for his words until he sends them, and VISIT STUDIOLAND out to the site; the
+castle stands on a hill drawn by the cut script ("Can we add a simple procedural hill under the castle so it sits a bit
+higher?").
 
 ## Laptop first. Phones wait.
 
