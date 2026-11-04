@@ -241,6 +241,16 @@ export function startNav(v) {
   // his words for each, by the page it opens (3 Nov 2026), so they follow a page to whatever thing opens it
   const wordsOf = (t) => (t ? SAYS[t.hash || t.id] || t.says || (WORDS[t.hash]?.title || "").replace(/\*/g, "") || null : null);
   const sayFor = (t) => setHoverWords(wordsOf(t), t ? t.hash || t.id : null);
+  // ON A PHONE, THEY GLOW IN TURN (below, in step): no mouse to hover, so each thing that opens lights up in turn
+  const TOUCH = matchMedia("(hover: none)").matches,
+    PULSE_MS = 1600, // one swell and fade
+    PULSE_GAP_MS = 1400, // the next starts as this one fades
+    PULSE_REST_MS = 1800, // a rest before it goes round again
+    PULSE_PEAK = 0.75; // a little short of the full light a hover brings
+  let pulseOrder = null,
+    pulseAt = 0,
+    pulseCycle = 0;
+  const pulseFrom = performance.now() + 1200; // a moment after the room comes in
   let hovered = null, // under the mouse
     focused = null, // the keyboard's
     open = null, // whose window is open
@@ -564,8 +574,64 @@ export function startNav(v) {
       if (x >= 1) pressed = null;
       moved = true;
     }
+    /* ON A PHONE, THEY GLOW IN TURN: "on desktop, hovering shows what you can click on, and where it will take you. On
+       mobile, we need a totally different visual cue. I was thinking, what if the different clickable items glow? But
+       like, not all the time or at the same time, maybe a pulse like the countries or the fireflies?" (Carl, 3 Nov 2026).
+       With no mouse to hover (a touch screen), each thing that opens takes its turn to light up, the light the mouse
+       brings on a laptop: a slow swell and fade (PULSE_MS), the next one starting as it fades, left to right across the
+       room, then a rest (PULSE_REST_MS) and round again. Never while a window is open or the camera is flying, never all
+       at once, and not at all for someone who asks for less motion. */
+    const pulsing = TOUCH && !open && !flight && !reduced;
+    if (pulsing) {
+      // only the things in sight, left to right as they are now, looked at afresh each time round (a phone shows part
+      // of the room, and a swipe changes which part)
+      const round = now - pulseFrom;
+      if (!pulseOrder || round - pulseAt >= pulseCycle) {
+        // where each is on screen, through the room's own camera (a phone's framing is its own, not the laptop's pose)
+        DECKCAM.updateMatrixWorld();
+        const V = DECKCAM.matrixWorldInverse.elements,
+          Pm = DECKCAM.projectionMatrix.elements,
+          ndc = (q) => {
+            const c = [0, 1, 2, 3].map((i) => V[i] * q[0] + V[4 + i] * q[1] + V[8 + i] * q[2] + V[12 + i]);
+            const k = [0, 1, 3].map((i) => Pm[i] * c[0] + Pm[4 + i] * c[1] + Pm[8 + i] * c[2] + Pm[12 + i] * c[3]);
+            return k[2] > 0 ? [k[0] / k[2], k[1] / k[2]] : null;
+          },
+          // any of it in sight counts: on a phone, most things sit half off the screen's edges
+          seen = things
+            .map((t) => {
+              const qs = corners(t.mesh).map(ndc).filter(Boolean);
+              if (!qs.length) return null;
+              const xs = qs.map((q) => q[0]),
+                ys = qs.map((q) => q[1]);
+              const lo = Math.max(-1, Math.min(...xs)), hi = Math.min(1, Math.max(...xs));
+              return hi - lo > 0.08 && Math.min(...ys) < 0.95 && Math.max(...ys) > -0.95 ? [t, (lo + hi) / 2] : null;
+            })
+            .filter(Boolean)
+            .sort((a, b) => a[1] - b[1])
+            .map(([t]) => t);
+        for (const t of things) t.pulse = 0;
+        pulseOrder = seen;
+        pulseAt = round;
+        pulseCycle = pulseOrder.length * PULSE_GAP_MS + PULSE_REST_MS;
+      }
+      const n = pulseOrder.length,
+        at = round - pulseAt;
+      for (let i = 0; i < n; i++) {
+        const x = (at - i * PULSE_GAP_MS) / PULSE_MS;
+        pulseOrder[i].pulse = x > 0 && x < 1 ? PULSE_PEAK * Math.sin(Math.PI * x) ** 2 : 0;
+      }
+    }
     for (const t of things) {
-      const aim = t === focused || (t === hovered && !open) ? 1 : 0;
+      const glow = pulsing ? t.pulse || 0 : 0;
+      const aim = t === focused || (t === hovered && !open) ? 1 : glow;
+      if (glow && aim === glow) {
+        // the glow follows its own swell, not the hover's ease
+        t.hot = glow;
+        t.mesh.material.uniforms.hot.value = glow;
+        t.mesh.material.uniforms.hotInk.value = INK;
+        moved = true;
+        continue;
+      }
       if (t.hot !== aim) {
         t.hot += (aim - t.hot) * (reduced ? 1 : 0.22);
         if (Math.abs(aim - t.hot) < 0.02) t.hot = aim;
@@ -951,7 +1017,7 @@ export function startNav(v) {
     if (t) openThing(t, { jump: true, push: false });
   }
   // for the tests: where a thing's middle is on screen, -1..1
-  window.__nav = { busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id) => frame(things.find((t) => t.id === id)), room };
+  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id) => frame(things.find((t) => t.id === id)), room };
   /* THE WINDOW RESIZED with a page open: the thing is framed again for the new shape, at once. It kept the camera it
      flew to, so the thing drifted off the middle of the room beside the card, and half off a tall window: "if i resize
      the then the focus point of the room is no longer in teh center of the viewing area" (Carl, 2 Nov 2026). */

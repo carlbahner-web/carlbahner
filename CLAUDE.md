@@ -502,6 +502,12 @@ turns the view up to 6 degrees side to side and 4 up and down past his limits, n
 is clipped ("the buttons are getting cut off a little bit"), and the snow globe stands 4 degrees anticlockwise ("it looks
 tilted weird", then "try 3 more").
 
+**On a phone the things that open glow in turn, 3 Nov 2026**: "On mobile, we need a totally different visual cue. I was
+thinking, what if the different clickable items glow? But like, not all the time or at the same time, maybe a pulse like the
+countries or the fireflies?" (Carl). With no mouse to hover, each thing in sight that opens takes its turn to swell into the
+hover's light and fade, left to right, then a rest and round again (ON A PHONE, THEY GLOW IN TURN in `src/nav.mjs`); never
+while a card is open or the camera is flying, and not for someone who asks for less motion.
+
 ## Laptop first. Phones wait.
 
 **Carl, 5 Oct 2026: "dont do phone yet i'll make them turn it sideways anyway. let's jsut get
