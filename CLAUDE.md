@@ -538,6 +538,11 @@ the perceived size, not like, a fixed pixel size because they're at different zo
 instead of charcoal?" and "podcast word looks really blurry". A charcoal outline drawn into each word's picture, 0.07 of
 its letters' size outside them (THE OUTLINE, `WORD_STROKE`, `?stroke=`), so it scales with them; cream on every surface;
 and the graphics chip's slant filtering on the words, since PODCAST is seen almost edge-on (`setWordsAnisotropy`).
+**Smooth while it moves, 4 Nov 2026**: "mannnnn desktop it glitchy as fuck. it seems like ALL movement is 8fps just
+because the boil is 8fps" (Carl). At rest the room redraws only on the boil's eight a second; moving, it redraws every frame
+at up to twice the screen's pixels, and a chip that cannot keep up drops to a few frames a second. So while the camera
+moves and frames come slower than 22 ms, it draws at fewer pixels, down to one a screen pixel, and at full sharpness again
+350 ms after it settles (SMOOTH WHILE IT MOVES in `src/studio.mjs`); `?fps=1` shows the frame rate and the pixels drawn.
 
 ## Laptop first. Phones wait.
 

@@ -1435,6 +1435,29 @@ let W = 0,
   last = 0,
   shown = -1,
   dirty = true;
+/* SMOOTH WHILE IT MOVES: "mannnnn desktop it glitchy as fuck. it seems like ALL movement is 8fps just because the boil is
+   8fps" (Carl, 4 Nov 2026). At rest the room redraws only when the boil changes, eight times a second, which any machine
+   keeps up with; while the camera moves it redraws every frame, at up to twice the screen's pixels, the grain, light and
+   boil on every surface, and a graphics chip that cannot keep up drops to a few frames a second. So while something
+   moves and frames come slower than SLOW_MS, the room draws at fewer pixels, a step at a time down to one a screen
+   pixel; settled for SETTLE_MS, it draws at full sharpness again. `?fps=1` shows the frame rate and the pixels drawn. */
+const FULL_PR = renderer.getPixelRatio(),
+  SLOW_MS = 22,
+  SETTLE_MS = 350;
+let pr = FULL_PR,
+  frameMs = 16,
+  movedAt = 0,
+  lastDraw = 0;
+const seen = [0, 0, 0];
+let wasMoving = false;
+const setPR = (v) => {
+  pr = v;
+  renderer.setPixelRatio(v);
+  if (W && H) renderer.setSize(W, H, false);
+};
+const meter = new URLSearchParams(location.search).get("fps") === "1" && document.body.appendChild(Object.assign(document.createElement("div"), { style: "position:fixed;right:8px;bottom:8px;z-index:99;font:600 12px system-ui;background:#2c2c2a;color:#f4ead8;padding:4px 8px;border-radius:6px;pointer-events:none" }));
+let meterFrames = 0,
+  meterFrom = 0;
 function tick(now) {
   requestAnimationFrame(tick);
   /* A page can open before its window has a size (the artifact viewer does), so wait for one,
@@ -1454,8 +1477,10 @@ function tick(now) {
   if (!W || !H) return;
   const dt = Math.min(0.1, (now - last) / 1000 || 0);
   last = now;
-  if (nav.step(now)) dirty = true; // a flight, and the things under the pointer or the keyboard
-  if (edgeTurn(dt)) dirty = true; // the mouse resting at an edge of the card (THE EDGES TURN THE VIEW)
+  const navMoved = nav.step(now);
+  if (navMoved) dirty = true; // a flight, and the things under the pointer or the keyboard
+  const edgeMoved = edgeTurn(dt);
+  if (edgeMoved) dirty = true; // the mouse resting at an edge of the card (THE EDGES TURN THE VIEW)
   // a finger down eases quickly after it (A THUMB, below); otherwise the slow glide
   const k = REDUCED ? 1 : 1 - Math.exp(-(drag && drag.t ? 22 : 3.2) * dt);
   for (const [a, b] of [
@@ -1468,6 +1493,11 @@ function tick(now) {
     if (Math.abs(cam[b] - cam[a]) < 0.0005) cam[a] = cam[b];
     dirty = true;
   }
+  // the camera turned or zoomed since the last frame (a drag, a flight, the glide, the edges), a flight or a hover
+  let moving = navMoved || edgeMoved || cam.yaw !== seen[0] || cam.pitch !== seen[1] || cam.fov !== seen[2];
+  seen[0] = cam.yaw;
+  seen[1] = cam.pitch;
+  seen[2] = cam.fov;
   const f = REDUCED ? 1 : BOIL_ORDER[Math.floor(now / BOIL_MS) % 4];
   if (f !== shown) {
     boilPhases(f);
@@ -1476,10 +1506,23 @@ function tick(now) {
     dirty = true;
   }
   if (tickProps(now, REDUCED)) dirty = true; // the snow globe's flag and the clock's hands
-  if (stepLean(now)) dirty = true; // THE LEAN
+  if (stepLean(now)) dirty = moving = true; // THE LEAN
   if (stepViews(now, REDUCED)) dirty = true; // EACH VIEW ITS OWN PLACING
+  // SMOOTH WHILE IT MOVES
+  if (moving) {
+    // two moving frames in a row: how long one took
+    if (wasMoving && lastDraw) frameMs = frameMs * 0.6 + (now - lastDraw) * 0.4;
+    movedAt = now;
+    if (frameMs > SLOW_MS && pr > 1) setPR(Math.max(1, frameMs > 2 * SLOW_MS ? 1 : pr - 0.25)), (frameMs = 16);
+  } else if (pr < FULL_PR && now - movedAt > SETTLE_MS) setPR(FULL_PR), (dirty = true), (frameMs = 16);
+  wasMoving = moving;
+  if (meter) {
+    if (now - meterFrom > 500) (meter.textContent = Math.round((meterFrames * 1000) / (now - meterFrom)) + " fps · " + pr.toFixed(2) + "x"), (meterFrom = now), (meterFrames = 0);
+  }
   if (!dirty) return;
   dirty = false;
+  if (meter) meterFrames++;
+  lastDraw = now;
   place();
   shared.linePx.value = linePx * renderer.getPixelRatio();
   renderer.render(scene, camera);
