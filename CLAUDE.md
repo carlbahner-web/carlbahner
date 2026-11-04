@@ -483,7 +483,10 @@ a separate sync page, i think you're right... make them smaller to fit under the
 with four songs"), built here until then and moved to its own repo for the launch. His launch quiz answers (https://claude.ai/artifact/5LWQs73jHMp7yRByiUZgP1): the tab
 says "Carl Bahner"; a shared link shows the room as it opens (`assets/share.jpg`), his name and his line "Mixer, educator,
 and sonic chaos gremlin."; visitor counts, yes; old addresses go to the room (`404.html`). `studio/build-site.sh <folder>`
-lays out the real site.
+lays out the real site. **The snow globe, 3 Nov 2026**, his drawing with his Brand Castle from Homegrown's classroom inside, its flag waving:
+"I'm gonna replace the candle with a snow globe with this inside it", and "It should go to welcometostudioland.com".
+`tools/cut_globe.py` builds it; it stands where the picture frame stood, in the opening view, and the frame (which opens
+nothing) moved to the candle's old place at the console's far end. The wall says STUDIOLAND.
 
 ## Laptop first. Phones wait.
 

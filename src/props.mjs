@@ -430,7 +430,7 @@ export const PROPS = [
     on: "console",
     atop: true,
     w: 0.24,
-    along: 0.96,
+    along: 1.3, // where the candle stood, off the opening view's left edge: the snow globe took its place in view (3 Nov 2026)
     inset: 0.19,
     up: 0,
     tilt: 1,
@@ -440,36 +440,33 @@ export const PROPS = [
       { id: "matte", label: "mount", base: "#6c9eb1", color: null },
     ],
   },
-  /* THE CANDLE (Carl's drawing, sent 6 Oct 2026: "Here's a candle with flame to animate at 8fps"). Cut by
-     tools/cut_bits.py. It stands on the console's top on its own (`atop`), as the mug does. Its flame is
-     his five flames shown in turn, eight a second, on its wick's tip (BITS): `flame` is how wide, a share of
-     the candle's. Its size is a start, a little larger than life so it reads. */
+  /* THE SNOW GLOBE, where the candle stood: "I'm gonna replace the candle with a snow globe with this inside it, I'm
+     making the art now" (Carl, 3 Nov 2026), "this" being his Brand Castle from Homegrown's classroom (sent 18 Oct 2026).
+     tools/cut_globe.py lays the castle in behind his globe's glass; its flag's six frames wave on its pole, eight a
+     second (BITS), as on the classroom's map. It opens StudioLand (nav.mjs THINGS). Until then the candle (sent 6 Oct
+     2026, "Here's a candle with flame to animate at 8fps") stood here; its pictures stay in assets/ and art/. Its size is
+     a start, a little larger than life so it reads. */
   {
-    id: "candle",
-    label: "Candle",
-    src: "assets/candle.webp",
+    id: "globe",
+    label: "Snow globe",
+    src: "assets/snowglobe.webp",
     on: "console",
     atop: true,
-    w: 0.15,
-    along: 1.3,
+    w: 0.24,
+    along: 0.96, // where the picture frame stood, so it is in the opening view: the candle's spot is half off it
     inset: 0.16,
     up: 0,
     tilt: 0,
     follow: 0.2,
-    flame: 0.22,
+    flag: 0.132,
     bits: [
       {
-        frames: [0, 1, 2, 3, 4].map((i) => `assets/flame-${i}.webp`),
+        frames: [0, 1, 2, 3, 4, 5].map((i) => `assets/globe-flag-${i}.webp`),
         fps: 8,
-        at: [0.4904, 0.9026], // its wick's tip, off tools/cut_bits.py
-        anchor: [0.5, 0.04], // the flame's bottom, a little into it, on the tip
-        size: "flame",
-        unlit: true, // a flame holds its own light
+        at: [0.5145, 0.7234], // the top of the castle's pole, off tools/cut_globe.py
+        anchor: [0, 0.8261], // the flag's edge that meets the pole
+        size: "flag",
       },
-    ],
-    colors: [
-      { id: "glass", label: "glass", base: "#3f6e6e", color: null },
-      { id: "wax", label: "wax", base: "#f6e7c5", color: null },
     ],
   },
   /* THE CLOCK (Carl's drawing, sent 6 Oct 2026: "and a clock to sync with eastern time"). Cut by
@@ -1929,7 +1926,7 @@ export function lidAt(k) {
   }
 }
 // the things on its top lift away in this order, a beat apart, gone out of the top of the frame
-const LIFT_ORDER = ["candle", "frame", "book", "dog", "mug"];
+const LIFT_ORDER = ["globe", "frame", "book", "dog", "mug"];
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
 const easeInOutCubic = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 const LIFT_MAX = 1.1;
@@ -1975,7 +1972,7 @@ function stepLid(now, reduced) {
   return true;
 }
 
-/* BITS: small pictures laid on a decoration's own, moving with it: the candle's flame and the clock's hands.
+/* BITS: small pictures laid on a decoration's own, moving with it: the snow globe's flag and the clock's hands.
    Each is placed by `at` (where on its parent's picture, a share across and up from the bottom left) and
    `anchor` (the point of its own picture that goes there), and is as wide as its parent times `size` (a key
    of the prop's own, the flame's), or as wide as its parent. One with `frames` shows them in turn, `fps` a

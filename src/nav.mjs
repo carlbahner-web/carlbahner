@@ -46,7 +46,7 @@ import { inkMask, MASK_N, wobbleLine, wobblePath, BOIL_ORDER, BOIL_MS } from "./
    Bass drum SYNCS, Eye painting YOU+ME, Dog CONTACT, Mug PODCAST, Book HOMEGROWN". Keyed by the page a thing opens (or a
    link's own id): written as the bio moved from the frame onto the drum, so ABOUT goes with the bio and SYNCS with the
    logos, whichever thing opens them. */
-export const SAYS = { portfolio: "Listen", bio: "About", artists: "Quotes", tour: "Syncs", "my-people": "You+Me", contact: "Contact", mug: "Podcast", book: "Homegrown" };
+export const SAYS = { portfolio: "Listen", bio: "About", artists: "Quotes", tour: "Syncs", "my-people": "You+Me", contact: "Contact", mug: "Podcast", book: "Homegrown", globe: "StudioLand" };
 export const THINGS = [
   { id: "console", hash: "portfolio", kind: "player", name: "Record console" },
   /* the picture frame opened the bio until 3 Nov 2026, the drum the logos ("COOL SYNC THINGS"); then "I want to put my
@@ -65,6 +65,8 @@ export const THINGS = [
   { id: "book", link: "https://homegrownapp.io", name: "Book", says: "Homegrown" },
   // his Secret Sonics podcast on Spotify, the link sent 2 Nov 2026
   { id: "mug", link: "https://open.spotify.com/show/6xqoB0hvyyspcK9biajV0N?si=5f744953785247e7", name: "Mug", says: "Secret Sonics" },
+  // StudioLand, from the snow globe with his castle in it: "It should go to welcometostudioland.com" (Carl, 3 Nov 2026)
+  { id: "globe", link: "https://welcometostudioland.com", name: "Snow globe", says: "StudioLand" },
 ];
 
 // six at first: "if i did 6" (Carl, 2 Nov 2026), each a placeholder tone and an empty sleeve until his song came

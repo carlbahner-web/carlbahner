@@ -1431,7 +1431,7 @@ function tick(now) {
     shown = f;
     dirty = true;
   }
-  if (tickProps(now, REDUCED)) dirty = true; // the candle's flame and the clock's hands
+  if (tickProps(now, REDUCED)) dirty = true; // the snow globe's flag and the clock's hands
   if (stepLean(now)) dirty = true; // THE LEAN
   if (stepViews(now, REDUCED)) dirty = true; // EACH VIEW ITS OWN PLACING
   if (!dirty) return;

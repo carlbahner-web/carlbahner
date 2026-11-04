@@ -3,7 +3,7 @@
    the different views? Like to get a view set and then it saves the settings for that view, then I can adjust another
    view without it changing the settings in the others".
 
-   So a thing on the console (the dog, the book, the mug, the photo, the candle) can be placed differently in each view:
+   So a thing on the console (the dog, the book, the mug, the photo, the snow globe) can be placed differently in each view:
    the room as it opens ("opening") and each window's view (its address, nav.mjs THINGS). A view's settings are laid
    over the thing's own (PROPS); a view with none for it leaves it as PROPS has it. While the camera flies from one view
    to another the things glide from one view's settings to the next's, so nothing jumps.
@@ -32,7 +32,7 @@ const THINGS = [
   ["book", "Book"],
   ["mug", "Mug"],
   ["frame", "Photo"],
-  ["candle", "Candle"],
+  ["globe", "Snow globe"],
 ];
 const KEYS = [
   ["along", "Left / right", 0, 1.9, 0.002],
