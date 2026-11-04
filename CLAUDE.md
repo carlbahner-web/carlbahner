@@ -520,6 +520,9 @@ text needs to be seen, and maybe we zoom in a bit for relevant size of things" (
 each looks, far left to far right, starting on the room as it opens in the middle with no wrapping round; each frames
 its thing and its words fully on screen, a fifth closer than the room opens where they fit, and a word too wide for the
 phone beside its thing is drawn smaller there, never under 0.6 of his size (`framed`, `setHoverWordsScale`).
+Then "Can we make the boil a bit more pronounced, and only boil the active page's item (so like on the about page the
+drum should boil but not the eye art)" (4 Nov 2026): on a stop its thing alone boils, 1.7 times as hard (`SNAP_BOIL`,
+`?boil=`); on the room as it opens every thing boils as on a laptop.
 
 ## Laptop first. Phones wait.
 

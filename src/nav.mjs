@@ -891,6 +891,7 @@ export function startNav(v) {
     stopAudio();
     const back = away || { ...START };
     open = null;
+    if (snapping() && stops) boilStop(); // back on a phone's stop: its thing alone boils again
     /* hidden once its slide out has finished, not before: "Card slides in but just disappears on the way out" (Carl,
        2 Nov 2026). It was hidden at 260 ms while the paper's slide takes 620 (.touches #win.sheet in index.html). */
     veil.hidden = true;
@@ -1016,8 +1017,19 @@ export function startNav(v) {
   const dots = Object.assign(document.createElement("nav"), { id: "snap-dots", hidden: true });
   dots.setAttribute("aria-label", "Things in the room");
   document.body.append(dots);
+  /* ONLY THE STOP'S THING BOILS, AND MORE: "Can we make the boil a bit more pronounced, and only boil the active page's
+     item (so like on the about page the drum should boil but not the eye art)" (Carl, 4 Nov 2026). On the room as it
+     opens, every thing that opens boils as on a laptop, so the visitor sees what there is. `?boil=` tries another. */
+  const SNAP_BOIL = +(Q.get("boil") || 1.7);
+  function boilStop() {
+    if (open) return;
+    const t = stops?.[stopAt];
+    for (const x of things) x.mesh.material.uniforms.use.value = !t ? 1 : x === t ? SNAP_BOIL : 0;
+    v.dirty();
+  }
   function sayStop() {
     const t = stops?.[stopAt];
+    boilStop();
     hovered = t || null;
     sayFor(t || null);
     setHoverWordsScale(t ? stopPose(stopAt).k : 1);
@@ -1151,6 +1163,7 @@ export function startNav(v) {
   // for the tests: where a thing's middle is on screen, -1..1
   window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room,
     // for the tests: each phone stop, where it looks and where its thing and words land on screen (-1..1)
+    uses: () => Object.fromEntries(things.map((t) => [t.id, t.mesh.material.uniforms.use.value])),
     stops: () =>
       stops?.map((t, i) => {
         const p = stopPose(i),
