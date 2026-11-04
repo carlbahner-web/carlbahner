@@ -977,7 +977,7 @@ export function startNav(v) {
     if (t) openThing(t, { jump: true, push: false });
   }
   // for the tests: where a thing's middle is on screen, -1..1
-  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id) => frame(things.find((t) => t.id === id)), room };
+  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room };
   /* THE WINDOW RESIZED with a page open: the thing is framed again for the new shape, at once. It kept the camera it
      flew to, so the thing drifted off the middle of the room beside the card, and half off a tall window: "if i resize
      the then the focus point of the room is no longer in teh center of the viewing area" (Carl, 2 Nov 2026). */
