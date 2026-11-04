@@ -11,7 +11,17 @@ export const view = () => box;
    instead of the top half. Then they are able to scroll down/be taller to fit". So a window taller than it is wide (a
    phone upright) has no 16:9 card: the room fills it, a small margin round it, and `upright()` tells the rest. Until
    that day a phone upright was asked to turn ("1: Turn it", 6 Oct 2026). */
-export const upright = () => (innerHeight > innerWidth && !window.STUDIO_EDITOR && !window.WORDS_EDITOR) || !!window.PHONE_PREVIEW;
+/* TYPING ON A PHONE HOLDS THE ROOM STILL: "clicking in the name field does crazy stuff with panning and zooming" (Carl,
+   3 Nov 2026). A phone's keyboard coming up shrinks the window, so the room was refitted to the shorter window (an
+   upright phone could even read as on its side) and the camera reframed under the card, then again as the keyboard went.
+   So while a field on a card has the keyboard, the room keeps the size and shape it had (`fitStage` returns its last
+   box), and it fits itself again once the field lets go. */
+export const typing = () => matchMedia("(pointer: coarse)").matches && !!document.activeElement?.matches?.("#win input, #win textarea, #win select");
+let wasUpright = null;
+export const upright = () => {
+  if (typing() && wasUpright !== null) return wasUpright;
+  return (wasUpright = (innerHeight > innerWidth && !window.STUDIO_EDITOR && !window.WORDS_EDITOR) || !!window.PHONE_PREVIEW);
+};
 // the view editor's "Show as a phone": the room drawn phone-shaped, a 390 by 844 phone's proportions (src/viewtune.mjs)
 const PHONE_SHAPE = 390 / 844;
 export const CARD_REF = 1408;
@@ -22,6 +32,7 @@ export const UPRIGHT_CARD = +(new URLSearchParams(location.search).get("ch") || 
 export function fitStage() {
   const el = document.querySelector("#stage");
   if (!el) return box;
+  if (typing() && box.width) return box; // the keyboard is up: the room as it was (TYPING ON A PHONE)
   const m = Math.min(innerWidth, innerHeight) < 500 ? 6 : 16; // the margin: smaller on a phone on its side
   // the view editor's own copy keeps a column on the left for its panel, so the panel never covers the room: "the
   // panel covers the page dude so i can't see" (Carl, 2 Nov 2026)
