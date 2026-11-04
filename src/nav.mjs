@@ -259,9 +259,12 @@ export function startNav(v) {
     open = null, // whose window is open
     flight = null, // { from, to, t0, dur, then }
     away = null, // where the visitor was before flying in
-    flying = false;
+    flying = false,
+    holding = false; // a phone's tap showing the words before the flight (THE WORD FIRST, ON A PHONE)
+  const WORD_HOLD_MS = +(Q.get("hold") || 900),
+    TURN_MS = 600; // the turn to bring a tapped thing's words into view
   // a soft flight (a stop's nudge, ONE THING AT A TIME ON A PHONE) never holds a finger off the room
-  const busy = () => !!(open || (flight && !flight.soft));
+  const busy = () => !!(open || holding || (flight && !flight.soft));
   // the focus ring shows when the keyboard is in use, not after a click or a tap
   addEventListener("keydown", (e) => e.key === "Tab" && (document.documentElement.dataset.kbd = "1"), true);
   addEventListener("pointerdown", () => delete document.documentElement.dataset.kbd, true);
@@ -1291,7 +1294,7 @@ export function startNav(v) {
     },
     leave() {
       // a finger lifted leaves too: on a phone's stops the stop's thing stays lit and its words stay up
-      if (snapping() && stops) return;
+      if ((snapping() && stops) || holding) return;
       if (hovered) {
         hovered = null;
         setHoverWords(null);
@@ -1344,8 +1347,44 @@ export function startNav(v) {
     tap(x, y) {
       if (busy()) return false;
       const t = thingAt(x, y);
-      if (t) openThing(t);
-      return !!t;
+      if (!t) return false;
+      /* THE WORD FIRST, ON A PHONE: "On phone when I'm moving around in free camera mode, I would love to see the text show
+         up for a second before it zooms into place" (Carl, 4 Nov 2026). A finger has no hover, so the words on the wall
+         never showed before the flight. So a tap lights the thing and puts its words up for WORD_HOLD_MS, then flies in.
+         The phone's stops (ONE THING AT A TIME) already show them, so they fly at once. */
+      // a link opens at once: a new tab opened a second after the tap is blocked as a popup
+      if (TOUCH && !snapping() && !reduced && !t.link) {
+        holding = true;
+        hovered = t;
+        sayFor(t);
+        cue("hover:" + t.id);
+        v.dirty();
+        // the words are where the laptop has them, often off the side of a phone: the view turns to take in the thing
+        // and its words first, no wider than a third more than it was, and the card's close comes back to where it was
+        const was = { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov },
+          words = hoverWordsCorners(),
+          P = pose(cam.yaw, cam.pitch, cam.fov),
+          seen = words.length && words.every((q) => {
+            const s = onScreen(P, q);
+            return s && Math.abs(s[0]) < 0.95 && Math.abs(s[1]) < 0.95;
+          });
+        let turn = 0;
+        if (words.length && !seen) {
+          const pts = [...corners(t.mesh).slice(0, 4), ...words],
+            to = fitAll(pts, was, SNAP_BOX);
+          to.fov = Math.min(to.fov, (2 * Math.atan(Math.tan((was.fov * Math.PI) / 360) * 1.35) * 180) / Math.PI);
+          turn = TURN_MS;
+          fly(to, null, turn);
+        }
+        setTimeout(() => {
+          holding = false;
+          openThing(t);
+          away = was;
+        }, turn + WORD_HOLD_MS);
+        return true;
+      }
+      openThing(t);
+      return true;
     },
   };
 

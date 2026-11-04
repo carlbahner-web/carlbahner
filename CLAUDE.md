@@ -543,6 +543,12 @@ because the boil is 8fps" (Carl). At rest the room redraws only on the boil's ei
 at up to twice the screen's pixels, and a chip that cannot keep up drops to a few frames a second. So while the camera
 moves and frames come slower than 22 ms, it draws at fewer pixels, down to one a screen pixel, and at full sharpness again
 350 ms after it settles (SMOOTH WHILE IT MOVES in `src/studio.mjs`); `?fps=1` shows the frame rate and the pixels drawn.
+**The word first, on a phone, 4 Nov 2026**: "On phone when I'm moving around in free camera mode, I would love to see the
+text show up for a second before it zooms into place" (Carl). A finger has no hover, so on a touch screen (not the stops) a
+tap lights the thing and puts its words up, the view first turning over 0.6 s to take in the thing and its words if they
+are off screen (no more than a third wider), holds 0.9 s (`?hold=`), then flies in; closing comes back to where the
+visitor was. A link (the book, the mug) opens at once, since a new tab opened later is blocked as a popup (THE WORD
+FIRST, ON A PHONE in `src/nav.mjs`).
 
 ## Laptop first. Phones wait.
 
