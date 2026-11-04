@@ -244,7 +244,9 @@ screenshot never finds the page quiet. Freeze `Date` in the test, and check the 
 where the marching machine leaned, a floor card turned part of the way to the camera like the chair. Flipped in
 its picture by `tools/flip_drum.py`, which puts its "CC" back the right way round ("The drum needs flipped,
 I forgot to mention") and at ten o'clock on the head, where it was drawn ("The cc logo should be on the other
-side at that 10 o'clock Ish position that it was in the original head"); the room's Flip would have mirrored the letters. **The
+side at that 10 o'clock Ish position that it was in the original head"); the room's Flip would have mirrored the letters. **His CB is on the head now, not the CC**: "Should I put my CB from the drum logo (minus the rim) in lieu of the CC on
+the kick drum?", then his logo sent (3 Nov 2026). `tools/drum_cb.py`, run after `flip_drum.py`, lifts the letters out of
+his drum logo and sets them where the CC sat, in its ink. **The
 marching machine moved to the teal wall** past the console's far end, flipped ("the marching machine should
 get flipped horizontally and moves to the left wall outside of the console"): `leanWall: "teal"`, its
 left/right reversed like the console's.
