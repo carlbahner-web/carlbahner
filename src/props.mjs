@@ -443,7 +443,8 @@ export const PROPS = [
   /* THE SNOW GLOBE, where the candle stood: "I'm gonna replace the candle with a snow globe with this inside it, I'm
      making the art now" (Carl, 3 Nov 2026), "this" being his Brand Castle from Homegrown's classroom (sent 18 Oct 2026).
      tools/cut_globe.py lays the castle in behind his globe's glass, up on a hill ("Can we add a simple procedural hill
-     under the castle so it sits a bit higher?", the same day); its flag's six frames wave on its pole, eight a
+     under the castle so it sits a bit higher?", the same day; then "The hill needs to be lower, the castle needs to be bigger,
+     and we need to recolor all of it", picked "Cream castle rust roof"); its flag's six frames wave on its pole, eight a
      second (BITS), as on the classroom's map. It opens StudioLand's card (nav.mjs THINGS). Until then the candle (sent 6 Oct
      2026, "Here's a candle with flame to animate at 8fps") stood here; its pictures stay in assets/ and art/. Its size is
      a start, a little larger than life so it reads. */
@@ -459,12 +460,12 @@ export const PROPS = [
     up: 0,
     tilt: 0,
     follow: 0.2,
-    flag: 0.1092,
+    flag: 0.1371,
     bits: [
       {
         frames: [0, 1, 2, 3, 4, 5].map((i) => `assets/globe-flag-${i}.webp`),
         fps: 8,
-        at: [0.5126, 0.7862], // the top of the castle's pole, off tools/cut_globe.py
+        at: [0.5146, 0.8509], // the top of the castle's pole, off tools/cut_globe.py
         anchor: [0, 0.8261], // the flag's edge that meets the pole
         size: "flag",
       },

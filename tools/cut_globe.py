@@ -11,7 +11,8 @@ import json, sys
 # THE COLOURS: his castle's own (cream walls, teal roofs, wood door, mustard flag) and the hill's, each swapped for one
 # of the room's: "we need to recolor all of it I think tbh" (Carl, 3 Nov 2026). `python3 tools/cut_globe.py '<json>'`
 # tries a set ({"walls": "#..", "roofs": .., "door": .., "flag": .., "hill": ..}); with none, PALETTE below.
-PALETTE = {"walls": "#f4ead8", "roofs": "#2f6466", "door": "#9a6440", "flag": "#f0c060", "hill": "#7d8a4a"}
+# his pick, 3 Nov 2026, "Cream castle rust roof": option 3 of four shown against the teal wall
+PALETTE = {"walls": "#f4ead8", "roofs": "#b5532d", "door": "#8a5a34", "flag": "#f0c060", "hill": "#93a35c"}
 PAL = {**PALETTE, **(json.loads(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].startswith("{") else {})}
 OUT = sys.argv[2] if len(sys.argv) > 2 else "assets"
 BASE = {"walls": (244, 242, 230), "roofs": (55, 100, 100), "door": (150, 100, 70)}
