@@ -2274,6 +2274,13 @@ export function setHoverWordsAt(at, key = null) {
   placeWords(wordAt(key || HW.key));
 }
 export const hoverWordsAt = (key) => wordAt(key);
+/* the words drawn smaller about their middle, on a phone's stops only (src/nav.mjs ONE THING AT A TIME ON A PHONE):
+   his sizes are a laptop's, and on a narrow phone a word framed beside its thing can be wider than the screen */
+export function setHoverWordsScale(k = 1) {
+  if (!HW.mesh || HW.mesh.scale.x === k) return;
+  HW.mesh.scale.set(k, k, 1);
+  bitsChanged = true;
+}
 // the words' four corners in the room as they are drawn now, for the phone's stops to frame a thing with its word
 // (src/nav.mjs ONE THING AT A TIME ON A PHONE)
 export function hoverWordsCorners() {

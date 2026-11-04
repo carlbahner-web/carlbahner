@@ -514,7 +514,12 @@ work either"); shown a camera that snaps from thing to thing: "I think it could 
 projection in the walls shows during that page" (Carl). So with `?snap=1` on a phone upright, a swipe left or right glides
 to the next thing that opens, framed with its words on the wall and lit as a hover lights it; a tap opens it; dots along
 the bottom, one a stop, the room as it opens first; and until the first swipe the view leans a third of the way toward
-the next thing every 6 seconds. No pulse while it is on. ONE THING AT A TIME ON A PHONE in `src/nav.mjs`.
+the next thing every 6 seconds. No pulse while it is on. ONE THING AT A TIME ON A PHONE in `src/nav.mjs`. Then "that is mega
+clunky. Like, they should be in visual order. Like it starts in the center view but I can't swipe to look left. And the
+text needs to be seen, and maybe we zoom in a bit for relevant size of things" (4 Nov 2026): so the stops run by where
+each looks, far left to far right, starting on the room as it opens in the middle with no wrapping round; each frames
+its thing and its words fully on screen, a fifth closer than the room opens where they fit, and a word too wide for the
+phone beside its thing is drawn smaller there, never under 0.6 of his size (`framed`, `setHoverWordsScale`).
 
 ## Laptop first. Phones wait.
 

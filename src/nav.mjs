@@ -27,7 +27,7 @@
      them" (Carl, 6 Oct 2026). So the press is a real squash and spring back, the dog blinks twice, and
      the paper lands with more give. studio/NAVIGATION.md has the rest. */
 import { view, upright, CARD_REF, UPRIGHT_CARD } from "./stage.mjs";
-import { setLid, setMapLights, setDeck, FADE_MS, preloadPictures, setHoverWords, hoverWordsCorners, deckPoints, ARM_SWING_MS, drawControls, deckControls, DECK_HIT, pressKey, releaseKeys, DECK_LIFT, DROP_MS } from "./props.mjs";
+import { setLid, setMapLights, setDeck, FADE_MS, preloadPictures, setHoverWords, hoverWordsCorners, setHoverWordsScale, deckPoints, ARM_SWING_MS, drawControls, deckControls, DECK_HIT, pressKey, releaseKeys, DECK_LIFT, DROP_MS } from "./props.mjs";
 import { goToView, cameraFor } from "./viewtune.mjs";
 import { cue } from "./cues.mjs";
 import { inkMask, MASK_N, wobbleLine, wobblePath, BOIL_ORDER, BOIL_MS } from "./garden-bits.mjs";
@@ -518,6 +518,27 @@ export function startNav(v) {
     return { yaw, pitch, fov };
   }
 
+  // refined on the screen itself: the points' box on screen centred in `box` and as wide or tall as it, from `p`
+  function fitAll(pts, p, box) {
+    let { yaw, pitch, fov } = p;
+    for (let i = 0; i < 30; i++) {
+      const P = pose(yaw, pitch, fov),
+        ss = pts.map((q) => onScreen(P, q));
+      if (ss.some((q) => !q)) break;
+      const xs = ss.map((q) => q[0]),
+        ys = ss.map((q) => q[1]),
+        lx = Math.min(...xs),
+        hx = Math.max(...xs),
+        ly = Math.min(...ys),
+        hy = Math.max(...ys);
+      yaw += Math.atan(P.ta) * (box.x - (lx + hx) / 2) * 0.9;
+      pitch -= Math.atan(P.tv) * (box.y - (ly + hy) / 2) * 0.9;
+      const k = Math.max((hx - lx) / box.w, (hy - ly) / box.h);
+      fov = Math.max(3, Math.min(60, (2 * Math.atan(Math.tan((fov * Math.PI) / 360) * k) * 180) / Math.PI));
+    }
+    return { yaw, pitch, fov };
+  }
+
   /* ---------- the flight ---------- */
   const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2); // in and out, no snap
   function fly(to, then, dur = FLY_MS, shape = null) {
@@ -978,7 +999,15 @@ export function startNav(v) {
   const SNAP = Q.get("snap") === "1";
   const snapping = () => SNAP && upright();
   const SNAP_MS = 650; // a glide from one thing to the next: quicker than a flight in, as a swipe is
-  const SNAP_BOX = { x: 0, y: 0.06, w: 1.5, h: 1.45 }; // the thing and its words, in the screen above the dots
+  /* Carl, 4 Nov 2026, of the first try: "they should be in visual order. Like it starts in the center view but I can't
+     swipe to look left. And the text needs to be seen, and maybe we zoom in a bit for relevant size of things". So the
+     stops run left to right by where each one looks, the room as it opens among them, and the
+     visitor starts there; each thing is framed with its words a bit closer than the room opens where it can, and a word
+     too wide for the phone beside its thing is drawn smaller there (props.mjs setHoverWordsScale; framed, below). */
+  const SNAP_BOX = { x: 0, y: 0.04, w: 1.76, h: 1.6 }; // the thing and its words, in from the edges and over the dots
+  const CLOSER = +(Q.get("closer") || 0.8), // of the room's opening lens: "zoom in a bit"
+    FURTHEST = 1.35,
+    NEAREST = 0.45;
   let stops = null, // [null (the room as it opens), ...things left to right]
     stopAt = 0,
     stopCache = new Map(),
@@ -991,26 +1020,44 @@ export function startNav(v) {
     const t = stops?.[stopAt];
     hovered = t || null;
     sayFor(t || null);
+    setHoverWordsScale(t ? stopPose(stopAt).k : 1);
     v.dirty();
   }
   function stopPose(i) {
     if (stopCache.has(i)) return stopCache.get(i);
     const t = stops[i];
-    let p;
-    if (!t) p = { ...stops.opening };
-    else {
-      // its words placed first, so the frame takes them in (props.mjs hoverWordsCorners)
-      sayFor(t);
-      const c = corners(t.mesh),
-        w = hoverWordsCorners();
-      // centred on the two together, the middle of all their corners
-      const all = [...c.slice(0, 4), ...w],
-        mid = [0, 1, 2].map((i) => (Math.min(...all.map((q) => q[i])) + Math.max(...all.map((q) => q[i]))) / 2);
-      p = framePts([...all, mid], SNAP_BOX);
-      // never wider than the phone opens: a thing far from its words shows them as far as the room allows
-      p.fov = Math.min(p.fov, stops.opening.fov);
-    }
+    const p = t ? framed(t) : { ...stops.opening, k: 1 };
     stopCache.set(i, p);
+    return p;
+  }
+  /* a thing and its words together, centred on the two. In order of what is wanted: a bit closer than the room opens
+     (CLOSER), its words at most a little smaller; else as wide as the room opens, its words smaller; else a little wider
+     than that (FURTHEST) with them smallest. Never in closer than NEAREST, so a small thing does not fill the phone. */
+  function framed(t) {
+    const c = corners(t.mesh),
+      wide = stops.opening.fov,
+      lens = (r) => (2 * Math.atan(Math.tan((wide * Math.PI) / 360) * r) * 180) / Math.PI;
+    sayFor(t); // its words placed, so the frame takes them in (props.mjs hoverWordsCorners)
+    const at = (k) => {
+      setHoverWordsScale(k);
+      const all = [...c.slice(0, 4), ...hoverWordsCorners()],
+        mid = [0, 1, 2].map((i) => (Math.min(...all.map((q) => q[i])) + Math.max(...all.map((q) => q[i]))) / 2);
+      return { ...fitAll(all, framePts([...all, mid], SNAP_BOX), SNAP_BOX), k };
+    };
+    let p = null;
+    for (const [most, least] of [[lens(CLOSER), 0.75], [wide, 0.65], [lens(FURTHEST), 0.6]]) {
+      for (let k = 1; k >= least - 1e-6; k -= 0.05) {
+        const q = at(k);
+        if (q.fov <= most * 1.01) {
+          p = q;
+          break;
+        }
+      }
+      if (p) break;
+    }
+    p ||= at(0.6); // wider still rather than words too small to read
+    p.fov = Math.max(p.fov, lens(NEAREST));
+    setHoverWordsScale(1);
     return p;
   }
   function drawDots() {
@@ -1020,7 +1067,8 @@ export function startNav(v) {
   }
   function snapTo(i, { glide = true } = {}) {
     if (!stops || open) return;
-    i = (i + stops.length) % stops.length;
+    // the ends are the ends: no wrapping round from the far left to the far right
+    if (i < 0 || i >= stops.length) return;
     stopAt = i;
     const to = stopPose(i);
     sayStop();
@@ -1031,8 +1079,17 @@ export function startNav(v) {
   }
   function startSnap() {
     if (!snapping() || stops) return;
-    stops = [null, ...ordered()];
-    stops.opening = { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov };
+    // left to right as they stand: a turn left is a larger yaw (framePts), the room as it opens among them
+    const opening = { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov };
+    stops = [null, ...things];
+    stops.opening = opening;
+    // by where each stop looks, so every swipe turns the view the same way (a stop's words can pull it past the next)
+    const at = new Map(stops.map((t, i) => [t, t ? stopPose(i).yaw : opening.yaw]));
+    stops = [...stops].sort((a, b) => at.get(b) - at.get(a));
+    stops.opening = opening;
+    stopCache = new Map();
+    stopAt = stops.indexOf(null);
+    sayStop();
     dots.replaceChildren(
       ...stops.map((t, i) => {
         const b = Object.assign(document.createElement("button"), { type: "button" });
@@ -1049,7 +1106,7 @@ export function startNav(v) {
       if (now >= nudgeAt && !open && !flight && !document.hidden && !reduced) {
         // a lean a third of the way toward the next and back, so the room says it goes on that way
         const here = stopPose(stopAt),
-          next = stopPose((stopAt + 1) % stops.length),
+          next = stopPose(stopAt + 1 < stops.length ? stopAt + 1 : stopAt - 1),
           k = 0.3,
           part = { yaw: here.yaw + (next.yaw - here.yaw) * k, pitch: here.pitch + (next.pitch - here.pitch) * k, fov: here.fov };
         sayStop(); // stopPose may have placed another's words
@@ -1071,6 +1128,8 @@ export function startNav(v) {
     drawDots();
     if (!open && !flight) set(stopPose(stopAt)), sayStop();
   });
+  // off a phone's stops (turned on its side), the words at his size again
+  addEventListener("resize", () => !snapping() && setHoverWordsScale(1));
 
   /* ---------- the phone held upright: asked to turn ---------- */
   const turnCard = document.querySelector("#turn");
@@ -1090,7 +1149,22 @@ export function startNav(v) {
     if (t) openThing(t, { jump: true, push: false });
   }
   // for the tests: where a thing's middle is on screen, -1..1
-  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room };
+  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room,
+    // for the tests: each phone stop, where it looks and where its thing and words land on screen (-1..1)
+    stops: () =>
+      stops?.map((t, i) => {
+        const p = stopPose(i),
+          P = pose(p.yaw, p.pitch, p.fov),
+          box = (pts) => {
+            const ss = pts.map((q) => onScreen(P, q));
+            if (!ss.length || ss.some((s) => !s)) return null;
+            return [Math.min(...ss.map((s) => s[0])), Math.min(...ss.map((s) => s[1])), Math.max(...ss.map((s) => s[0])), Math.max(...ss.map((s) => s[1]))].map((v) => +v.toFixed(2));
+          };
+        if (t) sayFor(t), setHoverWordsScale(p.k);
+        const out = { k: +p.k.toFixed(2), id: t?.id || "room", yaw: +p.yaw.toFixed(3), fov: +p.fov.toFixed(1), thing: t && box(corners(t.mesh).slice(0, 4)), words: t && box(hoverWordsCorners()) };
+        setHoverWordsScale(1);
+        return out;
+      }) };
   /* THE WINDOW RESIZED with a page open: the thing is framed again for the new shape, at once. It kept the camera it
      flew to, so the thing drifted off the middle of the room beside the card, and half off a tall window: "if i resize
      the then the focus point of the room is no longer in teh center of the viewing area" (Carl, 2 Nov 2026). */
