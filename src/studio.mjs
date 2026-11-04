@@ -1221,7 +1221,7 @@ const setLens = (f) => {
 let gestureFov = 0;
 cv.addEventListener("gesturestart", (e) => {
   e.preventDefault();
-  if (nav.busy()) return;
+  if (nav.busy() || nav.snapping()) return;
   gestureFov = cam.fov;
 });
 cv.addEventListener("gesturechange", (e) => {
@@ -1263,6 +1263,7 @@ cv.addEventListener("pointermove", (e) => {
   down.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (press) press.far = Math.max(press.far, Math.hypot(e.clientX - press.x, e.clientY - press.y));
   if (nav.busy()) return;
+  if (nav.snapping()) return; // a phone's stops: a swipe goes thing to thing, on lifting (src/nav.mjs ONE THING AT A TIME)
   if (pinch && down.size === 2) {
     setLens((pinch.fov * pinch.d) / spread());
     return;
@@ -1346,14 +1347,18 @@ function edgeTurn(dt) {
 }
 const end = (e) => {
   if (press && down.size === 1 && e.type === "pointerup") {
-    if (press.far < 8 && performance.now() - press.at < 700 && !window.WORDS_EDITOR) nav.tap(e.clientX - view().left, e.clientY - view().top);
+    const dx = e.clientX - press.x,
+      dy = e.clientY - press.y;
+    // a phone's stops: a swipe left goes to the next thing, right to the one before (src/nav.mjs ONE THING AT A TIME)
+    if (nav.snapping() && !nav.busy() && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) nav.snap(dx < 0 ? 1 : -1);
+    else if (press.far < 8 && performance.now() - press.at < 700 && !window.WORDS_EDITOR) nav.tap(e.clientX - view().left, e.clientY - view().top);
     press = null;
   }
   down.delete(e.pointerId);
   if (down.size < 2) pinch = null;
   if (down.size === 0) {
     // a flick carries on: about a quarter second more of the speed it had
-    if (drag && e.pointerType === "touch" && e.type === "pointerup" && performance.now() - (drag.t || 0) < 80) {
+    if (drag && !nav.snapping() && e.pointerType === "touch" && e.type === "pointerup" && performance.now() - (drag.t || 0) < 80) {
       cam.tyaw += fling * 260;
       clamp();
       dirty = true;

@@ -509,6 +509,13 @@ attention"), then "Oh can they just all be a steady pulse in and out?": so with 
 breathes in and out together to the hover's light (ON A PHONE, THEY GLOW in `src/nav.mjs`, `?pulse=`, `?peak=`); never
 while a card is open or the camera is flying, and not for someone who asks for less motion.
 
+**One thing at a time on a phone, on trial behind `?snap=1`, 4 Nov 2026.** The pulse did not land ("That doesn't really
+work either"); shown a camera that snaps from thing to thing: "I think it could be cool, espexially if the title/text
+projection in the walls shows during that page" (Carl). So with `?snap=1` on a phone upright, a swipe left or right glides
+to the next thing that opens, framed with its words on the wall and lit as a hover lights it; a tap opens it; dots along
+the bottom, one a stop, the room as it opens first; and until the first swipe the view leans a third of the way toward
+the next thing every 6 seconds. No pulse while it is on. ONE THING AT A TIME ON A PHONE in `src/nav.mjs`.
+
 ## Laptop first. Phones wait.
 
 **Carl, 5 Oct 2026: "dont do phone yet i'll make them turn it sideways anyway. let's jsut get

@@ -235,6 +235,44 @@
       .win-open #things {
         visibility: hidden;
       }
+      /* ONE THING AT A TIME ON A PHONE (src/nav.mjs, ?snap=1): a dot a stop, the one you are on filled */
+      #snap-dots {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: calc(14px + env(safe-area-inset-bottom));
+        z-index: 3;
+        display: flex;
+        justify-content: center;
+        gap: 2px;
+      }
+      #snap-dots[hidden],
+      .win-open #snap-dots {
+        display: none;
+      }
+      #snap-dots button {
+        width: 26px;
+        height: 26px;
+        padding: 0;
+        border: 0;
+        background: none;
+        display: grid;
+        place-items: center;
+      }
+      #snap-dots button::after {
+        content: "";
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        border: 2px solid #f4ead8;
+        background: rgba(27, 27, 27, 0.55);
+        box-sizing: border-box;
+        transition: transform 0.2s, background 0.2s;
+      }
+      #snap-dots button.on::after {
+        background: #f4ead8;
+        transform: scale(1.35);
+      }
       /* one button a thing, over it, for the keyboard: invisible, since the room draws its focus on the thing */
       .thing {
         position: absolute;

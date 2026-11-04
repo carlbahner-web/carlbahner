@@ -2274,6 +2274,15 @@ export function setHoverWordsAt(at, key = null) {
   placeWords(wordAt(key || HW.key));
 }
 export const hoverWordsAt = (key) => wordAt(key);
+// the words' four corners in the room as they are drawn now, for the phone's stops to frame a thing with its word
+// (src/nav.mjs ONE THING AT A TIME ON A PHONE)
+export function hoverWordsCorners() {
+  if (!HW.mesh || !HW.text) return [];
+  HW.group.updateMatrixWorld(true);
+  const e = HW.mesh.matrixWorld.elements,
+    [w, h] = HW.wh;
+  return [[-w / 2, -h / 2], [w / 2, -h / 2], [-w / 2, h / 2], [w / 2, h / 2]].map(([x, y]) => [0, 1, 2].map((i) => e[i] * x + e[4 + i] * y + e[12 + i]));
+}
 export function setHoverWords(text, key = null) {
   if (text) {
     HW.key = key;
