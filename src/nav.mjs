@@ -1265,6 +1265,8 @@ export function startNav(v) {
       }
     },
     leave() {
+      // a finger lifted leaves too: on a phone's stops the stop's thing stays lit and its words stay up
+      if (snapping() && stops) return;
       if (hovered) {
         hovered = null;
         setHoverWords(null);
