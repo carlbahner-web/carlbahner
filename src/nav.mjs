@@ -152,11 +152,11 @@ export const WORDS = {
     // his site's button, which goes to the form: the dog here
     button: { words: "HOLY MOLY I WANT TO TALK TO YOU ABOUT MY MUSIC", to: "contact" },
   },
-  // the snow globe's card: its words are his, and wait for him (`blank`, an empty space until he sends them); its button
-  // goes to StudioLand: "It should go to welcometostudioland.com" (Carl, 3 Nov 2026)
+  // the snow globe's card: his words for StudioLand, sent 3 Nov 2026 ("StudioLand: a career school for ..."), its first
+  // letter made a capital under the title; its button goes to StudioLand: "It should go to welcometostudioland.com"
   studioland: {
     title: "StudioLand",
-    blank: true,
+    text: ["A career school for producers and mixing engineers who are great at the craft but tired of feast-or-famine. We help them build the brand, systems, and client pipeline to go full-time."],
     link: { words: "VISIT STUDIOLAND", href: "https://welcometostudioland.com" },
   },
   contact: {
