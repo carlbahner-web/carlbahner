@@ -1008,16 +1008,13 @@ export function startNav(v) {
   const SNAP = Q.get("snap") === "1" || !!window.SNAP_EDITOR;
   const snapping = () => SNAP && upright();
   const keyOf = (t) => (t ? t.hash || t.id : "room");
-  const SNAP_MS = 650; // a glide from one thing to the next: quicker than a flight in, as a swipe is
+  const SNAP_MS = 900; // a glide along the room from one thing to the next (A PAN, NOT A ZOOM)
   /* Carl, 4 Nov 2026, of the first try: "they should be in visual order. Like it starts in the center view but I can't
      swipe to look left. And the text needs to be seen, and maybe we zoom in a bit for relevant size of things". So the
      stops run left to right by where each one looks, the room as it opens among them, and the
-     visitor starts there; each thing is framed with its words a bit closer than the room opens where it can, and a word
-     too wide for the phone beside its thing is drawn smaller there (props.mjs setHoverWordsScale; framed, below). */
+     visitor starts there; each stop turns to take in its thing and its words, and a word too wide for the phone beside its
+     thing is drawn smaller there (props.mjs setHoverWordsScale; framed, below). */
   const SNAP_BOX = { x: 0, y: 0.04, w: 1.76, h: 1.6 }; // the thing and its words, in from the edges and over the dots
-  const CLOSER = +(Q.get("closer") || 0.8), // of the room's opening lens: "zoom in a bit"
-    FURTHEST = 1.35,
-    NEAREST = 0.45;
   let stops = null, // [null (the room as it opens), ...things left to right]
     stopAt = 0,
     stopCache = new Map(),
@@ -1054,33 +1051,46 @@ export function startNav(v) {
     stopCache.set(i, p);
     return p;
   }
-  /* a thing and its words together, centred on the two. In order of what is wanted: a bit closer than the room opens
-     (CLOSER), its words at most a little smaller; else as wide as the room opens, its words smaller; else a little wider
-     than that (FURTHEST) with them smallest. Never in closer than NEAREST, so a small thing does not fill the phone. */
+  /* A PAN, NOT A ZOOM: "ok instead of a literal snap, can it be a glide to that pan? i dont like how it shifts zoom and
+     focus on mobile" (Carl, 5 Nov 2026). Every stop keeps the zoom and tilt the phone opens with, and only turns left or
+     right, so a swipe glides along the room. The turn puts the thing and its words in the middle; a word too wide to sit
+     beside its thing is drawn smaller on the phone, down to 0.6 of his size, and past that the thing is kept whole. Until
+     that day each stop chose its own zoom and tilt (a fifth closer where its words fitted). */
   function framed(t) {
-    const c = corners(t.mesh),
-      wide = stops.opening.fov,
-      lens = (r) => (2 * Math.atan(Math.tan((wide * Math.PI) / 360) * r) * 180) / Math.PI;
-    sayFor(t); // its words placed, so the frame takes them in (props.mjs hoverWordsCorners)
-    const at = (k) => {
-      setHoverWordsScale(k);
-      const all = [...c.slice(0, 4), ...hoverWordsCorners()],
-        mid = [0, 1, 2].map((i) => (Math.min(...all.map((q) => q[i])) + Math.max(...all.map((q) => q[i]))) / 2);
-      return { ...fitAll(all, framePts([...all, mid], SNAP_BOX), SNAP_BOX), k };
+    const c = corners(t.mesh).slice(0, 4),
+      { pitch, fov } = stops.opening;
+    sayFor(t); // its words placed, so the turn takes them in (props.mjs hoverWordsCorners)
+    // the turn that puts the middle of these points' span in the middle of the screen, and how wide that span is there
+    const pan = (pts) => {
+      let yaw = stops.opening.yaw,
+        span = 0;
+      for (let i = 0; i < 30; i++) {
+        const P = pose(yaw, pitch, fov),
+          ss = pts.map((q) => onScreen(P, q));
+        if (ss.some((q) => !q)) {
+          // behind the camera: turn straight toward the first point
+          yaw = Math.atan2(pts[0][0] - P.c[0], pts[0][2] - P.c[2]) - Math.atan2(-1, -1);
+          continue;
+        }
+        const xs = ss.map((q) => q[0]),
+          lo = Math.min(...xs),
+          hi = Math.max(...xs);
+        span = hi - lo;
+        yaw += Math.atan(P.ta) * (0 - (lo + hi) / 2) * 0.9;
+      }
+      return { yaw, span };
     };
     let p = null;
-    for (const [most, least] of [[lens(CLOSER), 0.75], [wide, 0.65], [lens(FURTHEST), 0.6]]) {
-      for (let k = 1; k >= least - 1e-6; k -= 0.05) {
-        const q = at(k);
-        if (q.fov <= most * 1.01) {
-          p = q;
-          break;
-        }
+    for (let k = 1; k >= 0.6 - 1e-6; k -= 0.05) {
+      setHoverWordsScale(k);
+      const q = pan([...c, ...hoverWordsCorners()]);
+      if (q.span <= SNAP_BOX.w) {
+        p = { yaw: q.yaw, pitch, fov, k };
+        break;
       }
-      if (p) break;
     }
-    p ||= at(0.6); // wider still rather than words too small to read
-    p.fov = Math.max(p.fov, lens(NEAREST));
+    // too far apart even at 0.6: the thing whole, in the middle, its words as far as they reach
+    p ||= { yaw: pan(c).yaw, pitch, fov, k: 0.6 };
     setHoverWordsScale(1);
     return p;
   }

@@ -523,6 +523,10 @@ phone beside its thing is drawn smaller there, never under 0.6 of his size (`fra
 Then "Can we make the boil a bit more pronounced, and only boil the active page's item (so like on the about page the
 drum should boil but not the eye art)" (4 Nov 2026): on a stop its thing alone boils, 1.7 times as hard (`SNAP_BOIL`,
 `?boil=`); on the room as it opens every thing boils as on a laptop.
+Then "ok instead of a literal snap, can it be a glide to that pan? i dont like how it shifts zoom and focus on mobile" (5 Nov
+2026): every stop keeps the zoom and tilt the phone opens with and only turns, gliding over 0.9 s, the thing and its words
+centred (A PAN, NOT A ZOOM in `src/nav.mjs`); a word still shrinks to 0.6 to fit beside its thing, and past that the thing
+is kept whole. The fifth-closer framing is gone.
 **The phone stop editor, 4 Nov 2026**: "i need an artifa5 that allows me to control the per-swipe-camera and the placement
 of the words. Phone/mobile version only please" (Carl). https://claude.ai/artifact/G1HMjc718zjxSUSj6U7mNp, built by
 `build-phone.sh` (`src/phonetune.mjs`): the room phone-shaped beside a panel; pick a stop, drag the room to turn its camera
