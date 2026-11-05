@@ -20,7 +20,10 @@ export const typing = () => matchMedia("(pointer: coarse)").matches && !!documen
 let wasUpright = null;
 export const upright = () => {
   if (typing() && wasUpright !== null) return wasUpright;
-  return (wasUpright = (innerHeight > innerWidth && !window.STUDIO_EDITOR && !window.WORDS_EDITOR) || !!window.PHONE_PREVIEW);
+  /* a touch screen only: "man it gets real weird when resizing" (Carl, 5 Nov 2026). A laptop's window dragged taller than
+     it was wide switched to the phone's layout and back as it crossed square, the room jumping between the two; a laptop
+     keeps its 16:9 card at any shape, letterboxed. */
+  return (wasUpright = (innerHeight > innerWidth && matchMedia("(pointer: coarse)").matches && !window.STUDIO_EDITOR && !window.WORDS_EDITOR) || !!window.PHONE_PREVIEW);
 };
 // the view editor's "Show as a phone": the room drawn phone-shaped, a 390 by 844 phone's proportions (src/viewtune.mjs)
 const PHONE_SHAPE = 390 / 844;

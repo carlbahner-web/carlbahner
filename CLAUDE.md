@@ -553,6 +553,9 @@ tap lights the thing and puts its words up, the view first turning over 0.6 s to
 are off screen (no more than a third wider), holds 0.9 s (`?hold=`), then flies in; closing comes back to where the
 visitor was. A link (the book, the mug) opens at once, since a new tab opened later is blocked as a popup (THE WORD
 FIRST, ON A PHONE in `src/nav.mjs`).
+**The phone's layout is for touch screens alone, 5 Nov 2026**: "man it gets real weird when resizing" (Carl). A laptop window
+dragged taller than wide switched to the phone's layout and back as it crossed square; `upright()` in `src/stage.mjs` now
+needs a coarse pointer too, so a laptop keeps its 16:9 card at any shape, letterboxed.
 
 ## Laptop first. Phones wait.
 
