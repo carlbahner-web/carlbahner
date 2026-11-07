@@ -94,12 +94,12 @@ await walk("laptop", { width: 1440, height: 900 }, async ({ page, state, shot, s
   await page.keyboard.press("Escape");
   await settle();
   // Tab along the things, left to right as they open, until the console (where it falls depends on his placings)
-  for (let i = 0; i < 9 && (await state()).focus !== "Record console"; i++) {
+  for (let i = 0; i < 9 && (await state()).focus !== "Listen"; i++) {
     await page.keyboard.press("Tab");
     await settle();
   }
   s = await state();
-  expect(s.focus === "Record console", "laptop: Tab never reached the console");
+  expect(s.focus === "Listen", "laptop: Tab never reached the console (named Listen, his wall word, since 7 Nov 2026)");
   await shot("Tab to the console: its outline in rust");
   await page.keyboard.press("Enter");
   await settle();
@@ -107,7 +107,7 @@ await walk("laptop", { width: 1440, height: 900 }, async ({ page, state, shot, s
   await page.mouse.click(1300, 150); // the room above the deck: the player's card is on the left
   await settle();
   s = await state();
-  expect(!s.open && s.focus === "Record console", "laptop: a click outside did not close, or the focus did not come back");
+  expect(!s.open && s.focus === "Listen", "laptop: a click outside did not close, or the focus did not come back");
 });
 
 await walk("laptop-link", { width: 1440, height: 900, query: "#bio" }, async ({ state, shot }) => {

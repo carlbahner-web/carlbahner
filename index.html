@@ -439,6 +439,11 @@
         margin-inline: 0;
         padding-inline: 0;
       }
+      /* the close X in a strip of its own along the card's top, so the words scroll away under the strip and never under
+         the button (his officers' quiz, 7 Nov 2026: "Do them all") */
+      .upright #win .body {
+        margin-top: 34px;
+      }
       @media (prefers-reduced-motion: reduce) {
         #win,
         #room {
@@ -719,6 +724,14 @@
       }
       .shell.bio > p {
         margin: 0 0 14px;
+      }
+      /* his contact button after the logos (7 Nov 2026), on a line of its own in the bio's flowing words */
+      .shell.bio > .words-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin-top: 24px;
       }
       .shell.bio > h2.next {
         clear: both;

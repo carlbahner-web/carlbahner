@@ -129,7 +129,7 @@ export const WORDS = {
     button: { words: "HOLY MOLY I WANT TO TALK TO YOU ABOUT MY MUSIC", to: "contact" },
     quotes: [
       { words: "I also really love the approach that Carl took on his \"The Winds Of Change\" remix\u2026 literally had me grinning from ear to ear the first time I heard it.", name: "JEAN-PHILIP GROBLER", photo: "assets/people/jean-philip-grobler.webp", role: "// Artist, Producer - St Lucia //" },
-      { words: "Carl is a reliable guy to have in the room. He's always eagerly exploring the possibilities and naturally keeps the collective mood in a fun place. Among his many talents, you should know he is an exceedingly skilled and flexible drummer. It's true.", name: "ANDREW MAURY", photo: "assets/people/andrew-maury.webp", role: "// Producer, Mixer - Shawn Mendes, Lizzo, Post Malone //" },
+      { words: "Carl is a reliable guy to have in the room. He’s always eagerly exploring the possibilities and naturally keeps the collective mood in a fun place. Among his many talents, you should know he is an exceedingly skilled and flexible drummer. It’s true.", name: "ANDREW MAURY", photo: "assets/people/andrew-maury.webp", role: "// Producer, Mixer - Shawn Mendes, Lizzo, Post Malone //" },
       { words: "Having toured with Carl over the years, we knew what an amazing musician he was - but having him work on remixes for Sunship Balloon and totally reimagine them was so cool... Highly recommend!", name: "DANIEL HAGGIS", photo: "assets/people/daniel-haggis.webp", role: "// Artist, Drummer - The Wombats, Sunship Balloon //" },
     ],
   },
@@ -138,7 +138,7 @@ export const WORDS = {
   "co-producer": {
     title: "Why do I call myself a *co-producer?*",
     text: [
-      "I could just mix what you send me. I'm pretty damn good at that\u2026 but it\u2019s *way more fun* when I can help with that maddening final stretch of production where you're too close to your own music to be objective.",
+      "I could just mix what you send me. I’m pretty damn good at that\u2026 but it\u2019s *way more fun* when I can help with that maddening final stretch of production where you’re too close to your own music to be objective.",
       "Tightening up the *transitions*, finding those perfect moments for *ear candy*, cutting out those *unnecessary layers* you kinda forgot they\u2019re even there.",
     ],
   },
@@ -149,7 +149,7 @@ export const WORDS = {
     title: "Are *YOU* my people?",
     text: ["I love love LOVE working with artists and producers who geek out over:"],
     list: ["Vocals that get *STUCK IN YOUR HEAD*", "Drums that make you *PHYSICALLY UNABLE TO SIT STILL*", "Those little nerdy *SONIC EASTER EGGS* that only your superfans notice"],
-    after: ["If you're nodding along right now, we should probably *talk\u2026 and I promise I won't make you sound like everyone else.*"],
+    after: ["If you’re nodding along right now, we should probably *talk\u2026 and I promise I won’t make you sound like everyone else.*"],
     // his site's button, which goes to the form: the dog here
     button: { words: "HOLY MOLY I WANT TO TALK TO YOU ABOUT MY MUSIC", to: "contact" },
   },
@@ -1348,6 +1348,9 @@ function deckOnScreen(lift = 0, still = false) {
   return { x: s[0][0], y: s[0][1], w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys), mx: mid(0), my: mid(1), ex: [(s[1][0] - s[2][0]) / 2, (s[1][1] - s[2][1]) / 2], ey: [(s[3][0] - s[4][0]) / 2, (s[3][1] - s[4][1]) / 2] };
 }
 
+// what a screen reader says for each, the company's own name, not the file's ("umg" was read out as a word; his officers'
+// quiz, 7 Nov 2026: "Do them all")
+const LOGO_NAMES = { netflix: "Netflix", columbia: "Columbia Records", "bbc-one": "BBC One", umg: "Universal Music Group", "bright-antenna": "Bright Antenna Records", "channel-4": "Channel 4", cbs: "CBS", "sony-music": "Sony Music", nfl: "NFL", activision: "Activision", wwe: "WWE", nbc: "NBC", discovery: "Discovery", fox: "Fox" };
 const LOGOS = ["netflix", "columbia", "bbc-one", "umg", "bright-antenna", "channel-4", "cbs", "sony-music", "nfl", "activision", "wwe", "nbc", "discovery", "fox"];
 const SHELLS = {
   /* THE PORTFOLIO PLAYER. The turntable is in the console's well, his player's drawings (props.mjs THE TURNTABLE IN
@@ -1643,7 +1646,7 @@ const SHELLS = {
       run = el("div", "logo-run");
     for (const round of [0, 1])
       for (const n of LOGOS) {
-        const img = el("img", "", { src: "assets/logos/" + n + ".webp", alt: round ? "" : n.replace(/-/g, " ") });
+        const img = el("img", "", { src: "assets/logos/" + n + ".webp", alt: round ? "" : LOGO_NAMES[n] || n.replace(/-/g, " ") });
         /* each the same weight to the eye, not the same height: "some look awkwardly small compared to others" (Carl, 3
            Nov 2026). Their pictures are cut to the logo itself, and each gets the same area, so a tall mark is narrow and a
            long wordmark low, the longest held to 200px */
@@ -1673,7 +1676,7 @@ const SHELLS = {
        thinking maybe the logos could be when you click the drum?" (Carl, 2 Nov 2026). In his site's order, down its left
        column then its right. */
     const logos = el("div", "logos");
-    for (const n of LOGOS) logos.append(el("img", "", { src: "assets/logos/" + n + ".webp", alt: n.replace(/-/g, " "), loading: "lazy" }));
+    for (const n of LOGOS) logos.append(el("img", "", { src: "assets/logos/" + n + ".webp", alt: LOGO_NAMES[n] || n.replace(/-/g, " "), loading: "lazy" }));
     box.append(logos);
     return box;
   },

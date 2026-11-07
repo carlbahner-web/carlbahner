@@ -35,10 +35,13 @@ function loadingImage() {
    covers (each one also its record's label), the quote and bio photos, the logos and the icons, kept here so a
    record's label is drawn the moment it is picked (labelRecord) */
 const PICTURES = new Map();
+/* Not behind the loading screen any more: "Show the room sooner" (Carl, 7 Nov 2026, his officers' quiz; about 8 MB of
+   card pictures had to come in before the room showed). They load as the room opens; a card opened in its first moments
+   may see one come in. */
 export function preloadPictures(urls) {
   for (const u of urls) {
     if (!u || PICTURES.has(u)) continue;
-    const img = loadingImage();
+    const img = new Image();
     img.decoding = "async";
     img.src = u;
     PICTURES.set(u, img);
