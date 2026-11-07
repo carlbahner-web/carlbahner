@@ -27,7 +27,7 @@
      them" (Carl, 6 Oct 2026). So the press is a real squash and spring back, the dog blinks twice, and
      the paper lands with more give. studio/NAVIGATION.md has the rest. */
 import { view, upright, CARD_REF, UPRIGHT_CARD } from "./stage.mjs";
-import { setLid, setMapLights, setDeck, FADE_MS, preloadPictures, setHoverWords, hoverWordsCorners, setHoverWordsScale, setPhoneWords, hasPhoneWords, deckPoints, ARM_SWING_MS, drawControls, deckControls, DECK_HIT, pressKey, releaseKeys, DECK_LIFT, DROP_MS } from "./props.mjs";
+import { setLid, setMapLights, setDeck, FADE_MS, preloadPictures, setHoverWords, hoverWordsCorners, setAllWords, allWordsCorners, setPhoneWords, deckPoints, ARM_SWING_MS, drawControls, deckControls, DECK_HIT, pressKey, releaseKeys, DECK_LIFT, DROP_MS } from "./props.mjs";
 import { goToView, cameraFor } from "./viewtune.mjs";
 import { cue } from "./cues.mjs";
 import { inkMask, MASK_N, wobbleLine, wobblePath, BOIL_ORDER, BOIL_MS } from "./garden-bits.mjs";
@@ -46,12 +46,7 @@ import { inkMask, MASK_N, wobbleLine, wobblePath, BOIL_ORDER, BOIL_MS } from "./
    Bass drum SYNCS, Eye painting YOU+ME, Dog CONTACT, Mug PODCAST, Book HOMEGROWN". Keyed by the page a thing opens (or a
    link's own id): written as the bio moved from the frame onto the drum, so ABOUT goes with the bio and SYNCS with the
    logos, whichever thing opens them. */
-export const SAYS = { portfolio: "Listen", bio: "About", artists: "Quotes", tour: "Syncs", "my-people": "You+Me", contact: "Contact", mug: "Podcast", book: "Homegrown", studioland: "StudioLand" };
-/* EACH PHONE STOP'S OWN CAMERA: "i need an artifa5 that allows me to control the per-swipe-camera and the placement of the
-   words. Phone/mobile version only please" (Carl, 4 Nov 2026). Keyed as SAYS is ("room" for the room as it opens), each
-   { yaw, pitch, fov }; a stop with none is framed by `framed`. Set on the phone stop editor (src/phonetune.mjs) and
-   written in here once he has saved them. */
-export const PHONE_CAMS = {};
+export const SAYS = { portfolio: "Listen", bio: "About", artists: "Quotes", tour: "Syncs", "my-people": "You+Me", contact: "Contact", book: "Homegrown", studioland: "StudioLand" };
 export const THINGS = [
   { id: "console", hash: "portfolio", kind: "player", name: "Record console" },
   /* the picture frame opened the bio until 3 Nov 2026, the drum the logos ("COOL SYNC THINGS"); then "I want to put my
@@ -68,8 +63,8 @@ export const THINGS = [
   { id: "eyes", hash: "my-people", kind: "page", name: "Eye painting" },
   // a link out, not a window: "I'm thinking the book should link out to https://homegrownapp.io" (Carl, 2 Nov 2026)
   { id: "book", link: "https://homegrownapp.io", name: "Book", says: "Homegrown" },
-  // his Secret Sonics podcast on Spotify, the link sent 2 Nov 2026
-  { id: "mug", link: "https://open.spotify.com/show/6xqoB0hvyyspcK9biajV0N?si=5f744953785247e7", name: "Mug", says: "Secret Sonics" },
+  /* the mug linked his Secret Sonics podcast on Spotify from 2 Nov 2026 until his officers' quiz, 7 Nov: "We can remove it
+     actually" (Carl). It is a plain decoration again. */
   /* StudioLand, from the snow globe with his castle in it: "It should go to welcometostudioland.com", then "It should
      zoom in actually, to a card that has a little info about it" (Carl, 3 Nov 2026). Its card ends on the way there. */
   { id: "globe", hash: "studioland", kind: "page", name: "Snow globe" },
@@ -246,6 +241,44 @@ export function startNav(v) {
   // his words for each, by the page it opens (3 Nov 2026), so they follow a page to whatever thing opens it
   const wordsOf = (t) => (t ? SAYS[t.hash || t.id] || t.says || (WORDS[t.hash]?.title || "").replace(/\*/g, "") || null : null);
   const sayFor = (t) => setHoverWords(wordsOf(t), t ? t.hash || t.id : null);
+  /* ALL THE WORDS (props.mjs): "Show all the words at first" and, of the phone, "I need to make every word visible and
+     clickable and clear" (Carl, 7 Nov 2026, his officers' quiz). On a touch screen every page's word stays on the wall
+     while no card is open, and a tap on a word opens its page as a tap on its thing does. With a mouse they all show as
+     the room opens, until the first hover or INTRO_MS, then the one under the pointer takes over as before. */
+  const INTRO_MS = +(new URLSearchParams(location.search).get("intro") || 6000);
+  let allOn = false,
+    introUntil = Infinity, // set when the room is ready (whenReady)
+    introDone = false;
+  const keyOfThing = (t) => t.hash || t.id;
+  const wordList = () => things.filter((t) => wordsOf(t)).map((t) => ({ key: keyOfThing(t), text: wordsOf(t) }));
+  function showAll(on) {
+    if (on === allOn) return;
+    allOn = on;
+    setAllWords(on);
+    v.dirty();
+  }
+  // the thing whose word is under a point on screen, if the words are up: each word a flat quad on its wall
+  function wordThingAt(x, y) {
+    if (!allOn) return null;
+    const r = rayAt(x, y);
+    let best = null;
+    for (const { key, corners: c } of allWordsCorners()) {
+      const [p0, p1, p2] = c,
+        e1 = p1.map((v, i) => v - p0[i]),
+        e2 = p2.map((v, i) => v - p0[i]),
+        n = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]],
+        dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
+        dn = dot(r.d, n);
+      if (Math.abs(dn) < 1e-9) continue;
+      const t = dot(p0.map((v, i) => v - r.o[i]), n) / dn;
+      if (t <= 0 || (best && t >= best.t)) continue;
+      const q = r.d.map((v, i) => r.o[i] + v * t - p0[i]),
+        u = dot(q, e1) / dot(e1, e1),
+        w = dot(q, e2) / dot(e2, e2);
+      if (u >= 0 && u <= 1 && w >= 0 && w <= 1) best = { key, t };
+    }
+    return best ? things.find((t) => keyOfThing(t) === best.key) || null : null;
+  }
   // ON A PHONE, THEY GLOW IN TURN (below, in step): no mouse to hover, so each thing that opens lights up in turn
   // ON A PHONE, THEY GLOW (in step, below): every thing that opens breathes in and out together. `?pulse=` (ms for one
   // breath) and `?peak=` (0 to 1) try others on a phone
@@ -309,8 +342,11 @@ export function startNav(v) {
     let best = null;
     for (const mesh of props) {
       if (mesh.userData.book && mesh.visible) {
-        // the book is a box, its card never drawn: a click anywhere on the box
-        const t = boxHit(mesh, r);
+        // the book is a box, its card never drawn: a click anywhere on the box. Weighed as the dog is (ALWAYS IN FRONT),
+        // so where the two meet the nearer wins: before, the dog always won and the book's middle opened Contact: "Make it
+        // easier to hit" (Carl, 7 Nov 2026, his officers' quiz)
+        let t = boxHit(mesh, r);
+        if (t != null) t -= 1;
         if (t != null && (!best || t < best.t)) best = { mesh, t };
         continue;
       }
@@ -332,6 +368,7 @@ export function startNav(v) {
      box round the faces lined up with the room's walls, and the book sits turned on the console, so the box was much
      bigger than the book and took clicks on the dog's paws and the mug: "why is the map for the book and dog and mug
      all fucked up?" (Carl, 2 Nov 2026, shown the map of what can be clicked). */
+  const BOOK_REACH = 0.02; // metres
   function boxHit(mesh, r) {
     let best = null;
     mesh.userData.book.updateMatrixWorld(true);
@@ -345,7 +382,8 @@ export function startNav(v) {
         { width = 1, height = 1 } = f.geometry.parameters || {};
       if (Math.abs(d[2]) < 1e-9) return;
       const t = -o[2] / d[2];
-      if (t <= 0 || Math.abs(o[0] + d[0] * t) > width / 2 || Math.abs(o[1] + d[1] * t) > height / 2) return;
+      // and a little round its edges, BOOK_REACH, so a near miss on so small a thing still lands
+      if (t <= 0 || Math.abs(o[0] + d[0] * t) > width / 2 + BOOK_REACH || Math.abs(o[1] + d[1] * t) > height / 2 + BOOK_REACH) return;
       if (best === null || t < best) best = t;
     });
     return best;
@@ -614,7 +652,10 @@ export function startNav(v) {
        pulse in and out?". So with no mouse to hover (a touch screen), every thing that opens breathes together, in and
        out to the light the mouse brings on a laptop, every PULSE_MS. Never while a window is open or the camera is
        flying, and not at all for someone who asks for less motion. */
-    const pulsing = TOUCH && !open && !flight && !reduced && !snapping();
+    // ALL THE WORDS: up while nothing is open or flying (a tap's hold keeps them), on a touch screen always, with a
+    // mouse until the first hover or INTRO_MS
+    showAll(!open && (!flight || flight.soft || holding) && (TOUCH || (!introDone && now < introUntil)));
+    const pulsing = TOUCH && !open && !flight && !reduced;
     const breath = pulsing ? PULSE_PEAK * (0.5 - 0.5 * Math.cos((2 * Math.PI * Math.max(0, now - pulseFrom)) / PULSE_MS)) : 0;
     for (const t of things) {
       const glow = breath;
@@ -832,7 +873,7 @@ export function startNav(v) {
     const leanTo = leanFor(t);
     v.lean?.(!!leanTo, leanTo);
     t.leaning = !!leanTo;
-    if (!open) away = snapping() && stops ? stopPose(stopAt) : jump ? { ...START } : { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov };
+    if (!open) away = jump ? { ...START } : { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov };
     returnTo = document.activeElement?.classList?.contains("thing") ? document.activeElement : null;
     hovered = null;
     setHoverWords(null);
@@ -899,7 +940,6 @@ export function startNav(v) {
     stopAudio();
     const back = away || { ...START };
     open = null;
-    if (snapping() && stops) boilStop(); // back on a phone's stop: its thing alone boils again
     /* hidden once its slide out has finished, not before: "Card slides in but just disappears on the way out" (Carl,
        2 Nov 2026). It was hidden at 260 ms while the paper's slide takes 620 (.touches #win.sheet in index.html). */
     veil.hidden = true;
@@ -912,11 +952,10 @@ export function startNav(v) {
     setTimeout(gone, 900); // and if no transition ends (a hidden tab), hidden all the same
     cue("window-close");
     cue("fly-back");
-    // back on its stop, its word comes back on the wall (ONE THING AT A TIME ON A PHONE)
-    fly(back, snapping() && stops ? () => sayStop() : null);
+    fly(back, null);
     notice(FLY_MS + 150);
-    // the flight back ends inside the visitors' limits again (a phone's stops frame past them on purpose)
-    const settle = () => (flight ? setTimeout(settle, 60) : (snapping() || clamp(), v.dirty()));
+    // the flight back ends inside the visitors' limits again
+    const settle = () => (flight ? setTimeout(settle, 60) : (clamp(), v.dirty()));
     setTimeout(settle, 60);
     returnTo?.focus({ preventScroll: true });
   }
@@ -997,176 +1036,11 @@ export function startNav(v) {
     return [...things].sort((a, b) => (onScreen(P, corners(a.mesh)[4])?.[0] ?? 0) - (onScreen(P, corners(b.mesh)[4])?.[0] ?? 0));
   };
 
-  /* ---------- ONE THING AT A TIME ON A PHONE ----------
-     Carl, 3 Nov 2026, of how a phone shows what can be opened: shown a camera that snaps from thing to thing, "I'm curious
-     what 6 o like look like, and how we'd communicate from the open that they should swipe?", then "I think it could be
-     cool, espexially if the title/text projection in the walls shows during that page". So with `?snap=1`, a phone upright
-     opens on the room as it does, and a swipe left or right glides to the next thing that opens, framed with its words on
-     the wall, lit as a mouse over it lights it on a laptop. A tap opens it. Dots along the bottom say how many and which,
-     and until the first swipe the view leans a little toward the next one now and then. No words to say so: the room's
-     own ink and light (CLAUDE.md, which things can be used shows on the thing itself). */
-  const SNAP = Q.get("snap") === "1" || !!window.SNAP_EDITOR;
-  const snapping = () => SNAP && upright();
-  const keyOf = (t) => (t ? t.hash || t.id : "room");
-  const SNAP_MS = 900; // a glide along the room from one thing to the next (A PAN, NOT A ZOOM)
-  /* Carl, 4 Nov 2026, of the first try: "they should be in visual order. Like it starts in the center view but I can't
-     swipe to look left. And the text needs to be seen, and maybe we zoom in a bit for relevant size of things". So the
-     stops run left to right by where each one looks, the room as it opens among them, and the
-     visitor starts there; each stop turns to take in its thing and its words, and a word too wide for the phone beside its
-     thing is drawn smaller there (props.mjs setHoverWordsScale; framed, below). */
-  const SNAP_BOX = { x: 0, y: 0.04, w: 1.76, h: 1.6 }; // the thing and its words, in from the edges and over the dots
-  let stops = null, // [null (the room as it opens), ...things left to right]
-    stopAt = 0,
-    stopCache = new Map(),
-    swiped = !!window.SNAP_EDITOR, // no nudging in the editor
-    nudgeAt = 0,
-    openingPose = null;
-  const dots = Object.assign(document.createElement("nav"), { id: "snap-dots", hidden: true });
-  dots.setAttribute("aria-label", "Things in the room");
-  document.querySelector("#stage").append(dots); // in the room, so the editor's phone-shaped room has them too
-  /* ONLY THE STOP'S THING BOILS, AND MORE: "Can we make the boil a bit more pronounced, and only boil the active page's
-     item (so like on the about page the drum should boil but not the eye art)" (Carl, 4 Nov 2026). On the room as it
-     opens, every thing that opens boils as on a laptop, so the visitor sees what there is. `?boil=` tries another. */
-  const SNAP_BOIL = +(Q.get("boil") || 1.7);
-  function boilStop() {
-    if (open) return;
-    const t = stops?.[stopAt];
-    for (const x of things) x.mesh.material.uniforms.use.value = !t ? 1 : x === t ? SNAP_BOIL : 0;
-    v.dirty();
-  }
-  function sayStop() {
-    const t = stops?.[stopAt];
-    boilStop();
-    hovered = t || null;
-    sayFor(t || null);
-    // his phone spot for a word is at the size he set; otherwise as small as `framed` needed
-    setHoverWordsScale(t && !hasPhoneWords(keyOf(t)) ? stopPose(stopAt).k : 1);
-    v.dirty();
-  }
-  function stopPose(i) {
-    if (stopCache.has(i)) return stopCache.get(i);
-    const t = stops[i],
-      own = PHONE_CAMS[keyOf(t)];
-    const p = own ? { ...own, k: 1 } : t ? framed(t) : { ...stops.opening, k: 1 };
-    stopCache.set(i, p);
-    return p;
-  }
-  /* A PAN, NOT A ZOOM: "ok instead of a literal snap, can it be a glide to that pan? i dont like how it shifts zoom and
-     focus on mobile" (Carl, 5 Nov 2026). Every stop keeps the zoom and tilt the phone opens with, and only turns left or
-     right, so a swipe glides along the room. The turn puts the thing and its words in the middle; a word too wide to sit
-     beside its thing is drawn smaller on the phone, down to 0.6 of his size, and past that the thing is kept whole. Until
-     that day each stop chose its own zoom and tilt (a fifth closer where its words fitted). */
-  function framed(t) {
-    const c = corners(t.mesh).slice(0, 4),
-      { pitch, fov } = stops.opening;
-    sayFor(t); // its words placed, so the turn takes them in (props.mjs hoverWordsCorners)
-    // the turn that puts the middle of these points' span in the middle of the screen, and how wide that span is there
-    const pan = (pts) => {
-      let yaw = stops.opening.yaw,
-        span = 0;
-      for (let i = 0; i < 30; i++) {
-        const P = pose(yaw, pitch, fov),
-          ss = pts.map((q) => onScreen(P, q));
-        if (ss.some((q) => !q)) {
-          // behind the camera: turn straight toward the first point
-          yaw = Math.atan2(pts[0][0] - P.c[0], pts[0][2] - P.c[2]) - Math.atan2(-1, -1);
-          continue;
-        }
-        const xs = ss.map((q) => q[0]),
-          lo = Math.min(...xs),
-          hi = Math.max(...xs);
-        span = hi - lo;
-        yaw += Math.atan(P.ta) * (0 - (lo + hi) / 2) * 0.9;
-      }
-      return { yaw, span };
-    };
-    let p = null;
-    for (let k = 1; k >= 0.6 - 1e-6; k -= 0.05) {
-      setHoverWordsScale(k);
-      const q = pan([...c, ...hoverWordsCorners()]);
-      if (q.span <= SNAP_BOX.w) {
-        p = { yaw: q.yaw, pitch, fov, k };
-        break;
-      }
-    }
-    // too far apart even at 0.6: the thing whole, in the middle, its words as far as they reach
-    p ||= { yaw: pan(c).yaw, pitch, fov, k: 0.6 };
-    setHoverWordsScale(1);
-    return p;
-  }
-  function drawDots() {
-    dots.hidden = !snapping() || !stops;
-    if (dots.hidden) return;
-    [...dots.children].forEach((d, i) => d.classList.toggle("on", i === stopAt));
-  }
-  function snapTo(i, { glide = true } = {}) {
-    if (!stops || open) return;
-    // the ends are the ends: no wrapping round from the far left to the far right
-    if (i < 0 || i >= stops.length) return;
-    stopAt = i;
-    const to = stopPose(i);
-    sayStop();
-    drawDots();
-    if (glide) fly(to, null, SNAP_MS);
-    else set(to);
-    if (stops[i]) cue("hover:" + stops[i].id);
-  }
-  function startSnap() {
-    if (!snapping() || stops) return;
-    setPhoneWords(true);
-    // left to right as they stand: a turn left is a larger yaw (framePts), the room as it opens among them
-    // the phone's own opening, taken once (a later reorder starts from wherever the camera is)
-    const opening = (openingPose ||= { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov });
-    stops = [null, ...things];
-    stops.opening = opening;
-    // by where each stop looks, so every swipe turns the view the same way (a stop's words can pull it past the next)
-    const at = new Map(stops.map((t, i) => [t, stopPose(i).yaw]));
-    stops = [...stops].sort((a, b) => at.get(b) - at.get(a));
-    stops.opening = opening;
-    stopCache = new Map();
-    stopAt = stops.indexOf(null);
-    if (PHONE_CAMS.room) set(stopPose(stopAt)); // his camera for the room as it opens
-    sayStop();
-    dots.replaceChildren(
-      ...stops.map((t, i) => {
-        const b = Object.assign(document.createElement("button"), { type: "button" });
-        b.setAttribute("aria-label", t ? t.name : "The room");
-        b.addEventListener("click", () => ((swiped = true), snapTo(i)));
-        return b;
-      }),
-    );
-    drawDots();
-    nudgeAt = performance.now() + 2500;
-    const nudge = () => {
-      if (!stops || swiped) return;
-      const now = performance.now();
-      if (now >= nudgeAt && !open && !flight && !document.hidden && !reduced) {
-        // a lean a third of the way toward the next and back, so the room says it goes on that way
-        const here = stopPose(stopAt),
-          next = stopPose(stopAt + 1 < stops.length ? stopAt + 1 : stopAt - 1),
-          k = 0.3,
-          part = { yaw: here.yaw + (next.yaw - here.yaw) * k, pitch: here.pitch + (next.pitch - here.pitch) * k, fov: here.fov };
-        sayStop(); // stopPose may have placed another's words
-        fly(part, null, 1100, (x) => Math.pow(Math.sin(Math.PI * x), 2));
-        flight.to = part;
-        nudgeAt = now + 6000;
-      }
-      setTimeout(nudge, 400);
-    };
-    nudge();
-  }
-  addEventListener("resize", () => {
-    if (!stops) return;
-    stopCache = new Map();
-    if (!snapping()) {
-      dots.hidden = true;
-      return;
-    }
-    drawDots();
-    if (!open && !flight) set(stopPose(stopAt)), sayStop();
-  });
-  // off a phone's stops (turned on its side), the words at his size again
-  addEventListener("resize", () => !snapping() && (setHoverWordsScale(1), setPhoneWords(false)));
+  /* ONE THING AT A TIME ON A PHONE, a trial behind `?snap=1` from 4 to 7 Nov 2026 (a swipe glided from thing to thing,
+     its words on the wall): dropped on his officers' quiz, "I'm dropping swipe mode", with "Free look is better than swipe
+     mode but I need to make every word visible and clickable and clear" (Carl, 7 Nov 2026). */
+  // the thing and its words, in from the edges (THE WORD FIRST, ON A PHONE turns to take both in)
+  const SNAP_BOX = { x: 0, y: 0.04, w: 1.76, h: 1.6 };
 
   /* ---------- the phone held upright: asked to turn ---------- */
   const turnCard = document.querySelector("#turn");
@@ -1182,27 +1056,12 @@ export function startNav(v) {
     // the order and the masks need every picture and one drawing of the room
     ordered().forEach((t) => keys.append(t.key));
     const t = byHash();
-    startSnap();
+    setPhoneWords(upright()); // a phone held upright reads its own word spots (props.mjs WORD_AT_PHONE)
+    introUntil = performance.now() + INTRO_MS;
     if (t) openThing(t, { jump: true, push: false });
   }
   // for the tests: where a thing's middle is on screen, -1..1
-  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room,
-    // for the tests: each phone stop, where it looks and where its thing and words land on screen (-1..1)
-    uses: () => Object.fromEntries(things.map((t) => [t.id, t.mesh.material.uniforms.use.value])),
-    stops: () =>
-      stops?.map((t, i) => {
-        const p = stopPose(i),
-          P = pose(p.yaw, p.pitch, p.fov),
-          box = (pts) => {
-            const ss = pts.map((q) => onScreen(P, q));
-            if (!ss.length || ss.some((s) => !s)) return null;
-            return [Math.min(...ss.map((s) => s[0])), Math.min(...ss.map((s) => s[1])), Math.max(...ss.map((s) => s[0])), Math.max(...ss.map((s) => s[1]))].map((v) => +v.toFixed(2));
-          };
-        if (t) sayFor(t), setHoverWordsScale(p.k);
-        const out = { k: +p.k.toFixed(2), id: t?.id || "room", yaw: +p.yaw.toFixed(3), fov: +p.fov.toFixed(1), thing: t && box(corners(t.mesh).slice(0, 4)), words: t && box(hoverWordsCorners()) };
-        setHoverWordsScale(1);
-        return out;
-      }) };
+  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room };
   /* THE WINDOW RESIZED with a page open: the thing is framed again for the new shape, at once. It kept the camera it
      flew to, so the thing drifted off the middle of the room beside the card, and half off a tall window: "if i resize
      the then the focus point of the room is no longer in teh center of the viewing area" (Carl, 2 Nov 2026). */
@@ -1257,6 +1116,7 @@ export function startNav(v) {
     busy,
     step,
     whenReady,
+    wordList, // every page's word, for the room to put them all on the walls (ALL THE WORDS)
     // the view editor's picker (viewtune.mjs): open a window by its address, or "opening" for the room with none
     go(hash) {
       if (hash === "opening") return close();
@@ -1293,7 +1153,8 @@ export function startNav(v) {
     // a mouse over the room, no button held
     hover(x, y) {
       if (busy() || phone() || window.WORDS_EDITOR) return; // the word editor shows the word it is placing
-      const t = thingAt(x, y);
+      const t = thingAt(x, y) || wordThingAt(x, y);
+      if (t) introDone = true; // the first hover: the one under the pointer takes over (ALL THE WORDS)
       if (t !== hovered) {
         hovered = t;
         sayFor(t);
@@ -1303,8 +1164,8 @@ export function startNav(v) {
       }
     },
     leave() {
-      // a finger lifted leaves too: on a phone's stops the stop's thing stays lit and its words stay up
-      if ((snapping() && stops) || holding) return;
+      // a finger lifted leaves too: while a tap holds its words up, they stay
+      if (holding) return;
       if (hovered) {
         hovered = null;
         setHoverWords(null);
@@ -1313,66 +1174,27 @@ export function startNav(v) {
       }
     },
     // a click or a tap that did not drag
-    // a swipe on a phone's stops (ONE THING AT A TIME ON A PHONE): the next thing, or the one before
-    snapping: () => !!(snapping() && stops),
-    // the phone stop editor (src/phonetune.mjs): the stops in order, go to one, its camera, and laying a camera on one
-    snapEdit: {
-      list: () => (stops || []).map((t) => ({ key: keyOf(t), name: t ? t.name : "The room as it opens", says: wordsOf(t) })),
-      at: () => stopAt,
-      go(i) {
-        if (!stops || i < 0 || i >= stops.length) return;
-        stopAt = i;
-        set(stopPose(i));
-        sayStop();
-        drawDots();
-      },
-      cam: () => ({ yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov }),
-      scale: () => (stops ? stopPose(stopAt).k : 1), // how small `framed` drew the stop's word
-      setCam(p) {
-        const key = keyOf(stops[stopAt]);
-        if (p) PHONE_CAMS[key] = { yaw: +p.yaw, pitch: +p.pitch, fov: +p.fov };
-        else delete PHONE_CAMS[key];
-        stopCache.delete(stopAt);
-        set(stopPose(stopAt));
-        sayStop();
-      },
-      // the words changed: drawn again at their size, and the camera kept where it is
-      words: () => sayStop(),
-      // a fresh order once saved cameras are loaded, staying on the same stop
-      reorder() {
-        if (!stops) return;
-        const key = keyOf(stops[stopAt]);
-        stops = null;
-        stopCache = new Map();
-        startSnap();
-        const i = stops.findIndex((t) => keyOf(t) === key);
-        if (i >= 0) this.go(i);
-      },
-    },
-    snap(dir) {
-      swiped = true;
-      if (flight?.soft) flight = null;
-      snapTo(stopAt + dir);
-    },
     tap(x, y) {
       if (busy()) return false;
-      const t = thingAt(x, y);
+      const t = thingAt(x, y) || wordThingAt(x, y); // a word on the wall opens its page too (ALL THE WORDS)
       if (!t) return false;
       /* THE WORD FIRST, ON A PHONE: "On phone when I'm moving around in free camera mode, I would love to see the text show
          up for a second before it zooms into place" (Carl, 4 Nov 2026). A finger has no hover, so the words on the wall
          never showed before the flight. So a tap lights the thing and puts its words up for WORD_HOLD_MS, then flies in.
-         The phone's stops (ONE THING AT A TIME) already show them, so they fly at once. */
+         */
       // a link opens at once: a new tab opened a second after the tap is blocked as a popup
-      if (TOUCH && !snapping() && !reduced && !t.link) {
+      if (TOUCH && !reduced && !t.link) {
         holding = true;
         hovered = t;
-        sayFor(t);
+        // its word is already on the wall when every word is up (ALL THE WORDS): not drawn a second time over itself
+        const up = allOn && allWordsCorners().find((w) => w.key === keyOfThing(t));
+        if (!up) sayFor(t);
         cue("hover:" + t.id);
         v.dirty();
         // the words are where the laptop has them, often off the side of a phone: the view turns to take in the thing
         // and its words first, no wider than a third more than it was, and the card's close comes back to where it was
         const was = { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov },
-          words = hoverWordsCorners(),
+          words = up ? up.corners : hoverWordsCorners(),
           P = pose(cam.yaw, cam.pitch, cam.fov),
           seen = words.length && words.every((q) => {
             const s = onScreen(P, q);

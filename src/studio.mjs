@@ -33,12 +33,11 @@ import {
   setPaint,
 } from "./room.mjs";
 import { hashN, BOIL_ORDER, BOIL_MS } from "./garden-bits.mjs";
-import { buildProps, setProp, faceProps, tickProps, colorProp, follows, followers, lampLights, lidAt, picturesIn, buildHoverWords, consoleFront, setWordsAnisotropy } from "./props.mjs";
+import { buildProps, setProp, faceProps, tickProps, colorProp, follows, followers, lampLights, lidAt, picturesIn, buildHoverWords, buildAllWords, consoleFront, setWordsAnisotropy } from "./props.mjs";
 import { LIGHTS, lightUniforms, setLights } from "./light.mjs";
 import { startNav, SAYS } from "./nav.mjs";
 import { startViews, stepViews, editViews, cameraFor } from "./viewtune.mjs";
 import { editWords } from "./wordtune.mjs";
-import { editPhone } from "./phonetune.mjs";
 import { startSound } from "./sound.mjs";
 
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1162,6 +1161,8 @@ const nav = startNav({
   lean,
   camera,
 });
+// every page's word on the walls (props.mjs and nav.mjs ALL THE WORDS)
+scene.add(buildAllWords(nav.wordList()));
 // EACH VIEW ITS OWN PLACING (viewtune.mjs): the things on the console as each view has them, and his editor
 startViews({ props, dirty: () => (dirty = true) });
 // where the room opens, as he set it in the view editor (VIEWS.opening.camera), over START
@@ -1202,7 +1203,6 @@ function wallAt(clientX, clientY) {
   return best;
 }
 editWords({ says: SAYS, wallAt });
-editPhone({ nav, wallAt }); // the phone stop editor, in its own artifact (build-phone.sh)
 editViews({ phone: { values: PHONE, set: setPhone }, open: { views: nav.views, names: nav.viewNames, go: (h) => nav.go(h), cameraKeys: (v) => nav.cameraKeys(v), setCamera: (v) => nav.setCamera(v) } });
 // THE ROOM'S SOUNDS (src/sound.mjs): off until a visitor turns them on, and Carl's room sound page's way in
 const sound = startSound({ nav, props, reduced: REDUCED });
@@ -1231,7 +1231,7 @@ const setLens = (f) => {
 let gestureFov = 0;
 cv.addEventListener("gesturestart", (e) => {
   e.preventDefault();
-  if (nav.busy() || nav.snapping()) return;
+  if (nav.busy()) return;
   gestureFov = cam.fov;
 });
 cv.addEventListener("gesturechange", (e) => {
@@ -1273,7 +1273,6 @@ cv.addEventListener("pointermove", (e) => {
   down.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (press) press.far = Math.max(press.far, Math.hypot(e.clientX - press.x, e.clientY - press.y));
   if (nav.busy()) return;
-  if (nav.snapping()) return; // a phone's stops: a swipe goes thing to thing, on lifting (src/nav.mjs ONE THING AT A TIME)
   if (pinch && down.size === 2) {
     setLens((pinch.fov * pinch.d) / spread());
     return;
@@ -1357,18 +1356,14 @@ function edgeTurn(dt) {
 }
 const end = (e) => {
   if (press && down.size === 1 && e.type === "pointerup") {
-    const dx = e.clientX - press.x,
-      dy = e.clientY - press.y;
-    // a phone's stops: a swipe left goes to the next thing, right to the one before (src/nav.mjs ONE THING AT A TIME)
-    if (nav.snapping() && !nav.busy() && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) nav.snap(dx < 0 ? 1 : -1);
-    else if (press.far < 8 && performance.now() - press.at < 700 && !window.WORDS_EDITOR) nav.tap(e.clientX - view().left, e.clientY - view().top);
+    if (press.far < 8 && performance.now() - press.at < 700 && !window.WORDS_EDITOR) nav.tap(e.clientX - view().left, e.clientY - view().top);
     press = null;
   }
   down.delete(e.pointerId);
   if (down.size < 2) pinch = null;
   if (down.size === 0) {
     // a flick carries on: about a quarter second more of the speed it had
-    if (drag && !nav.snapping() && e.pointerType === "touch" && e.type === "pointerup" && performance.now() - (drag.t || 0) < 80) {
+    if (drag && e.pointerType === "touch" && e.type === "pointerup" && performance.now() - (drag.t || 0) < 80) {
       cam.tyaw += fling * 260;
       clamp();
       dirty = true;

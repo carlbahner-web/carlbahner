@@ -2171,26 +2171,27 @@ export const HW_AT = { wall: "teal", x: 0.88, y: 1.19, w: 1.66, s: 0.42, dir: "a
 // his, placed and saved on the word editor (https://claude.ai/artifact/L5sZYGwWCpwAeN1sRASJxB), 3 Nov 2026 ("saved").
 // LISTEN keeps HW_AT, where they all were
 export const WORD_AT = {
-  artists: { wall: "teal", x: 0.877, y: 1.19, w: 1.66, s: 0.42, dir: "across", rot: 0 },
+  artists: { wall: "teal", x: 0.62, y: 1.2, w: 1.66, s: 0.19, dir: "across", rot: 0 },
   bio: { wall: "cream", x: 1.248, y: 1.225, w: 1.66, s: 0.34, dir: "down", rot: 0 },
-  book: { wall: "teal", x: 2.204, y: 1.318, w: 1.66, s: 0.335, dir: "across", rot: 0 },
-  contact: { wall: "teal", x: 2.367, y: 1.321, w: 1.66, s: 0.335, dir: "across", rot: 0 },
-  mug: { wall: "teal", x: 0.141, y: 1.716, w: 1.66, s: 0.25, dir: "down", rot: 0 },
-  "my-people": { wall: "cream", x: 2.236, y: 1.66, w: 1.66, s: 0.335, dir: "across", rot: 0 },
+  book: { wall: "console", x: 1.98, y: 0.68, w: 1.66, s: 0.085, dir: "across", rot: 0 },
+  contact: { wall: "teal", x: 1.42, y: 1.16, w: 1.66, s: 0.13, dir: "across", rot: 0 },
+  portfolio: { wall: "console", x: 2.3, y: 0.38, w: 1.66, s: 0.2, dir: "across", rot: 0 },
+  studioland: { wall: "console", x: 2.62, y: 0.68, w: 1.66, s: 0.075, dir: "across", rot: 0 },
+  "my-people": { wall: "cream", x: 1.71, y: 1.08, w: 1.66, s: 0.12, dir: "across", rot: 0 },
   tour: { wall: "cream", x: 1.255, y: 1.205, w: 1.66, s: 0.34, dir: "down", rot: 0 },
 };
 /* A PHONE'S OWN SPOTS: "i need an artifa5 that allows me to control the per-swipe-camera and the placement of the words.
-   Phone/mobile version only please" (Carl, 4 Nov 2026). On a phone's stops (src/nav.mjs ONE THING AT A TIME ON A PHONE) a
-   word with a spot here sits there instead, at the size he set; the laptop keeps WORD_AT. Set on the phone stop editor
-   (src/phonetune.mjs) and written in here once he has saved them. */
+   Phone/mobile version only please" (Carl, 4 Nov 2026). On a phone held upright a
+   word with a spot here sits there instead, at the size he set; the laptop keeps WORD_AT. The phone stop editor that set
+   them went with swipe mode (7 Nov 2026); now the words a phone shows all the time (ALL THE WORDS) read them. */
 export const WORD_AT_PHONE = {};
-let phoneWords = false; // on a phone's stops (src/nav.mjs)
+let phoneWords = false; // on a phone held upright (src/nav.mjs)
 export const setPhoneWords = (on) => {
   if (phoneWords === !!on) return;
   phoneWords = !!on;
-  if (HW.text) placeWords(wordAt(HW.key));
+  if (HW.text) placeWords(HW, wordAt(HW.key));
+  for (const S of SIGNS.values()) placeWords(S, wordAt(S.key));
 };
-export const hasPhoneWords = (key) => phoneWords && !!WORD_AT_PHONE[key];
 const wordAt = (key) => ({ ...HW_AT, ...(WORD_AT[key] || {}), ...((phoneWords && WORD_AT_PHONE[key]) || {}) });
 const PPM = 600; // canvas pixels a metre of wall
 // how much of the letters' size their charcoal outline shows outside them (THE OUTLINE); `?stroke=` tries another
@@ -2203,8 +2204,8 @@ export function setWordsAnisotropy(n) {
 }
 const FACE = (f) => `${f}px "DW Fairfield", Georgia, serif`;
 // the words drawn at their size, wrapped to their width (or stacked a letter under a letter), on a canvas their own size
-function drawWords(text, at) {
-  const g = HW.cv.getContext("2d");
+function drawWords(S, text, at) {
+  const g = S.cv.getContext("2d");
   const T = text.toUpperCase();
   let F = at.s * PPM,
     lines,
@@ -2235,8 +2236,8 @@ function drawWords(text, at) {
   const pad = Math.ceil(F * WORD_STROKE);
   const W = Math.min(4096, Math.ceil(at.dir === "down" ? widest + F * 0.2 : Math.max(at.w * PPM, widest)) + 2 * pad),
     H = Math.min(4096, Math.ceil(lines.length * lineH() + F * 0.2) + 2 * pad);
-  HW.cv.width = W;
-  HW.cv.height = H;
+  S.cv.width = W;
+  S.cv.height = H;
   g.clearRect(0, 0, W, H);
   g.font = FACE(F);
   g.fillStyle = "#f4ead8";
@@ -2254,29 +2255,29 @@ function drawWords(text, at) {
   lines.forEach((l, i) => g.strokeText(l, W / 2, y(i)));
   lines.forEach((l, i) => g.fillText(l, W / 2, y(i)));
   // a new texture at the canvas's new size (one already sent to the graphics chip keeps its first size)
-  HW.tex?.dispose();
-  HW.tex = new CanvasTexture(HW.cv);
-  HW.tex.colorSpace = NoColorSpace;
+  S.tex?.dispose();
+  S.tex = new CanvasTexture(S.cv);
+  S.tex.colorSpace = NoColorSpace;
   /* sharp seen at a slant: "podcast word looks really blurry bud idk why" (Carl, 4 Nov 2026). PODCAST runs down the teal
      wall by the corner, seen almost edge-on, and a picture seen that slanted was read at a much blurrier size than it
      shows; the graphics chip's slant filtering (anisotropy) reads it sharp. */
-  HW.tex.anisotropy = WORD_ANISO;
-  HW.mesh.material.uniforms.map.value = HW.tex;
-  HW.wh = [W / PPM, H / PPM];
+  S.tex.anisotropy = WORD_ANISO;
+  S.mesh.material.uniforms.map.value = S.tex;
+  S.wh = [W / PPM, H / PPM];
 }
-function placeWords(at, text = HW.text) {
-  if (!HW.mesh) return;
+function placeWords(S, at, text = S.text) {
+  if (!S.mesh) return;
   const sig = JSON.stringify([text, at.w, at.s, at.dir]);
-  if (text && sig !== HW.drawn) (HW.drawn = sig), drawWords(text, at);
-  const [w, h] = HW.wh;
-  HW.mesh.geometry.dispose();
-  HW.mesh.geometry = new PlaneGeometry(w, h);
-  HW.mesh.rotation.set(0, 0, (-(at.rot || 0) * Math.PI) / 180);
+  if (text && sig !== S.drawn) (S.drawn = sig), drawWords(S, text, at);
+  const [w, h] = S.wh;
+  S.mesh.geometry.dispose();
+  S.mesh.geometry = new PlaneGeometry(w, h);
+  S.mesh.rotation.set(0, 0, (-(at.rot || 0) * Math.PI) / 180);
   // flat on the cream wall facing into the room, or on the teal wall as the map is (placeProp, `wall`)
-  if (at.wall === "cream") HW.group.rotation.set(0, 0, 0), HW.group.position.set(at.x, at.y, 0.021);
+  if (at.wall === "cream") S.group.rotation.set(0, 0, 0), S.group.position.set(at.x, at.y, 0.021);
   // on the console's front, measured along the teal wall as the teal wall's are (CONSOLE FRONT, below)
-  else if (at.wall === "console") HW.group.rotation.set(0, Math.PI / 2, 0), HW.group.position.set(consoleFront().x, at.y, at.x);
-  else HW.group.rotation.set(0, Math.PI / 2, 0), HW.group.position.set(0.021, at.y, at.x);
+  else if (at.wall === "console") S.group.rotation.set(0, Math.PI / 2, 0), S.group.position.set(consoleFront().x, at.y, at.x);
+  else S.group.rotation.set(0, Math.PI / 2, 0), S.group.position.set(0.021, at.y, at.x);
   bitsChanged = true;
 }
 // the words' size on the wall as they are drawn now, turned: for the word editor's grab
@@ -2285,7 +2286,8 @@ export const hoverWordsBox = () => {
     at = wordAt(HW.key);
   return (at.rot || 0) % 180 ? [h, w] : [w, h];
 };
-export function buildHoverWords() {
+// one word's mesh on the wall, faded by `k` (0 to 1)
+function newSign(S) {
   const m = new Mesh(
     new PlaneGeometry(1, 1),
     new ShaderMaterial({
@@ -2300,18 +2302,52 @@ export function buildHoverWords() {
   m.visible = false;
   // drawn after everything else: on the console's front (CONSOLE FRONT) the console, drawn after it, covered it
   m.renderOrder = 10;
-  HW.mesh = m;
-  HW.group = new Group();
-  HW.group.add(m);
-  placeWords(HW_AT);
+  S.mesh = m;
+  S.group = new Group();
+  S.group.add(m);
+  return S;
+}
+export function buildHoverWords() {
+  newSign(HW);
+  placeWords(HW, HW_AT);
   return HW.group;
+}
+/* ALL THE WORDS: "Show all the words at first" and "I need to make every word visible and clickable and clear" (Carl, 7
+   Nov 2026, his officers' quiz, the second of the phone). Every page's word stands on the wall at its own spot, each its
+   own sign beside the one the pointer brings up (HW): src/nav.mjs says when they show. */
+const SIGNS = new Map();
+export function buildAllWords(list) {
+  const g = new Group();
+  for (const { key, text } of list) {
+    const S = newSign({ cv: document.createElement("canvas"), k: 0, to: 0, text, drawn: "", key, mesh: null, group: null, tex: null, wh: [1, 1] });
+    placeWords(S, wordAt(key), text);
+    SIGNS.set(key, S);
+    g.add(S.group);
+  }
+  // drawn again in his DW Fairfield once it has loaded, if it had not when the room was built
+  document.fonts?.load(FACE(100)).then(() => {
+    for (const S of SIGNS.values()) (S.drawn = ""), placeWords(S, wordAt(S.key));
+  });
+  return g;
+}
+// every word up (1) or away (0), fading as the hover word does
+export function setAllWords(on) {
+  for (const S of SIGNS.values()) S.to = on ? 1 : 0;
+  bitsChanged = true;
+}
+// where each word is in the room, for a tap on a word (src/nav.mjs): its key and its four corners
+export function allWordsCorners() {
+  return [...SIGNS.values()].filter((S) => S.k > 0.5).map((S) => ({ key: S.key, corners: signCorners(S) }));
 }
 /* where the words sit, his to move on the word editor. With a key, that word's own spot; with none, every word's */
 export function setHoverWordsAt(at, key = null) {
   if (key && phoneWords) WORD_AT_PHONE[key] = { ...wordAt(key), ...at };
   else if (key) WORD_AT[key] = { ...wordAt(key), ...at };
   else Object.assign(HW_AT, at);
-  placeWords(wordAt(key || HW.key));
+  placeWords(HW, wordAt(key || HW.key));
+  // the word on the wall all the time (ALL THE WORDS) follows its spot too
+  const sign = SIGNS.get(key);
+  if (sign) placeWords(sign, wordAt(key));
 }
 export const hoverWordsAt = (key) => wordAt(key);
 /* CONSOLE FRONT: "i want to be able to put words on the front of the console, like on the plane of the front" (Carl, 4 Nov
@@ -2326,38 +2362,37 @@ export function consoleFront() {
     h = p.w * (m.userData.aspect || 1);
   return { x: (p.gap || 0.02) + (p.depth || 0) + 0.006, z0: p.alongTeal, z1: p.alongTeal + w, y0: 0, y1: h };
 }
-/* the words drawn smaller about their middle, on a phone's stops only (src/nav.mjs ONE THING AT A TIME ON A PHONE):
-   his sizes are a laptop's, and on a narrow phone a word framed beside its thing can be wider than the screen */
-export function setHoverWordsScale(k = 1) {
-  if (!HW.mesh || HW.mesh.scale.x === k) return;
-  HW.mesh.scale.set(k, k, 1);
-  bitsChanged = true;
-}
-// the words' four corners in the room as they are drawn now, for the phone's stops to frame a thing with its word
-// (src/nav.mjs ONE THING AT A TIME ON A PHONE)
-export function hoverWordsCorners() {
-  if (!HW.mesh || !HW.text) return [];
-  HW.group.updateMatrixWorld(true);
-  const e = HW.mesh.matrixWorld.elements,
-    [w, h] = HW.wh;
+// the words' four corners in the room as they are drawn now: a phone's tap turns to take in a thing and its word
+// (src/nav.mjs THE WORD FIRST, ON A PHONE)
+export const hoverWordsCorners = () => (HW.text ? signCorners(HW) : []);
+function signCorners(S) {
+  if (!S.mesh) return [];
+  S.group.updateMatrixWorld(true);
+  const e = S.mesh.matrixWorld.elements,
+    [w, h] = S.wh;
   return [[-w / 2, -h / 2], [w / 2, -h / 2], [-w / 2, h / 2], [w / 2, h / 2]].map(([x, y]) => [0, 1, 2].map((i) => e[i] * x + e[4 + i] * y + e[12 + i]));
 }
 export function setHoverWords(text, key = null) {
   if (text) {
     HW.key = key;
     HW.text = text;
-    placeWords(wordAt(key), text);
+    placeWords(HW, wordAt(key), text);
     HW.to = 1;
   } else HW.to = 0;
   bitsChanged = true;
 }
-function stepHoverWords(dt, reduced) {
-  if (!HW.mesh || HW.k === HW.to) return false;
+function stepSign(S, dt, reduced) {
+  if (!S.mesh || S.k === S.to) return false;
   const st = dt / 220;
-  HW.k = reduced || Math.abs(HW.to - HW.k) <= st ? HW.to : HW.k + Math.sign(HW.to - HW.k) * st;
-  HW.mesh.material.uniforms.k.value = HW.k;
-  HW.mesh.visible = HW.k > 0;
+  S.k = reduced || Math.abs(S.to - S.k) <= st ? S.to : S.k + Math.sign(S.to - S.k) * st;
+  S.mesh.material.uniforms.k.value = S.k;
+  S.mesh.visible = S.k > 0;
   return true;
+}
+function stepHoverWords(dt, reduced) {
+  let moved = stepSign(HW, dt, reduced);
+  for (const S of SIGNS.values()) if (stepSign(S, dt, reduced)) moved = true;
+  return moved;
 }
 export function tickProps(now, reduced) {
   // each steps every frame: with them joined by ||, a moving turntable kept the lid from stepping, so it stood still,
