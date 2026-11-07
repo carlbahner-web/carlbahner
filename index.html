@@ -567,6 +567,73 @@
         letter-spacing: 0.02em;
         cursor: pointer;
       }
+      /* the quiet one: its line and no fill, beside the one mustard action (Spotify under the songs, 7 Nov 2026) */
+      /* NOW PLAYING (src/nav.mjs): a song left playing, in the room's bottom corner (on a phone upright, its top, clear of
+         the card), its name and a pause and a stop, drawn as the cards are */
+      .now-playing {
+        position: absolute;
+        left: 16px;
+        bottom: 16px;
+        z-index: 4;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: min(360px, calc(100% - 32px));
+        padding: 8px 10px 8px 14px;
+        --fill: #fcf7e8;
+        --line: #2c2c2a;
+        color: #2c2c2a;
+        font: 400 14px/1.2 "DM Sans", system-ui, sans-serif;
+      }
+      .upright .now-playing {
+        top: 12px;
+        bottom: auto;
+      }
+      .np-words {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        min-width: 0;
+      }
+      .np-words b,
+      .np-words span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .np-words span {
+        font-size: 12px;
+        opacity: 0.7;
+      }
+      .np-button {
+        position: relative;
+        flex: none;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        border: 0;
+        background: none;
+        --fill: #f6cc60;
+        --line: #2c2c2a;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+      }
+      .np-icon {
+        position: relative;
+        z-index: 1;
+        width: 18px;
+        height: 18px;
+        fill: #2c2c2a;
+      }
+      .words-button.quiet {
+        --fill: transparent;
+      }
+      /* the one action, as wide as the card on every card, so the HOLY MOLY button is the same on each (7 Nov 2026) */
+      .words-button.act,
+      .words-button.more {
+        align-self: stretch;
+      }
       .words-button:active {
         transform: scale(0.97);
       }

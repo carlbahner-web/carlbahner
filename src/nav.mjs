@@ -108,13 +108,14 @@ export const WORDS = {
     button: { words: "HOLY MOLY I WANT TO TALK TO YOU ABOUT MY MUSIC", to: "contact" },
     // the full titles off his live site's player (screenshots, 2 Nov 2026); the first written the same way as the rest:
     // "fix it" (Carl, 2 Nov 2026), its remix credit where the others' describe the song
-    tracks: ['Great Good Fine OK remix // Small Pools "Fake A Happy Face!"', 'fun-yet-sad indie pop // Surname "Good Grief"', 'introspective indie // King Leer "The Garden"', 'ultra-catchy indie pop // Honestly "Night Life"'],
+    tracks: ['Great Good Fine OK remix // Smallpools "Fake A Happy Face!"', 'fun-yet-sad indie pop // Surname "Good Grief"', 'introspective indie // King Leer "The Garden"', 'ultra-catchy indie pop // Honestly "Night Life"'],
     more: "MORE SONGS ON SPOTIFY",
     // his playlist, sent 2 Nov 2026
     moreLink: "https://open.spotify.com/playlist/3Bt7j0jThvjdHSlVSRH6HK",
   },
   bio: {
     title: "Obligatory Third-Person Biography",
+    button: { words: "HOLY MOLY I WANT TO TALK TO YOU ABOUT MY MUSIC", to: "contact" },
     text: [
       "If you put the Backstreet Boys and Aphex Twin in a blender with a 1960 Ludwig kit, you\u2019d land somewhere close to Carl\u2019s sonic instincts: pop sensibilities wrapped in glitchy ear candy, anchored by massive rhythm sections and tiny buried details that only reveal themselves on the 10th listen.",
       "Before mixing full-time, he toured internationally as a drummer, opening for artists like Charli XCX, Walk The Moon, The Wombats, and more\u2026 which left him with an unusually tuned ear for what actually moves a room full of humans.",
@@ -990,7 +991,8 @@ export function startNav(v) {
   for (const t of things) {
     const b = Object.assign(document.createElement("button"), { type: "button", className: "thing" });
     // a screen reader's name for it, until Carl names what each opens (studio/NAVIGATION.md)
-    b.setAttribute("aria-label", t.name);
+    // named by its page, his wall word, not the object: "Use the wall words" (Carl, 7 Nov 2026, his officers' quiz)
+    b.setAttribute("aria-label", wordsOf(t) || t.name);
     b.addEventListener("focus", () => {
       focused = t;
       if (!open && !flight) glideTo(t);
@@ -1222,8 +1224,13 @@ export function startNav(v) {
 
   /* ---------- the shells: Carl's empty spaces, no words of anyone else's ---------- */
   function stopAudio() {
-    for (const a of document.querySelectorAll("#win audio")) a.pause();
-    PLAYER?.cancel?.();
+    // a song playing goes on in the room as the card closes or another opens (NOW PLAYING, below); anything else stops
+    const kept = PLAYER?.release?.();
+    if (kept) nowPlaying(kept);
+    else {
+      for (const a of document.querySelectorAll("#win audio")) a.pause();
+      PLAYER?.cancel?.();
+    }
     PLAYER = null;
     stopFlights();
     // the arm back on its rest and the motor slowing; the record stays on the deck until the panel closes over it
@@ -1250,7 +1257,8 @@ function icon(d, cls) {
   return s;
 }
 const PLAY = "M8 5.5 L19 12 L8 18.5 Z",
-  PAUSE = "M7 5 H10.5 V19 H7 Z M13.5 5 H17 V19 H13.5 Z";
+  PAUSE = "M7 5 H10.5 V19 H7 Z M13.5 5 H17 V19 H13.5 Z",
+  STOP = "M7 7 H17 V17 H7 Z";
 const mmss = (s) => (isFinite(s) ? Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0") : "");
 
 /* ---------- the record between the window and the deck ---------- */
@@ -1269,6 +1277,44 @@ function stopFlights() {
   for (const f of document.querySelectorAll(".flier")) f.remove();
 }
 // a record as a page element: his drawing, the song's cover on its label (as on the deck: props.mjs labelRecord)
+/* NOW PLAYING: "There needs to be some sort of song info/control hud thing so they can stop as needed" (Carl, 7 Nov 2026,
+   his officers' quiz, on the song stopping as the player closed). A song playing when its card closes, or when its
+   HOLY MOLY button opens the contact card, plays on, and a small card in the room's corner says what it is, with a
+   pause and a stop. It goes when the song ends or is stopped, and when the player opens again (which starts fresh). */
+let NOW = null;
+function endNowPlaying() {
+  if (!NOW) return;
+  NOW.audio.pause();
+  NOW.box.remove();
+  NOW = null;
+}
+function nowPlaying({ audio, title, artist }) {
+  endNowPlaying();
+  const box = el("div", "now-playing"),
+    words = el("div", "np-words"),
+    toggle = el("button", "np-button", { type: "button" }),
+    stop = el("button", "np-button", { type: "button" });
+  words.append(el("b", "", { textContent: title }), el("span", "", { textContent: artist }));
+  toggle.append(icon(PAUSE, "np-icon"));
+  stop.append(icon(STOP, "np-icon"));
+  const name = () => toggle.setAttribute("aria-label", audio.paused ? "Play" : "Pause");
+  name();
+  stop.setAttribute("aria-label", "Stop");
+  toggle.addEventListener("click", () => {
+    if (audio.paused) audio.play();
+    else audio.pause();
+    toggle.replaceChildren(icon(audio.paused ? PLAY : PAUSE, "np-icon"));
+    name();
+    cue(audio.paused ? "key:stop" : "key:play");
+  });
+  stop.addEventListener("click", () => (cue("key:stop"), endNowPlaying()));
+  audio.addEventListener("ended", endNowPlaying, { once: true });
+  box.append(words, toggle, stop);
+  document.querySelector("#stage").append(box);
+  drawBox(box);
+  for (const b of [toggle, stop]) drawBox(b, { round: true });
+  NOW = { audio, box };
+}
 function recordEl(cover, cls) {
   const r = el("div", "vinyl " + cls);
   if (cover) {
@@ -1312,6 +1358,7 @@ const SHELLS = {
      another, the arm goes home first, then the old record goes back to its sleeve as the new one comes out. */
   player(t, go) {
     const W = WORDS.portfolio;
+    endNowPlaying(); // the player open again starts fresh: the song left playing in the room stops (NOW PLAYING)
     const box = el("div", "shell player words");
     box.append(said(W.title, "h2"));
     const audio = el("audio", "", { preload: "metadata" });
@@ -1340,7 +1387,8 @@ const SHELLS = {
     // the play, stop, what is on and the progress line are on the deck, as on Greg's player (props.mjs drawControls):
     // "Actually now I miss the controls from Greg's", then "1", on the turntable (Carl, 2 Nov 2026)
     // his site's button to Spotify, out to his playlist in a new tab
-    const more = el("a", "words-button more", { href: W.moreLink, target: "_blank", rel: "noopener", textContent: W.more });
+    // the quiet one beside his contact button, a line and no fill: "Make Spotify the quiet one" (Carl, 7 Nov 2026)
+    const more = el("a", "words-button more quiet", { href: W.moreLink, target: "_blank", rel: "noopener", textContent: W.more });
     more.addEventListener("click", () => cue("click:spotify"));
     box.append(more, audio);
     // his contact button under the Spotify one (WORDS.portfolio.button)
@@ -1518,6 +1566,20 @@ const SHELLS = {
     // a new card: the deck starts empty, whatever the last one left on it
     setDeck({ on: false, playing: false, armTo: "rest", drop: 0, dropTo: 0, k: 0 });
     PLAYER = {
+      // the window closing on a song that is playing: it is handed on to play in the room (NOW PLAYING), the card's own
+      // steps let go of it, so its end no longer reaches for the next record on a deck that has closed
+      release: () => {
+        if (at === -1 || !loaded || audio.paused) return null;
+        gen++;
+        busy = false;
+        next = null;
+        audio.removeEventListener("play", paint);
+        audio.removeEventListener("pause", paint);
+        audio.removeEventListener("ended", onEnded);
+        audio.removeEventListener("timeupdate", onTime);
+        const on = SONGS[at];
+        return { audio, title: on?.song || W.tracks[at] || "", artist: on?.artist || "" };
+      },
       // the window closing: every step under way stops where it is, nothing lands, nothing plays
       cancel: () => {
         gen++;
@@ -1550,19 +1612,21 @@ const SHELLS = {
     paint();
     audio.addEventListener("play", paint);
     audio.addEventListener("pause", paint);
-    audio.addEventListener("ended", () => {
+    const onEnded = () => {
       if (at < TRACKS.length - 1) return pick(at + 1);
       setDeck({ armTo: "rest", playing: false });
       paint();
-    });
-    audio.addEventListener("timeupdate", () => {
+    };
+    const onTime = () => {
       if (audio.duration) setDeck({ k: audio.currentTime / audio.duration });
       paint();
-    });
+    };
+    audio.addEventListener("ended", onEnded);
+    audio.addEventListener("timeupdate", onTime);
     return box;
   },
   // THE BIO: a photo, a title and his words
-  bio() {
+  bio(t, go) {
     const W = WORDS.bio;
     const box = el("div", "shell bio words");
     /* his photo, the one on Homegrown's About page (public/assets/carl-about.webp, copied here so this folder stands
@@ -1595,6 +1659,9 @@ const SHELLS = {
       }
     strip.append(run);
     box.append(strip);
+    // and his contact button after the logos, as the player, the quotes and Are YOU my people? end: "Add HOLY MOLY to the
+    // bio" (Carl, 7 Nov 2026, his officers' quiz)
+    if (W.button) box.append(actionButton(W.button, go));
     return box;
   },
   // THE DRUM'S PAGE: it was to be tour photos, then "maybe the logos are all I need tbh?" (Carl, 2 Nov 2026), so it is
@@ -1720,14 +1787,16 @@ function contactForm() {
     return l;
   };
   const row = el("div", "two");
-  row.append(field("First Name (required)", el("input", "", { name: "first", required: true, autocomplete: "given-name" })), field("Last Name (required)", el("input", "", { name: "last", required: true, autocomplete: "family-name" })));
+  /* no "(required)" on each and no Name heading over the pair: every field must be filled, so the words told nobody
+     anything (Carl, 7 Nov 2026, his officers' quiz: "Drop "(required)" and the heading"). The browser still stops an
+     empty one. */
+  row.append(field("First Name", el("input", "", { name: "first", required: true, autocomplete: "given-name" })), field("Last Name", el("input", "", { name: "last", required: true, autocomplete: "family-name" })));
   // the news and updates tick is off: "we tan turn off the new and updates box" (Carl, 3 Nov 2026)
   f.append(
-    el("div", "group", { textContent: "Name" }),
     row,
-    field("Email (required)", el("input", "", { type: "email", name: "email", required: true, autocomplete: "email" })),
-    field("Subject (required)", el("input", "", { name: "subject", required: true, defaultValue: "I need the right mix engineer!" })), // a default, so the form's reset puts it back
-    field("Message (required)", el("textarea", "", { name: "message", required: true, rows: 5 })),
+    field("Email", el("input", "", { type: "email", name: "email", required: true, autocomplete: "email" })),
+    field("Subject", el("input", "", { name: "subject", required: true, defaultValue: "I need the right mix engineer!" })), // a default, so the form's reset puts it back
+    field("Message", el("textarea", "", { name: "message", required: true, rows: 5 })),
     el("button", "words-button act", { type: "submit" }),
   );
   const button = f.querySelector("button[type=submit]");
