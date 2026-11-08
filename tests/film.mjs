@@ -178,10 +178,10 @@ const opening = async (f) => {
     await f.page.evaluate(() => window.__advance(16));
     await f.page.waitForTimeout(50);
   }
-  await f.frames(5200);
+  await f.frames(6600);
 };
 await film("open-rug", "Opening A: from the rug", { query: "?open=rug" }, opening);
-await film("open-above", "Opening B: from above, your name straight across", { query: "?open=above" }, opening);
+await film("open-above", "Opening B: close on your name, pulls out, then drops into the room", { query: "?open=above" }, opening);
 await film("open-far", "Opening C: from far back", { query: "?open=far" }, opening);
 await film("phone-turn", "A phone held upright: turn it", { width: 390, height: 844, phone: true }, (f) => f.frames(3600));
 

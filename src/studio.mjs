@@ -1085,7 +1085,7 @@ const leanEase = (x) => x * x * x * (x * (6 * x - 15) + 10);
    back along its own line of sight, coming in. Nothing takes a click until it lands. None for a visitor who asks for
    less motion. Without `?open=` the room opens as it always has. */
 const OPEN_KIND = REDUCED ? null : new URLSearchParams(location.search).get("open");
-const OPEN_MS = +(new URLSearchParams(location.search).get("openms") || 4200);
+const OPEN_MS = +(new URLSearchParams(location.search).get("openms") || (OPEN_KIND === "above" ? 5600 : 4200));
 const OPENING = { k: OPEN_KIND ? 1 : 0, t0: 0 };
 function startOpening() {
   if (!OPENING.k) return nav.introFrom();
@@ -1098,6 +1098,17 @@ function stepOpening(now) {
   if (!OPENING.k) nav.introFrom();
   return true;
 }
+/* B starts closer still and pulls out first: "can b start zoomed in further into the carpet and pull out before droping
+   back?" (Carl, 8 Nov 2026). For its first RISE of the time it rises straight up from CLOSE over the rug, still looking
+   down, to the high place, then drops back into the room as before. */
+const RISE = 0.32,
+  CLOSE_H = 1.85;
+function openingClose(fov1) {
+  if (OPEN_KIND !== "above") return null;
+  const rug = [1.89, 0, 1.79],
+    k = CLOSE_H / (ROOM.h - 0.35);
+  return [[rug[0], CLOSE_H, rug[2] - 0.05 + 0.35 * k], [rug[0], 0, rug[2] - 0.05], fov1 * 1.2];
+}
 // where it starts, from where it lands: [place, the spot it looks at, lens]
 function openingFrom(p1, d1, fov1) {
   const rug = [1.89, 0, 1.79];
@@ -1106,6 +1117,7 @@ function openingFrom(p1, d1, fov1) {
      different angle (same height, but rotated so that the wordmark is left to right instead of diagonal?" (Carl, 8 Nov
      2026). Facing the teal wall square, the rug's length across the screen */
   if (OPEN_KIND === "above") return [[rug[0], ROOM.h - 0.35, rug[2] + 0.3], [rug[0], 0, rug[2] - 0.05], fov1 * 1.2];
+
   // far: back along its own line of sight and a little up, looking at the same corner
   const back = 5.5,
     look = 3;
@@ -1139,8 +1151,17 @@ function place() {
     camera.rotateY((-peek.x * PEEK_H * Math.PI) / 180);
     camera.rotateX((-peek.y * PEEK_V * Math.PI) / 180);
   }
-  if (OPENING.k > 0) {
-    const e = leanEase(OPENING.k),
+  const close = OPENING.k > 0 && openingClose(fov),
+    t = 1 - OPENING.k;
+  if (close && t < RISE) {
+    const [hi, hiLook, hiFov] = openingFrom(camera.position, lookDir(cam.yaw, cam.pitch), fov),
+      e = leanEase(t / RISE),
+      mix = (a, b) => a + (b - a) * e;
+    camera.position.set(mix(close[0][0], hi[0]), mix(close[0][1], hi[1]), mix(close[0][2], hi[2]));
+    camera.lookAt(mix(close[1][0], hiLook[0]), mix(close[1][1], hiLook[1]), mix(close[1][2], hiLook[2]));
+    fov = mix(close[2], hiFov);
+  } else if (OPENING.k > 0) {
+    const e = leanEase(close ? 1 - (t - RISE) / (1 - RISE) : OPENING.k),
       mix = (a, b) => a + (b - a) * e,
       p1 = camera.position.clone(),
       q1 = camera.quaternion.clone(),
@@ -1263,7 +1284,8 @@ function wallAt(clientX, clientY) {
   }
   return best;
 }
-editWords({ says: SAYS, wallAt });
+// the pages' words only: SYNCS (`tour`) has had no thing since the logos went under the bio (3 Nov 2026)
+editWords({ says: Object.fromEntries(Object.entries(SAYS).filter(([k]) => k !== "tour")), wallAt });
 editViews({ phone: { values: PHONE, set: setPhone }, open: { views: nav.views, names: nav.viewNames, go: (h) => nav.go(h), cameraKeys: (v) => nav.cameraKeys(v), setCamera: (v) => nav.setCamera(v) } });
 // THE ROOM'S SOUNDS (src/sound.mjs): off until a visitor turns them on, and Carl's room sound page's way in
 const sound = startSound({ nav, props, reduced: REDUCED });

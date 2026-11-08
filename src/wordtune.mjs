@@ -11,12 +11,16 @@
    (build-words.sh). */
 import { setHoverWords, setHoverWordsAt, hoverWordsAt, hoverWordsBox, WORD_AT } from "./props.mjs";
 
+/* Saved under a new name from 8 Nov 2026, when the words were laid out again on his say (props.mjs ONE SIZE, ALL ACROSS),
+   so the spots saved on 3 Nov stay kept but no longer pull the words back where they were. "do you hvae the editor where
+   i can put the words and resize them?" (Carl, 8 Nov 2026) */
+const WORDS_DOC = "words/layout-nov8";
 export async function editWords({ says, wallAt }) {
   if (!window.WORDS_EDITOR) return;
   const db = await Promise.resolve(window.claude?.use?.("db")).catch(() => null);
   if (db) {
     try {
-      const d = await db.doc("words/at").get();
+      const d = await db.doc(WORDS_DOC).get();
       if (d.exists) for (const [k, at] of Object.entries(d.data().at || {})) setHoverWordsAt(at, k);
     } catch {
       /* nothing saved yet */
@@ -80,7 +84,7 @@ export async function editWords({ says, wallAt }) {
   save.addEventListener("click", async () => {
     if (!db) return void (status.textContent = "Couldn't save: no database here");
     try {
-      await db.doc("words/at").set({ at: { ...WORD_AT }, savedAt: new Date().toISOString() });
+      await db.doc(WORDS_DOC).set({ at: { ...WORD_AT }, savedAt: new Date().toISOString() });
       status.textContent = "Saved";
     } catch (e) {
       status.textContent = "Couldn't save: " + (e?.message || e);

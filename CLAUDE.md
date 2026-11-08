@@ -594,6 +594,13 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
 - **The opening flyover, on trial behind `?open=rug|above|far`** ("can i see both? and also maybe one from zoomed far
   back? it could be cool"): THE OPENING FLYOVER in `src/studio.mjs`, filmed by `tests/film.mjs` (`open-`). The words'
   first showing counts from when it lands (`introFrom`).
+- Opening B starts square to the rug, his name straight across ("rotated so that the wordmark is left to right instead of
+  diagonal"), close on it, pulls up and out, then drops into the room ("can b start zoomed in further into the carpet and
+  pull out before droping back?"): RISE and CLOSE_H.
+- The word editor (https://claude.ai/artifact/L5sZYGwWCpwAeN1sRASJxB, `build-words.sh`) is back up to date ("do you hvae
+  the editor where i can put the words and resize them?"): every word stays up while one is moved, and it saves at
+  `words/layout-nov8`, so the 3 Nov spots no longer pull the words back. Read that back with ArtifactData and write it
+  into `WORD_AT`.
 
 ## Laptop first. Phones wait.
 

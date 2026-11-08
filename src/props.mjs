@@ -2339,6 +2339,8 @@ export function buildAllWords(list) {
   // drawn again in his DW Fairfield once it has loaded, if it had not when the room was built
   document.fonts?.load(FACE(100)).then(() => {
     for (const S of SIGNS.values()) (S.drawn = ""), placeWords(S, wordAt(S.key));
+    // and the word under the pointer, if it was up before the face came
+    if (HW.text) (HW.drawn = ""), placeWords(HW, wordAt(HW.key));
   });
   return g;
 }

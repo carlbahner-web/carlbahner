@@ -655,7 +655,8 @@ export function startNav(v) {
        flying, and not at all for someone who asks for less motion. */
     // ALL THE WORDS: up while nothing is open or flying (a tap's hold keeps them), on a touch screen always, with a
     // mouse until the first hover or INTRO_MS
-    showAll(!open && (!flight || flight.soft || holding) && (TOUCH || (!introDone && now < introUntil)));
+    // the word editor keeps them all up, so each is placed among the rest (src/wordtune.mjs)
+    showAll(!open && (!flight || flight.soft || holding) && (TOUCH || window.WORDS_EDITOR || (!introDone && now < introUntil)));
     const pulsing = TOUCH && !open && !flight && !reduced;
     const breath = pulsing ? PULSE_PEAK * (0.5 - 0.5 * Math.cos((2 * Math.PI * Math.max(0, now - pulseFrom)) / PULSE_MS)) : 0;
     for (const t of things) {
