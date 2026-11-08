@@ -2348,13 +2348,15 @@ export function buildAllWords(list) {
   return g;
 }
 // every word up (1) or away (0), fading as the hover word does
-export function setAllWords(on) {
-  for (const S of SIGNS.values()) S.to = on ? 1 : 0;
+export function setAllWords(level, hot = null) {
+  // a level, 0 to 1 (true and false still work), and the one word up full whatever it is (src/nav.mjs QUIET UNTIL HOVERED)
+  level = +level;
+  for (const S of SIGNS.values()) S.to = level > 0 && S.key === hot ? 1 : level;
   bitsChanged = true;
 }
 // where each word is in the room, for a tap on a word (src/nav.mjs): its key and its four corners
 export function allWordsCorners() {
-  return [...SIGNS.values()].filter((S) => S.k > 0.5).map((S) => ({ key: S.key, corners: signCorners(S) }));
+  return [...SIGNS.values()].filter((S) => S.to > 0 && S.k > 0.05).map((S) => ({ key: S.key, corners: signCorners(S) }));
 }
 /* where the words sit, his to move on the word editor. With a key, that word's own spot; with none, every word's */
 export function setHoverWordsAt(at, key = null) {

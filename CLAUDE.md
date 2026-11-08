@@ -611,6 +611,11 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
 - His word layout from the editor, saved and written into `WORD_AT` ("updated the wording").
 - The edge lean holds at the very edge: "when i havce my mouse on the left edge it bounces and doesn't really show the left
   side". The mouse is read over the whole page, so the card's border and the margin past it count as the edge (`EDGE_OUT`).
+- Words quiet until hovered on a laptop: "can we have the words always on screen on laptop, just quiet? like 18% until
+  hovered then it gets full? and the words dshould be clickable/hoverable too". After the opening's full showing every
+  word stays at `QUIET` (`?quiet=`), the hovered thing's word full; a quiet word hovers and clicks as its thing does.
+- A new home angle, turned left to his screenshot ("can we try to make this the new "home" angle?"): `START.yaw` 0.135
+  (was -0.0726), matched by rendering against his picture, and `LIMITS.left` moved out to 3.25 so the view can rest there.
 
 ## Laptop first. Phones wait.
 

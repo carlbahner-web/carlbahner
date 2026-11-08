@@ -64,7 +64,7 @@ await walk("laptop", { width: 1440, height: 900 }, async ({ page, state, shot, s
   expect(!s.open && s.hash === "", "laptop: Esc did not close the window");
   await shot("Esc: back where it was");
   // where the picture frame stood, the snow globe since 3 Nov 2026: its StudioLand card, and Esc closes it
-  await page.mouse.click(110, 505);
+  await page.mouse.click(292, 505); // the snow globe, in the home angle of 8 Nov 2026
   await settle();
   s = await state();
   expect(s.hash === "#studioland" && s.kind === "page", "laptop: clicking the snow globe did not open StudioLand's card");
@@ -87,7 +87,7 @@ await walk("laptop", { width: 1440, height: 900 }, async ({ page, state, shot, s
   await settle();
   await page.keyboard.press("Escape");
   await settle();
-  await page.mouse.click(240, 470); // the dog, in the opening view tilted onto the rug
+  await page.mouse.click(420, 440); // the dog, in the home angle of 8 Nov 2026
   await settle();
   expect((await state()).hash === "#contact", "laptop: clicking the dog did not open the contact window");
   await shot("clicked the dog: contact");

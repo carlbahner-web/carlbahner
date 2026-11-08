@@ -260,10 +260,19 @@ export function startNav(v) {
     introDone = false;
   const keyOfThing = (t) => t.hash || t.id;
   const wordList = () => things.filter((t) => wordsOf(t)).map((t) => ({ key: keyOfThing(t), text: wordsOf(t) }));
-  function showAll(on) {
-    if (on === allOn) return;
-    allOn = on;
-    setAllWords(on);
+  /* QUIET UNTIL HOVERED: "can we have the words always on screen on laptop, just quiet? like 18% until hovered then it
+     gets full? and the words dshould be clickable/hoverable too" (Carl, 8 Nov 2026). With a mouse, once the opening's
+     full showing is over, every word stays up at QUIET (`?quiet=`), and the one whose thing or word is under the pointer
+     comes up full. A quiet word is still a word to hover and click. */
+  const QUIET = +(new URLSearchParams(location.search).get("quiet") || 0.18);
+  let shownAt = -1,
+    shownHot = null;
+  function showAll(level, hot = null) {
+    if (level === shownAt && hot === shownHot) return;
+    shownAt = level;
+    shownHot = hot;
+    allOn = level > 0;
+    setAllWords(level, hot);
     v.dirty();
   }
   // the thing whose word is under a point on screen, if the words are up: each word a flat quad on its wall
@@ -664,7 +673,8 @@ export function startNav(v) {
     // ALL THE WORDS: up while nothing is open or flying (a tap's hold keeps them), on a touch screen always, with a
     // mouse until the first hover or INTRO_MS
     // the word editor keeps them all up, so each is placed among the rest (src/wordtune.mjs)
-    showAll(!open && (!flight || flight.soft || holding) && (TOUCH || window.WORDS_EDITOR || (!introDone && now < introUntil)));
+    const up = !open && (!flight || flight.soft || holding);
+    showAll(!up ? 0 : TOUCH || window.WORDS_EDITOR || (!introDone && now < introUntil) ? 1 : QUIET, up && hovered ? keyOfThing(hovered) : null);
     const pulsing = TOUCH && !open && !flight && !reduced;
     const breath = pulsing ? PULSE_PEAK * (0.5 - 0.5 * Math.cos((2 * Math.PI * Math.max(0, now - pulseFrom)) / PULSE_MS)) : 0;
     for (const t of things) {

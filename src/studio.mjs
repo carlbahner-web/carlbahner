@@ -162,7 +162,10 @@ const TURN = { yaw: 0.6, pitch: 0.35 }; // how far it turns each way, in radians
 // then zoomed to his widest, his saved widest shot: "let's use the saved widest shot as the new opening shot. that
 // makes it way easier" (Carl, 6 Oct 2026)
 const ARRANGING = false; // the arranging panel, switched off (THE ARRANGING PANEL, below)
-const START = { yaw: -0.0726, pitch: 0.0398, fov: 17.831 };
+/* then turned left to his screenshot, the clock and the whole map in, the drum at the right edge: "can we try to make
+   this the new "home" angle?" (Carl, 8 Nov 2026). Matched by rendering against his picture; yaw was -0.0726. The left
+   limit moved out with it (LIMITS.left), so the view can rest there. */
+const START = { yaw: 0.135, pitch: 0.0398, fov: 17.831 };
 const cam = { ...START, tyaw: START.yaw, tpitch: START.pitch, tfov: START.fov };
 // where the camera stands for the opening view, and the point that view looks at, STAND metres on
 const EYE0 = { x: STAND * Math.SQRT1_2, y: EYE.y, z: STAND * Math.SQRT1_2 };
@@ -881,7 +884,7 @@ let level = false;
 // his, set and saved the same day as turns, turned into the spots at the edges of those views at his widest zoom:
 // metres, x along the cream wall from the corner, y up, z along the teal wall
 const LIMITS = {
-  left: [0, 1.475, 3.093],
+  left: [0, 1.475, 3.25], // 3.093 until the new home angle, 8 Nov 2026, whose left edge falls at 3.19
   right: [3.308, 1.468, 0],
   top: [1.124, 3, 0.689],
   bottom: [2.128, 0, 1.852],
