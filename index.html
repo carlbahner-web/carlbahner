@@ -527,14 +527,21 @@
         overflow-y: auto;
         /* room for a button's drawn line, which runs 6px outside it, so the scrolling box never clips its sides: "Buttons cut
            off" (Carl, 3 Nov 2026, on his phone), drawn out to the card's own edge; the words stay where they were */
-        padding-left: 8px;
-        margin-left: -8px;
-        padding-right: 8px;
-        margin-right: -4px;
+        padding-left: 10px;
+        margin-left: -10px;
+        padding-right: 10px;
+        margin-right: -10px;
+        /* and no scrollbar of its own: "padding is still cutting stuff off" (Carl, 8 Nov 2026, the player's two buttons cut
+           on the right). A Mac set to always show scrollbars put one inside this box, taking the room the buttons' line
+           runs in; the faded edge (WHILE THERE IS MORE TO SCROLL) already says there is more */
+        scrollbar-width: none;
         /* Homegrown's body: DM Sans at --fs-body (1.05rem); its headings DW Fairfield at --fs-heading (1.7rem) */
         /* up from Homegrown's 1.05rem to read easier on a laptop: "is the text size too small?", then "yeah" (Carl, 2 Nov
            2026). Every card's words, not the bio alone. */
         font: var(--fs-body)/1.4 "DM Sans", system-ui, sans-serif;
+      }
+      .words::-webkit-scrollbar {
+        display: none;
       }
       .words h2 {
         margin: 0 56px 4px 0;

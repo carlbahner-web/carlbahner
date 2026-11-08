@@ -616,6 +616,8 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   word stays at `QUIET` (`?quiet=`), the hovered thing's word full; a quiet word hovers and clicks as its thing does.
 - A new home angle, turned left to his screenshot ("can we try to make this the new "home" angle?"): `START.yaw` 0.135
   (was -0.0726), matched by rendering against his picture, and `LIMITS.left` moved out to 3.25 so the view can rest there.
+- A card's words never show a scrollbar of their own, and keep 10px each side for a button's drawn line: "padding is still
+  cutting stuff off" (the player's two buttons cut on the right, where a Mac's always-on scrollbar sat).
 
 ## Laptop first. Phones wait.
 
