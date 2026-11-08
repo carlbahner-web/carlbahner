@@ -87,6 +87,19 @@ const shared = {
   ...lightUniforms(),
 };
 for (const m of buildRoom(shared)) scene.add(m);
+/* NOTHING TAKES A CLICK UNDER THE LOADING SCREEN: "it accepts clicks during the loading screen, which makes it glitch out"
+   (Carl, 8 Nov 2026). Until the screen lifts (body.loaded), every press, wheel, key and touch is stopped before the room,
+   its cards or its buttons hear it. */
+for (const type of ["pointerdown", "pointerup", "pointermove", "click", "dblclick", "contextmenu", "wheel", "keydown", "keyup", "touchstart", "touchmove", "gesturestart", "gesturechange"])
+  addEventListener(
+    type,
+    (e) => {
+      if (document.body.classList.contains("loaded")) return;
+      e.stopImmediatePropagation();
+      if (e.cancelable && type !== "pointermove" && type !== "keyup") e.preventDefault();
+    },
+    { capture: true, passive: false },
+  );
 // the page is ready once the grain and every decoration have arrived (or failed to)
 let waiting = 1;
 function loaded() {

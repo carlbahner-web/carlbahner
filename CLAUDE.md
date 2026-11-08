@@ -577,6 +577,10 @@ words officers, the Homegrown skills, walked the site). His answers, built the s
   now"), the co-producer words ending where they do. The officers' "camera bug" going card to card was their slow browser
   catching a flight mid-way, not a bug.
 
+**Nothing takes a click under the loading screen, 8 Nov 2026**: "it accepts clicks during the loading screen, which makes
+it glitch out" (Carl). Until it lifts (`body.loaded`), every press, wheel, key and touch is stopped before the room hears
+it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
+
 ## Laptop first. Phones wait.
 
 **Carl, 5 Oct 2026: "dont do phone yet i'll make them turn it sideways anyway. let's jsut get
