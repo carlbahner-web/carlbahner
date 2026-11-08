@@ -1102,7 +1102,10 @@ function stepOpening(now) {
 function openingFrom(p1, d1, fov1) {
   const rug = [1.89, 0, 1.79];
   if (OPEN_KIND === "rug") return [[2.25, 0.42, 2.15], [1.75, 0.02, 1.62], fov1 * 1.15];
-  if (OPEN_KIND === "above") return [[2.05, ROOM.h - 0.35, 1.95], [rug[0] - 0.2, 0, rug[2] - 0.2], fov1 * 1.2];
+  /* the same height, turned so his name on the rug reads left to right, not on a slant: "what if B started at a slightly
+     different angle (same height, but rotated so that the wordmark is left to right instead of diagonal?" (Carl, 8 Nov
+     2026). Facing the teal wall square, the rug's length across the screen */
+  if (OPEN_KIND === "above") return [[rug[0], ROOM.h - 0.35, rug[2] + 0.3], [rug[0], 0, rug[2] - 0.05], fov1 * 1.2];
   // far: back along its own line of sight and a little up, looking at the same corner
   const back = 5.5,
     look = 3;

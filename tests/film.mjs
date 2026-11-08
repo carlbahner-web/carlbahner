@@ -181,7 +181,7 @@ const opening = async (f) => {
   await f.frames(5200);
 };
 await film("open-rug", "Opening A: from the rug", { query: "?open=rug" }, opening);
-await film("open-above", "Opening B: from above", { query: "?open=above" }, opening);
+await film("open-above", "Opening B: from above, your name straight across", { query: "?open=above" }, opening);
 await film("open-far", "Opening C: from far back", { query: "?open=far" }, opening);
 await film("phone-turn", "A phone held upright: turn it", { width: 390, height: 844, phone: true }, (f) => f.frames(3600));
 
