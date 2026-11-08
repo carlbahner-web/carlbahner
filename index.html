@@ -960,8 +960,10 @@
       .sleeves {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px 12px;
-        padding: 4px 8px 4px 4px; /* room for each sleeve's drawn line, which the scrolling card would clip */
+        /* with room round them, so they come out smaller: "they should have more padding between them so they can be a
+           bit smaller" (Carl, 8 Nov 2026). 14px and 12px apart, and nothing at the sides, until then */
+        gap: 26px 48px;
+        padding: 4px 44px; /* and room for each sleeve's drawn line, which the scrolling card would clip */
       }
       @container (max-width: 440px) {
         .sleeves {

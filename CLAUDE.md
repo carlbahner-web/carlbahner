@@ -619,7 +619,8 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
 - A card's words never show a scrollbar of their own, and keep 10px each side for a button's drawn line: "padding is still
   cutting stuff off" (the player's two buttons cut on the right, where a Mac's always-on scrollbar sat).
   Then "both sides are a little cutoff": the card's body clipped at the button's own edge, so it reaches 10px into the
-  card's padding too. The songs are two rows of two ("two rows of two songs instead of a row of 3 and a row of 1").
+  card's padding too. The songs are two rows of two ("two rows of two songs instead of a row of 3 and a row of 1"),
+  further apart so they come out smaller ("they should have more padding between them so they can be a bit smaller").
 
 ## Laptop first. Phones wait.
 
