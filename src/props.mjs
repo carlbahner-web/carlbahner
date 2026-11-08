@@ -2259,7 +2259,9 @@ function drawWords(S, text, at) {
   const widest = Math.max(1, ...lines.map((l) => g.measureText(l).width));
   // room round the letters for their outline (THE OUTLINE, below)
   const pad = Math.ceil(F * WORD_STROKE);
-  const W = Math.min(4096, Math.ceil(at.dir === "down" || at.dir === "rows" ? widest + F * 0.2 : Math.max(at.w * PPM, widest)) + 2 * pad),
+  // as wide as the words themselves (they are centred, so nothing moves): the full wrapping width made a click or hover
+  // on the wall far to either side of a word count as the word (the clickable map, 8 Nov 2026)
+  const W = Math.min(4096, Math.ceil(widest + F * 0.2) + 2 * pad),
     H = Math.min(4096, Math.ceil(lines.length * lineH() + F * 0.2) + 2 * pad);
   S.cv.width = W;
   S.cv.height = H;

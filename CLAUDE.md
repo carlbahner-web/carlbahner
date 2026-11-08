@@ -628,6 +628,11 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   half their alpha, which made a fading word appear in chunks; the controls' picture keeps its soft alpha (`soft`).
 - NOW PLAYING in a mini player's order, asked "what is a best practices order?", then "yes": the song, back, play/pause
   (a little bigger), next, and a small × apart at the end that stops the song and closes the card. No stop button.
+- The clickable map ("Can you show me the clickable heat map?"): `node tests/clickmap.mjs [out.png]` colours every spot of
+  the room as it opens by the page a click there opens, labelled. Drawing it found two things, fixed the same day: a click
+  was aimed by the camera's turn alone, so with the edges leaning the view it landed beside what was under the pointer
+  (`rayAt` now goes through the camera as drawn); and each word answered across its whole 1.66 m wrapping width, far
+  past its letters (a word's picture is now as wide as its words).
 
 ## Laptop first. Phones wait.
 

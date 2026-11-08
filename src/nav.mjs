@@ -334,6 +334,27 @@ export function startNav(v) {
     return m;
   }
   function rayAt(x, y) {
+    /* through the camera as it is drawn: with the edges leaning the view (studio.mjs THE EDGES LEAN THE VIEW), the lean
+       over the console or the opening flyover, the camera is not where the turn alone puts it, and a click aimed by the
+       turn alone landed beside what was under the pointer (found drawing "the clickable heat map", 8 Nov 2026) */
+    const C = v.camera;
+    if (C) {
+      C.updateMatrixWorld();
+      const nx = (x / view().width) * 2 - 1,
+        ny = 1 - (y / view().height) * 2,
+        I = C.projectionMatrixInverse.elements,
+        M = C.matrixWorld.elements,
+        un = (z) => {
+          const c = [0, 1, 2, 3].map((i) => I[i] * nx + I[4 + i] * ny + I[8 + i] * z + I[12 + i]);
+          const q = c.map((w) => w / c[3]);
+          return [0, 1, 2].map((i) => M[i] * q[0] + M[4 + i] * q[1] + M[8 + i] * q[2] + M[12 + i]);
+        },
+        o = un(-1),
+        f = un(1),
+        d = f.map((w, i) => w - o[i]),
+        n = Math.hypot(...d);
+      return { o, d: d.map((w) => w / n) };
+    }
     const P = pose(cam.yaw, cam.pitch, cam.fov);
     const nx = (x / view().width) * 2 - 1,
       ny = 1 - (y / view().height) * 2;
@@ -1082,7 +1103,7 @@ export function startNav(v) {
     if (t) openThing(t, { jump: true, push: false });
   }
   // for the tests: where a thing's middle is on screen, -1..1
-  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room };
+  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, word: (x, y) => wordThingAt(x, y)?.hash ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room };
   /* THE WINDOW RESIZED with a page open: the thing is framed again for the new shape, at once. It kept the camera it
      flew to, so the thing drifted off the middle of the room beside the card, and half off a tall window: "if i resize
      the then the focus point of the room is no longer in teh center of the viewing area" (Carl, 2 Nov 2026). */
