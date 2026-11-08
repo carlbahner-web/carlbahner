@@ -581,6 +581,20 @@ words officers, the Homegrown skills, walked the site). His answers, built the s
 it glitch out" (Carl). Until it lifts (`body.loaded`), every press, wheel, key and touch is stopped before the room hears
 it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
 
+**His words and opening quiz, 8 Nov 2026** (https://claude.ai/artifact/7Pc99ezUfGF7z5GkeSPjYG):
+- The thank-you after the form sends is a toast, his pick "B: HOLY MOLY, it sent!" (`THANKS` in `src/nav.mjs`); a failed
+  send says the draft he took ("Ugh, that didn't send..."); the room's screen-reader name is "Carl Bahner's studio".
+- The snow globe's two VISIT buttons stay, centred ("keep them but should they be centered?").
+- NOW PLAYING has back and next ("should we add forward/back buttons?"), round his four songs.
+- **The words, laid out again**: "no they're all different sizes and look like shit", then "i think maybe all the
+  left-wall words should be in the section under the globe (there's some negative space in the teal wall) and the right
+  wall words should all be top-to-bottom in the yellow column like the about currently is". LISTEN, QUOTES, CONTACT,
+  HOMEGROWN and STUDIOLAND are one column in the teal under the map, one size from the opening view; ABOUT and YOU+ME run
+  down the arch, one under the other (`WORD_AT`).
+- **The opening flyover, on trial behind `?open=rug|above|far`** ("can i see both? and also maybe one from zoomed far
+  back? it could be cool"): THE OPENING FLYOVER in `src/studio.mjs`, filmed by `tests/film.mjs` (`open-`). The words'
+  first showing counts from when it lands (`introFrom`).
+
 ## Laptop first. Phones wait.
 
 **Carl, 5 Oct 2026: "dont do phone yet i'll make them turn it sideways anyway. let's jsut get

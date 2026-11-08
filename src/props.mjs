@@ -2173,15 +2173,24 @@ export const HW_AT = { wall: "teal", x: 0.88, y: 1.19, w: 1.66, s: 0.42, dir: "a
    letter under a letter), `rot` a quarter turn 0, 90, 180 or 270 (clockwise), all in metres and degrees. */
 // his, placed and saved on the word editor (https://claude.ai/artifact/L5sZYGwWCpwAeN1sRASJxB), 3 Nov 2026 ("saved").
 // LISTEN keeps HW_AT, where they all were
+/* ONE SIZE, ALL ACROSS: "no they're all different sizes and look like shit" (Carl, 8 Nov 2026, the words and opening quiz,
+   of the spots laid out on 7 Nov). Then, the same day: "i think maybe all the left-wall words should be in the section
+   under the globe (there's some negative space in the teal wall) and the right wall words should all be top-to-bottom in
+   the yellow column like the about currently is". So the five for the left wall's things are one column in the teal
+   under the map, each the same height from where the room opens; ABOUT and YOU+ME run down the arch, one under the
+   other. `s` differs word to word only because each stands a different distance from the camera: a word moved needs its
+   `s` measured again from the opening view. */
+const across = (x, y, s) => ({ wall: "teal", x, y, w: 1.66, s, dir: "across", rot: 0 });
+const down = (y) => ({ wall: "cream", x: 1.248, y, w: 1.66, s: 0.165, dir: "down", rot: 0 });
 export const WORD_AT = {
-  artists: { wall: "teal", x: 0.62, y: 1.2, w: 1.66, s: 0.19, dir: "across", rot: 0 },
-  bio: { wall: "cream", x: 1.248, y: 1.225, w: 1.66, s: 0.34, dir: "down", rot: 0 },
-  book: { wall: "console", x: 1.98, y: 0.68, w: 1.66, s: 0.085, dir: "across", rot: 0 },
-  contact: { wall: "teal", x: 1.42, y: 1.16, w: 1.66, s: 0.13, dir: "across", rot: 0 },
-  portfolio: { wall: "console", x: 2.3, y: 0.38, w: 1.66, s: 0.2, dir: "across", rot: 0 },
-  studioland: { wall: "console", x: 2.62, y: 0.68, w: 1.66, s: 0.075, dir: "across", rot: 0 },
-  "my-people": { wall: "cream", x: 1.71, y: 1.08, w: 1.66, s: 0.12, dir: "across", rot: 0 },
-  tour: { wall: "cream", x: 1.255, y: 1.205, w: 1.66, s: 0.34, dir: "down", rot: 0 },
+  portfolio: across(1.11, 1.33, 0.09),
+  artists: across(1.11, 1.23, 0.09),
+  contact: across(1.11, 1.13, 0.09),
+  book: across(1.11, 1.03, 0.09),
+  studioland: across(1.11, 0.93, 0.09),
+  bio: down(1.77),
+  "my-people": down(0.72),
+  tour: down(1.77),
 };
 /* A PHONE'S OWN SPOTS: "i need an artifa5 that allows me to control the per-swipe-camera and the placement of the words.
    Phone/mobile version only please" (Carl, 4 Nov 2026). On a phone held upright a

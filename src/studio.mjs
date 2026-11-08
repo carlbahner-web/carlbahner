@@ -94,7 +94,7 @@ for (const type of ["pointerdown", "pointerup", "pointermove", "click", "dblclic
   addEventListener(
     type,
     (e) => {
-      if (document.body.classList.contains("loaded")) return;
+      if (document.body.classList.contains("loaded") && !OPENING.k) return;
       e.stopImmediatePropagation();
       if (e.cancelable && type !== "pointermove" && type !== "keyup") e.preventDefault();
     },
@@ -112,7 +112,7 @@ function loaded() {
     // THE LOADING SCREEN), or after 8 s whatever has not come
     const rest = [document.fonts?.ready, picturesIn(), ...[...document.querySelectorAll("img")].filter((i) => !i.complete).map((i) => new Promise((r) => (i.onload = i.onerror = r)))];
     Promise.race([Promise.all(rest), new Promise((r) => setTimeout(r, 8000))]).then(() =>
-      requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add("loaded"))),
+      requestAnimationFrame(() => requestAnimationFrame(() => (document.body.classList.add("loaded"), startOpening()))),
     );
   }
 }
@@ -1077,6 +1077,38 @@ function lean(on, target) {
   dirty = true;
 }
 const leanEase = (x) => x * x * x * (x * (6 * x - 15) + 10);
+/* THE OPENING FLYOVER, on trial behind `?open=`: "Could there be a moving opening kinda like how the garden has the
+   'flyover'?" (Carl, 7 Nov 2026, his officers' quiz), then, offered one from the rug and one from above: "can i see both?
+   and also maybe one from zoomed far back? it could be cool" (8 Nov 2026). As the loading screen lifts the camera starts
+   at one of three places and comes in to the room as it opens, over OPEN_MS (`?openms=`): `rug`, low over his name on
+   the rug, looking down at it, rising and pulling back; `above`, high over the rug looking down, coming down; `far`, well
+   back along its own line of sight, coming in. Nothing takes a click until it lands. None for a visitor who asks for
+   less motion. Without `?open=` the room opens as it always has. */
+const OPEN_KIND = REDUCED ? null : new URLSearchParams(location.search).get("open");
+const OPEN_MS = +(new URLSearchParams(location.search).get("openms") || 4200);
+const OPENING = { k: OPEN_KIND ? 1 : 0, t0: 0 };
+function startOpening() {
+  if (!OPENING.k) return nav.introFrom();
+  OPENING.t0 = performance.now();
+  dirty = true;
+}
+function stepOpening(now) {
+  if (!OPENING.k || !OPENING.t0) return !!OPENING.k;
+  OPENING.k = Math.max(0, 1 - (now - OPENING.t0) / OPEN_MS);
+  if (!OPENING.k) nav.introFrom();
+  return true;
+}
+// where it starts, from where it lands: [place, the spot it looks at, lens]
+function openingFrom(p1, d1, fov1) {
+  const rug = [1.89, 0, 1.79];
+  if (OPEN_KIND === "rug") return [[2.25, 0.42, 2.15], [1.75, 0.02, 1.62], fov1 * 1.15];
+  if (OPEN_KIND === "above") return [[2.05, ROOM.h - 0.35, 1.95], [rug[0] - 0.2, 0, rug[2] - 0.2], fov1 * 1.2];
+  // far: back along its own line of sight and a little up, looking at the same corner
+  const back = 5.5,
+    look = 3;
+  // kept under the ceiling, which the first try rose through
+  return [[p1.x - d1[0] * back, Math.min(p1.y - d1[1] * back + 0.6, ROOM.h - 0.8), p1.z - d1[2] * back], [p1.x + d1[0] * look, p1.y + d1[1] * look, p1.z + d1[2] * look], fov1];
+}
 function stepLean(now) {
   const dt = LEAN.last ? now - LEAN.last : 0;
   LEAN.last = now;
@@ -1103,6 +1135,19 @@ function place() {
   if ((peek.x || peek.y) && !aim) {
     camera.rotateY((-peek.x * PEEK_H * Math.PI) / 180);
     camera.rotateX((-peek.y * PEEK_V * Math.PI) / 180);
+  }
+  if (OPENING.k > 0) {
+    const e = leanEase(OPENING.k),
+      mix = (a, b) => a + (b - a) * e,
+      p1 = camera.position.clone(),
+      q1 = camera.quaternion.clone(),
+      [pos, look, f0] = openingFrom(p1, lookDir(cam.yaw, cam.pitch), fov);
+    camera.position.set(...pos);
+    camera.lookAt(...look);
+    const q0 = camera.quaternion.clone();
+    camera.position.set(mix(p1.x, pos[0]), mix(p1.y, pos[1]), mix(p1.z, pos[2]));
+    camera.quaternion.slerpQuaternions(q1, q0, e);
+    fov = mix(fov, f0);
   }
   if (LEAN.k > 0 && LEAN.pos) {
     const e = leanEase(LEAN.k),
@@ -1515,6 +1560,7 @@ function tick(now) {
   }
   if (tickProps(now, REDUCED)) dirty = true; // the snow globe's flag and the clock's hands
   if (stepLean(now)) dirty = moving = true; // THE LEAN
+  if (stepOpening(now)) dirty = moving = true; // THE OPENING FLYOVER
   if (stepViews(now, REDUCED)) dirty = true; // EACH VIEW ITS OWN PLACING
   // SMOOTH WHILE IT MOVES
   if (moving) {

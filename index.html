@@ -583,7 +583,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        max-width: min(360px, calc(100% - 32px));
+        max-width: min(440px, calc(100% - 32px));
         padding: 8px 10px 8px 14px;
         --fill: #fcf7e8;
         --line: #2c2c2a;
@@ -638,6 +638,11 @@
       .words-button.act,
       .words-button.more {
         align-self: stretch;
+      }
+      /* the two ways out of the snow globe's card, at their own width and centred: "keep them but should they be
+         centered?" (Carl, 8 Nov 2026, the words and opening quiz) */
+      .words-button.calm {
+        align-self: center;
       }
       .words-button:active {
         transform: scale(0.97);
@@ -892,6 +897,9 @@
         top: 42%;
         left: 50%;
         padding: 16px 34px;
+        width: max-content;
+        max-width: 80%;
+        text-align: center;
         --fill: #f6cc60;
         --line: #2c2c2a;
         color: #2c2c2a;
@@ -1345,7 +1353,7 @@
     <canvas
       id="room"
       role="img"
-      aria-label="A teal wall and a cream wall meeting in a corner, under an orange ceiling, on a brown floor. Drag to move, scroll to zoom."
+      aria-label="Carl Bahner’s studio"
     ></canvas>
     <div id="things"></div>
     <div id="loading" aria-hidden="true"><img src="assets/loading-cb.webp" alt="" /></div>

@@ -171,6 +171,18 @@ for (const [name, at, text] of [
     await f.page.mouse.click(...at);
     await f.frames(700);
   });
+/* THE OPENING FLYOVER's three tries (src/studio.mjs, `?open=`): "can i see both? and also maybe one from zoomed far back?"
+   (Carl, 8 Nov 2026). Each from the moment the loading screen starts to lift until a beat after it lands. */
+const opening = async (f) => {
+  for (let i = 0; i < 600 && !(await f.page.evaluate(() => document.body.classList.contains("loaded"))); i++) {
+    await f.page.evaluate(() => window.__advance(16));
+    await f.page.waitForTimeout(50);
+  }
+  await f.frames(5200);
+};
+await film("open-rug", "Opening A: from the rug", { query: "?open=rug" }, opening);
+await film("open-above", "Opening B: from above", { query: "?open=above" }, opening);
+await film("open-far", "Opening C: from far back", { query: "?open=far" }, opening);
 await film("phone-turn", "A phone held upright: turn it", { width: 390, height: 844, phone: true }, (f) => f.frames(3600));
 
 await browser.close();

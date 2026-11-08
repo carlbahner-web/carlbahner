@@ -1118,6 +1118,9 @@ export function startNav(v) {
     busy,
     step,
     whenReady,
+    // the words' first showing counted from when the room is in sight: the loading screen lifted, and any opening
+    // flyover landed (src/studio.mjs)
+    introFrom: () => !introDone && (introUntil = performance.now() + INTRO_MS),
     wordList, // every page's word, for the room to put them all on the walls (ALL THE WORDS)
     // the view editor's picker (viewtune.mjs): open a window by its address, or "opening" for the room with none
     go(hash) {
@@ -1258,7 +1261,9 @@ function icon(d, cls) {
 }
 const PLAY = "M8 5.5 L19 12 L8 18.5 Z",
   PAUSE = "M7 5 H10.5 V19 H7 Z M13.5 5 H17 V19 H13.5 Z",
-  STOP = "M7 7 H17 V17 H7 Z";
+  STOP = "M7 7 H17 V17 H7 Z",
+  BACK = "M7 6 H9 V18 H7 Z M18 6 V18 L10 12 Z",
+  NEXT = "M15 6 H17 V18 H15 Z M6 6 V18 L14 12 Z";
 const mmss = (s) => (isFinite(s) ? Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0") : "");
 
 /* ---------- the record between the window and the deck ---------- */
@@ -1288,13 +1293,36 @@ function endNowPlaying() {
   NOW.box.remove();
   NOW = null;
 }
-function nowPlaying({ audio, title, artist }) {
+/* and back and next, a song either way through his four: "should we add forward/back buttons?" (Carl, 8 Nov 2026, the
+   words and opening quiz). Back past the first or next past the last wraps round. */
+function nowPlaying({ audio, at = 0, title, artist }) {
   endNowPlaying();
   const box = el("div", "now-playing"),
     words = el("div", "np-words"),
+    back = el("button", "np-button", { type: "button" }),
     toggle = el("button", "np-button", { type: "button" }),
+    next = el("button", "np-button", { type: "button" }),
     stop = el("button", "np-button", { type: "button" });
-  words.append(el("b", "", { textContent: title }), el("span", "", { textContent: artist }));
+  const song = el("b", "", { textContent: title }),
+    who = el("span", "", { textContent: artist });
+  words.append(song, who);
+  back.append(icon(BACK, "np-icon"));
+  next.append(icon(NEXT, "np-icon"));
+  back.setAttribute("aria-label", "Previous song");
+  next.setAttribute("aria-label", "Next song");
+  const go = (d) => {
+    at = (at + d + TRACKS.length) % TRACKS.length;
+    audio.src = TRACKS[at];
+    audio.currentTime = 0;
+    audio.play();
+    song.textContent = SONGS[at]?.song || WORDS.portfolio.tracks?.[at] || "";
+    who.textContent = SONGS[at]?.artist || "";
+    toggle.querySelector(".np-icon").replaceWith(icon(PAUSE, "np-icon")); // its icon only: its drawn circle stays
+    name();
+    cue("key:play");
+  };
+  back.addEventListener("click", () => go(-1));
+  next.addEventListener("click", () => go(1));
   toggle.append(icon(PAUSE, "np-icon"));
   stop.append(icon(STOP, "np-icon"));
   const name = () => toggle.setAttribute("aria-label", audio.paused ? "Play" : "Pause");
@@ -1303,16 +1331,16 @@ function nowPlaying({ audio, title, artist }) {
   toggle.addEventListener("click", () => {
     if (audio.paused) audio.play();
     else audio.pause();
-    toggle.replaceChildren(icon(audio.paused ? PLAY : PAUSE, "np-icon"));
+    toggle.querySelector(".np-icon").replaceWith(icon(audio.paused ? PLAY : PAUSE, "np-icon"));
     name();
     cue(audio.paused ? "key:stop" : "key:play");
   });
   stop.addEventListener("click", () => (cue("key:stop"), endNowPlaying()));
   audio.addEventListener("ended", endNowPlaying, { once: true });
-  box.append(words, toggle, stop);
+  box.append(words, back, toggle, next, stop);
   document.querySelector("#stage").append(box);
   drawBox(box);
-  for (const b of [toggle, stop]) drawBox(b, { round: true });
+  for (const b of [back, toggle, next, stop]) drawBox(b, { round: true });
   NOW = { audio, box };
 }
 function recordEl(cover, cls) {
@@ -1581,7 +1609,7 @@ const SHELLS = {
         audio.removeEventListener("ended", onEnded);
         audio.removeEventListener("timeupdate", onTime);
         const on = SONGS[at];
-        return { audio, title: on?.song || W.tracks[at] || "", artist: on?.artist || "" };
+        return { audio, at, title: on?.song || W.tracks[at] || "", artist: on?.artist || "" };
       },
       // the window closing: every step under way stops where it is, nothing lands, nothing plays
       cancel: () => {
@@ -1724,7 +1752,7 @@ const SHELLS = {
     if (W.blank) box.append(slot("his words", "text"));
     // its one action, last on the card: to another card, or out to a site (`link`, a new tab)
     if (W.button) box.append(actionButton(W.button, go));
-    const out = (L) => el("a", "words-button" + (L.calm ? "" : " act"), { href: L.href, target: "_blank", rel: "noopener", textContent: L.words });
+    const out = (L) => el("a", "words-button" + (L.calm ? " calm" : " act"), { href: L.href, target: "_blank", rel: "noopener", textContent: L.words });
     if (W.link) box.append(out(W.link));
     // more on the same card, each its own title, words and way out (the snow globe's StudioLand MGMT)
     for (const M of W.more || []) {
@@ -1747,8 +1775,9 @@ function actionButton(B, go) {
    confirm the very first message, by an email to it. If the post cannot get through (a page that may not reach it),
    the visitor's own email opens with the message written in, to the same address. */
 const MAIL_TO = "carlbahner@gmail.com";
-// the thank-you once a message has gone, his words: none yet, so the button saying SENT! is all for now
-const THANKS = null;
+/* the thank-you once a message has gone, in the toast at the card's top: "B: HOLY MOLY, it sent!" (Carl, 8 Nov 2026, the
+   words and opening quiz, https://claude.ai/artifact/7Pc99ezUfGF7z5GkeSPjYG) */
+const THANKS = "HOLY MOLY, it sent! I\u2019ll get back to you about your song soon.";
 /* HIS SOCIALS, his own drawings (sent 2 Nov 2026, kept in art/site/socials/), in a row under the form on the dog's page:
    "contact page works" (Carl, 2 Nov 2026). Then "no youtube yet, just the email (yes same address) and my instagram",
    "save youtube for a later date". One with no link yet is left out until it has one. */
@@ -1772,13 +1801,13 @@ function socials() {
 // drawn, gone after three seconds or on a tap
 function sentToast() {
   document.querySelector("#win .toast")?.remove();
-  const t = el("div", "toast", { role: "status", textContent: "SENT!" });
+  const t = el("div", "toast", { role: "status", textContent: THANKS });
   document.querySelector("#win").append(t);
   drawBox(t);
   requestAnimationFrame(() => t.classList.add("in"));
   const go = () => (t.classList.remove("in"), setTimeout(() => t.remove(), 300));
   t.addEventListener("click", go);
-  setTimeout(go, 3000);
+  setTimeout(go, 6000); // long enough to read his line
 }
 function contactForm() {
   const f = el("form", "form");
@@ -1854,7 +1883,6 @@ function contactForm() {
       }
       label.textContent = "SENT!";
       f.reset();
-      if (THANKS) say([THANKS]);
       /* SENT, SAID WHERE IT IS SEEN: "can we make the "sent" notification a popup or toast? it stays at the bottom of the
          page and actually gets automatically scrolled below the fold" (Carl, 3 Nov 2026). A toast at the top of the card,
          over whatever is scrolled there, for a few seconds; the button keeps saying SENT! below */
@@ -1863,7 +1891,8 @@ function contactForm() {
       console.warn("the contact form did not send:", err?.message || err, answer);
       label.textContent = "SUBMIT";
       button.disabled = false;
-      say(["That didn\u2019t send. Try again, or email me at ", el("a", "", { href: "mailto:" + MAIL_TO, textContent: MAIL_TO }), "."]);
+      // "Use the draft" (Carl, 8 Nov 2026, the words and opening quiz)
+      say(["Ugh, that didn\u2019t send. Try again, or email me straight at ", el("a", "", { href: "mailto:" + MAIL_TO, textContent: MAIL_TO }), "."]);
       note.scrollIntoView({ block: "nearest", behavior: "smooth" }); // in sight, not under the fold
     } finally {
       clearTimeout(late);
