@@ -1273,13 +1273,16 @@ const DECK_KIT = { cx: 0.396, cz: 0.385, px: 0.736, pz: 0.262 };
 const DECK_AT = { cx: DECK_KIT.cx, cz: DECK_KIT.cz + DECK_DOWN, r: 0.26, px: DECK_KIT.px, pz: DECK_KIT.pz + DECK_DOWN, rest: -80.2, start: -56.7, end: -35.3 };
 const DECK_VERT = `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
 // a layer of its thickness (`solid`) is the piece's shape in one colour, darker the further down
-const DECK_FRAG = `uniform sampler2D map; uniform float hasMap; uniform float shade; uniform float disc; uniform vec3 col; uniform float ready; uniform float solid; uniform vec3 scol; uniform float fade; varying vec2 vUv;
+const DECK_FRAG = `uniform sampler2D map; uniform float hasMap; uniform float shade; uniform float disc; uniform vec3 col; uniform float ready; uniform float solid; uniform vec3 scol; uniform float fade; uniform float soft; varying vec2 vUv;
 void main() {
   // fading away (RECORD_FADE): a fine dissolve, each layer of the record going at the same pixels, so it fades as one
   // piece without its stacked copies showing through each other
   if (fade < 1.0 && fract(sin(dot(floor(gl_FragCoord.xy), vec2(12.9898, 78.233))) * 43758.5453) > fade) discard;
   vec4 c = texture2D(map, vUv);
   if (disc > .5) { vec3 m = hasMap > .5 ? mix(col, c.rgb, c.a) : col; c = vec4(m, step(length(vUv - .5), .5)); }
+  // the controls' picture keeps its soft edges, so its words fade and blur in whole, not cut at half (THE WORDS WAIT FOR
+  // THE RECORD); every other piece is cut at half as before
+  if (soft > .5) { if (c.a < .01 || ready < .5) discard; gl_FragColor = vec4(c.rgb * shade, c.a); return; }
   if (c.a < .5 || ready < .5) discard;
   gl_FragColor = vec4((solid > .5 ? scol : c.rgb) * shade, 1.0);
 }`;
@@ -1318,7 +1321,7 @@ function deckMap(src) {
 }
 function deckPlane(src, shade = 0.9, disc = false, side = null) {
   const t = deckMap(src);
-  const u = { map: t.map, hasMap: { value: src ? 1 : 0 }, ready: t.ready, shade: { value: shade }, disc: { value: disc ? 1 : 0 }, col: { value: hex3(disc ? "#2F5259" : "#2c2c2a") }, solid: { value: side ? 1 : 0 }, scol: { value: hex3(side || "#000000") }, fade: { value: 1 } };
+  const u = { map: t.map, hasMap: { value: src ? 1 : 0 }, ready: t.ready, shade: { value: shade }, disc: { value: disc ? 1 : 0 }, col: { value: hex3(disc ? "#2F5259" : "#2c2c2a") }, solid: { value: side ? 1 : 0 }, scol: { value: hex3(side || "#000000") }, fade: { value: 1 }, soft: { value: 0 } };
   const m = new Mesh(new PlaneGeometry(1, 1), new ShaderMaterial({ vertexShader: DECK_VERT, fragmentShader: DECK_FRAG, uniforms: u, side: DoubleSide }));
   m.rotation.x = -Math.PI / 2; // flat, its picture's top toward the wall
   return m;
@@ -1439,12 +1442,16 @@ export function drawControls(st = {}) {
   // 3 Nov 2026); it was 0.04 and 0.03 of the deck, the one line 0.042
   // `textA` fades the words in once the record has landed (src/nav.mjs THE WORDS WAIT FOR THE RECORD)
   g.globalAlpha = textA;
+  // and it comes in out of a blur, the whole of it at once: "make the fade be a blur-in not like, entering line by line"
+  // (Carl, 8 Nov 2026)
+  if (textA < 1) g.filter = `blur(${((1 - textA) * px(0.014)).toFixed(1)}px)`;
   if (artist) {
     line(title, 0.056 * U.titleSize, 0.03 * U.titleSize, px(0.731 + U.textY));
     g.globalAlpha = 0.72 * textA;
     line(artist, 0.042 * U.artistSize, 0.024 * U.artistSize, px(0.786 + U.textY));
   } else line(title, 0.056 * U.titleSize, 0.03 * U.titleSize, px(0.7575 + U.textY));
   g.globalAlpha = 1;
+  g.filter = "none";
   // the progress line: a cream track, the played part charcoal, a knob where it is
   const [sx0, sy0, sx1, sy1] = DECK_HIT.scrub,
     y = px((sy0 + sy1) / 2),
@@ -1626,6 +1633,7 @@ function buildDeck() {
   const controls = deckPlane(null, 1);
   controls.material.uniforms.map.value = CONTROLS.tex;
   controls.material.uniforms.ready.value = 1;
+  controls.material.uniforms.soft.value = 1;
   controls.material.transparent = true;
   // the spindle charcoal, its top a touch lighter so it reads as the end of the post
   spindle.userData.piece.top.material.uniforms.col.value = hex3("#4a4744");

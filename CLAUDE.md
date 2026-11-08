@@ -624,6 +624,10 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   with no lengths under them ("we can remove the times from the page").
 - The deck's song and artist wait until the record has landed, then fade in: "can we make the words on the player not show
   up until the vinyl lands? it can fade in?" (THE WORDS WAIT FOR THE RECORD in `src/nav.mjs`, `textA` in `drawControls`).
+  Then out of a blur, whole: "make the fade be a blur-in not like, entering line by line". The deck's pieces are cut at
+  half their alpha, which made a fading word appear in chunks; the controls' picture keeps its soft alpha (`soft`).
+- NOW PLAYING in a mini player's order, asked "what is a best practices order?", then "yes": the song, back, play/pause
+  (a little bigger), next, and a small × apart at the end that stops the song and closes the card. No stop button.
 
 ## Laptop first. Phones wait.
 

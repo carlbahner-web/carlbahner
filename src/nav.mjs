@@ -1280,7 +1280,6 @@ function icon(d, cls) {
 }
 const PLAY = "M8 5.5 L19 12 L8 18.5 Z",
   PAUSE = "M7 5 H10.5 V19 H7 Z M13.5 5 H17 V19 H13.5 Z",
-  STOP = "M7 7 H17 V17 H7 Z",
   BACK = "M7 6 H9 V18 H7 Z M18 6 V18 L10 12 Z",
   NEXT = "M15 6 H17 V18 H15 Z M6 6 V18 L14 12 Z";
 
@@ -1320,7 +1319,7 @@ function nowPlaying({ audio, at = 0, title, artist }) {
     back = el("button", "np-button", { type: "button" }),
     toggle = el("button", "np-button", { type: "button" }),
     next = el("button", "np-button", { type: "button" }),
-    stop = el("button", "np-button", { type: "button" });
+    stop = el("button", "np-close", { type: "button" });
   const song = el("b", "", { textContent: title }),
     who = el("span", "", { textContent: artist });
   words.append(song, who);
@@ -1342,10 +1341,18 @@ function nowPlaying({ audio, at = 0, title, artist }) {
   back.addEventListener("click", () => go(-1));
   next.addEventListener("click", () => go(1));
   toggle.append(icon(PAUSE, "np-icon"));
-  stop.append(icon(STOP, "np-icon"));
+  /* no stop: a small × apart at the end, which stops the song and closes the card, as music players' mini players do
+     ("what is a best practices order?", then "yes", Carl, 8 Nov 2026); play/pause, the one pressed most, a little
+     bigger in the middle. The cards' own close drawing, at this size. */
+  const x = document.createElementNS(SVG, "svg");
+  x.setAttribute("viewBox", "0 0 20 20");
+  x.setAttribute("aria-hidden", "true");
+  x.innerHTML = '<path d="M4.5 4.8 L15.4 15.2 M15.2 4.6 L4.7 15.3" />';
+  stop.append(x);
+  toggle.classList.add("np-main");
   const name = () => toggle.setAttribute("aria-label", audio.paused ? "Play" : "Pause");
   name();
-  stop.setAttribute("aria-label", "Stop");
+  stop.setAttribute("aria-label", "Stop and close");
   toggle.addEventListener("click", () => {
     if (audio.paused) audio.play();
     else audio.pause();
@@ -1358,7 +1365,7 @@ function nowPlaying({ audio, at = 0, title, artist }) {
   box.append(words, back, toggle, next, stop);
   document.querySelector("#stage").append(box);
   drawBox(box);
-  for (const b of [back, toggle, next, stop]) drawBox(b, { round: true });
+  for (const b of [back, toggle, next]) drawBox(b, { round: true });
   NOW = { audio, box };
 }
 function recordEl(cover, cls) {
@@ -1606,7 +1613,7 @@ const SHELLS = {
     /* THE WORDS WAIT FOR THE RECORD: "can we make the words on the player not show up until the vinyl lands? it can fade
        in?" (Carl, 8 Nov 2026). A song's title and artist are off the deck while its record is on its way, and fade in
        over WORDS_IN_MS once it is down; "Choose a record", with nothing picked, shows as before. */
-    const WORDS_IN_MS = 600;
+    const WORDS_IN_MS = 900;
     let wordsA = 1,
       wordsFrom = 0;
     const paint = () => {
