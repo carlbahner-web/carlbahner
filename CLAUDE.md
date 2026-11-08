@@ -618,6 +618,8 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   (was -0.0726), matched by rendering against his picture, and `LIMITS.left` moved out to 3.25 so the view can rest there.
 - A card's words never show a scrollbar of their own, and keep 10px each side for a button's drawn line: "padding is still
   cutting stuff off" (the player's two buttons cut on the right, where a Mac's always-on scrollbar sat).
+  Then "both sides are a little cutoff": the card's body clipped at the button's own edge, so it reaches 10px into the
+  card's padding too. The songs are two rows of two ("two rows of two songs instead of a row of 3 and a row of 1").
 
 ## Laptop first. Phones wait.
 

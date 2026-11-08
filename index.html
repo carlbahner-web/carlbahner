@@ -295,7 +295,11 @@
       #win .close {
         --line: var(--ink);
       }
+      /* the body clips too, so it reaches 10px into the card's padding each side, as the words inside it do (.words): a
+         button's drawn line runs 6px outside it. "both sides are a little cutoff" (Carl, 8 Nov 2026) */
       #win .body {
+        padding-inline: 10px;
+        margin-inline: -10px;
         position: relative;
         flex: 1;
         min-height: 0;
@@ -951,9 +955,11 @@
       /* then four: two by two for a moment, then three across again, smaller, so the next row shows and there are plainly
          more: "id like the artwork to be a bit smaller so it's clear there are more than two and if i need to scroll, it's
          obvious" (Carl, 2 Nov 2026). Two across when the card is narrow, as before */
+      /* then two by two again: "can we also make these two rows of two songs instead of a row of 3 and a row of 1?" (Carl,
+         8 Nov 2026) */
       .sleeves {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px 12px;
         padding: 4px 8px 4px 4px; /* room for each sleeve's drawn line, which the scrolling card would clip */
       }
