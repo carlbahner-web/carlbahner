@@ -633,6 +633,10 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   was aimed by the camera's turn alone, so with the edges leaning the view it landed beside what was under the pointer
   (`rayAt` now goes through the camera as drawn); and each word answered across its whole 1.66 m wrapping width, far
   past its letters (a word's picture is now as wide as its words).
+- Each page one zone, as he drew round the clickable map (8 Nov 2026): the map and QUOTES, the snow globe and STUDIOLAND,
+  the dog and CONTACT, the console for LISTEN, the panel and the eye painting for YOU + ME, the arch and the drum for ABOUT.
+  A zone is the outline wrapping a thing's picture and its word as the camera sees them now, so it follows the view;
+  where two meet, the smaller wins (EACH PAGE ONE ZONE, `zoneAt` in `src/nav.mjs`).
 
 ## Laptop first. Phones wait.
 

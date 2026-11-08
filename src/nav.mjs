@@ -275,6 +275,68 @@ export function startNav(v) {
     setAllWords(level, hot);
     v.dirty();
   }
+  /* EACH PAGE ONE ZONE: Carl, 8 Nov 2026, drew round the clickable map: the map and QUOTES as one, the snow globe and
+     STUDIOLAND, the dog and CONTACT, the whole console for LISTEN, the teal panel and the eye painting for YOU + ME, the
+     arch and the drum for ABOUT. So each thing's zone is the outline wrapping its picture and its word on the wall, as
+     the camera sees them now, and a point in it that hit neither still opens the page. Where two zones meet, the
+     smaller one has it. */
+  function zoneAt(x, y) {
+    const C = v.camera;
+    if (!C) return null;
+    C.updateMatrixWorld();
+    const P = C.projectionMatrix.elements,
+      W = C.matrixWorldInverse.elements,
+      w = view().width,
+      h = view().height;
+    const toScreen = ([px, py, pz]) => {
+      const e = [0, 1, 2, 3].map((i) => W[i] * px + W[4 + i] * py + W[8 + i] * pz + W[12 + i]);
+      if (e[2] > -1e-3) return null; // behind the camera
+      const c = [0, 1, 3].map((i) => P[i] * e[0] + P[4 + i] * e[1] + P[8 + i] * e[2] + P[12 + i] * e[3]);
+      return [((c[0] / c[2] + 1) / 2) * w, ((1 - c[1] / c[2]) / 2) * h];
+    };
+    const words = allOn ? allWordsCorners() : [];
+    let best = null;
+    for (const t of things) {
+      if (!t.mesh?.visible || t.link) continue;
+      const key = keyOfThing(t);
+      const pts = [...corners(t.mesh).slice(0, 4), ...(words.find((q) => q.key === key)?.corners || [])].map(toScreen);
+      if (pts.some((q) => !q)) continue;
+      const hull = hullOf(pts);
+      if (!inside(hull, x, y)) continue;
+      const a = area(hull);
+      if (!best || a < best.a) best = { t, a };
+    }
+    return best?.t || null;
+  }
+  // the outline round a few points on screen (Andrew's monotone chain), its area, and whether a point is in it
+  function hullOf(pts) {
+    const p = [...pts].sort((a, b) => a[0] - b[0] || a[1] - b[1]),
+      cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]),
+      lo = [],
+      up = [];
+    for (const q of p) {
+      while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop();
+      lo.push(q);
+    }
+    for (const q of p.reverse()) {
+      while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop();
+      up.push(q);
+    }
+    return [...lo.slice(0, -1), ...up.slice(0, -1)];
+  }
+  const area = (hull) => Math.abs(hull.reduce((s, q, i) => s + q[0] * hull[(i + 1) % hull.length][1] - hull[(i + 1) % hull.length][0] * q[1], 0)) / 2;
+  function inside(hull, x, y) {
+    let sign = 0;
+    for (let i = 0; i < hull.length; i++) {
+      const a = hull[i],
+        b = hull[(i + 1) % hull.length],
+        c = (b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0]);
+      if (c === 0) continue;
+      if (sign && Math.sign(c) !== sign) return false;
+      sign = Math.sign(c);
+    }
+    return hull.length > 2;
+  }
   // the thing whose word is under a point on screen, if the words are up: each word a flat quad on its wall
   function wordThingAt(x, y) {
     if (!allOn) return null;
@@ -1103,7 +1165,7 @@ export function startNav(v) {
     if (t) openThing(t, { jump: true, push: false });
   }
   // for the tests: where a thing's middle is on screen, -1..1
-  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, word: (x, y) => wordThingAt(x, y)?.hash ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room };
+  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, word: (x, y) => wordThingAt(x, y)?.hash ?? null, zone: (x, y) => zoneAt(x, y)?.hash ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room };
   /* THE WINDOW RESIZED with a page open: the thing is framed again for the new shape, at once. It kept the camera it
      flew to, so the thing drifted off the middle of the room beside the card, and half off a tall window: "if i resize
      the then the focus point of the room is no longer in teh center of the viewing area" (Carl, 2 Nov 2026). */
@@ -1198,7 +1260,7 @@ export function startNav(v) {
     // a mouse over the room, no button held
     hover(x, y) {
       if (busy() || phone() || window.WORDS_EDITOR) return; // the word editor shows the word it is placing
-      const t = thingAt(x, y) || wordThingAt(x, y);
+      const t = thingAt(x, y) || wordThingAt(x, y) || zoneAt(x, y);
       if (t) introDone = true; // the first hover: the one under the pointer takes over (ALL THE WORDS)
       if (t !== hovered) {
         hovered = t;
@@ -1221,7 +1283,7 @@ export function startNav(v) {
     // a click or a tap that did not drag
     tap(x, y) {
       if (busy()) return false;
-      const t = thingAt(x, y) || wordThingAt(x, y); // a word on the wall opens its page too (ALL THE WORDS)
+      const t = thingAt(x, y) || wordThingAt(x, y) || zoneAt(x, y); // a word on the wall opens its page too (ALL THE WORDS), and the zone round both (EACH PAGE ONE ZONE)
       if (!t) return false;
       /* THE WORD FIRST, ON A PHONE: "On phone when I'm moving around in free camera mode, I would love to see the text show
          up for a second before it zooms into place" (Carl, 4 Nov 2026). A finger has no hover, so the words on the wall

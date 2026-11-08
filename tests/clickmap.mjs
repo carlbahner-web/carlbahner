@@ -31,7 +31,7 @@ await page.evaluate(() => {
   for (let y = 0; y < r.height; y += S)
     for (let x = 0; x < r.width; x += S) {
       // a thing before a word, as the room's own hover and click weigh them (src/nav.mjs)
-      const k = window.__nav.at(x, y) || window.__nav.word(x, y);
+      const k = window.__nav.at(x, y) || window.__nav.word(x, y) || window.__nav.zone(x, y);
       if (!k || !COL[k]) continue;
       g.fillStyle = COL[k] + "8c";
       g.fillRect(x, y, S, S);
