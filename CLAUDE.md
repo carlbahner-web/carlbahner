@@ -638,6 +638,13 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   A zone is the outline wrapping a thing's picture and its word as the camera sees them now, so it follows the view;
   where two meet, the smaller wins (EACH PAGE ONE ZONE, `zoneAt` in `src/nav.mjs`).
 
+**The chief hole-poker's first round, 8 Nov 2026** (https://claude.ai/artifact/Y6SDkFV4CF8VBwTNACdcmC,
+`docs/GODZILLA-2026-11-08.md`), every hole fixed on his "Yeah fix them all now": Back pressed while the camera flies in turns
+it round with no card opening, so closing never leaves the site (BACK PRESSED MID-FLIGHT, `coming` and `callOff` in
+`src/nav.mjs`); a contact box of only spaces counts as empty and the browser's own "fill out this field" comes up (A BOX
+OF SPACES IS EMPTY); an address in capitals opens its page (`byHash`); and a song changed before it starts no longer
+leaves an error in the console (`play`). `node tests/holes.mjs` recreates each one and fails if it comes back.
+
 ## Laptop first. Phones wait.
 
 **Carl, 5 Oct 2026: "dont do phone yet i'll make them turn it sideways anyway. let's jsut get

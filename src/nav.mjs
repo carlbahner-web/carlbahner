@@ -915,8 +915,14 @@ export function startNav(v) {
   // and once its pictures are in, which makes it longer
   body.addEventListener("load", edges, true);
   let pushed = false,
-    returnTo = null;
+    returnTo = null,
+    coming = null; // the thing the camera is flying in to, until its card opens
   function show(t) {
+    /* BACK PRESSED MID-FLIGHT: the chief hole-poker's first hole (docs/GODZILLA-2026-11-08.md; Carl, 8 Nov 2026, on its
+       quiz: "Fix it"). Back during the console's long flight cleared the address, the card opened anyway on landing,
+       and its close then pressed Back again, off the site. A flight Back has called off lands nothing. */
+    if (coming !== t) return;
+    coming = null;
     open = t;
     // in close now: it boils round its outline alone until it is closed, the rest still (props.mjs, ITS OWN BOIL)
     boiling(t);
@@ -1006,6 +1012,7 @@ export function startNav(v) {
         },
       };
     notice(jump ? 900 : 150);
+    coming = t;
     if (jump) {
       set(to);
       show(t);
@@ -1014,7 +1021,22 @@ export function startNav(v) {
       fly(to, () => show(t));
     }
   }
+  // Back pressed while the camera flies in: it turns round and goes home, and no card opens (BACK PRESSED MID-FLIGHT)
+  function callOff() {
+    coming = null;
+    pushed = false;
+    setLid(false);
+    setMapLights(false);
+    v.lean?.(false);
+    goToView("opening");
+    stopAudio();
+    fly(away || { ...START }, null);
+    notice(FLY_MS + 150);
+    const settle = () => (flight ? setTimeout(settle, 60) : (clamp(), v.dirty()));
+    setTimeout(settle, 60);
+  }
   function close({ fromHistory = false } = {}) {
+    coming = null;
     if (!open) return;
     if (!fromHistory && pushed) {
       // the browser's Back does the closing, so Back and the button leave the same history
@@ -1062,10 +1084,15 @@ export function startNav(v) {
     setTimeout(settle, 60);
     returnTo?.focus({ preventScroll: true });
   }
-  const byHash = () => things.find((t) => "#" + t.hash === ({ "#co-producer": "#my-people", "#tour": "#bio" }[location.hash] || location.hash)) || null;
+  // in any case: "#PORTFOLIO" opens the player as "#portfolio" does (docs/GODZILLA-2026-11-08.md, "Fix it")
+  const byHash = () => {
+    const h = decodeURIComponent(location.hash).toLowerCase();
+    return things.find((t) => "#" + t.hash === ({ "#co-producer": "#my-people", "#tour": "#bio" }[h] || h)) || null;
+  };
   addEventListener("popstate", () => {
     const t = byHash();
     if (t) openThing(t, { push: false });
+    else if (!open && coming) callOff();
     else close({ fromHistory: true });
   });
   addEventListener("keydown", (e) => {
@@ -1387,6 +1414,9 @@ function stopFlights() {
    HOLY MOLY button opens the contact card, plays on, and a small card in the room's corner says what it is, with a
    pause and a stop. It goes when the song ends or is stopped, and when the player opens again (which starts fresh). */
 let NOW = null;
+/* a song asked to play and then paused or changed before it starts says so in the browser's console ("The play()
+   request was interrupted"), which is the next song taking over, not a fault (docs/GODZILLA-2026-11-08.md, "Fix it") */
+const play = (a) => a.play()?.catch(() => {});
 function endNowPlaying() {
   if (!NOW) return;
   NOW.audio.pause();
@@ -1414,7 +1444,7 @@ function nowPlaying({ audio, at = 0, title, artist }) {
     at = (at + d + TRACKS.length) % TRACKS.length;
     audio.src = TRACKS[at];
     audio.currentTime = 0;
-    audio.play();
+    play(audio);
     song.textContent = SONGS[at]?.song || WORDS.portfolio.tracks?.[at] || "";
     who.textContent = SONGS[at]?.artist || "";
     toggle.querySelector(".np-icon").replaceWith(icon(PAUSE, "np-icon")); // its icon only: its drawn circle stays
@@ -1437,7 +1467,7 @@ function nowPlaying({ audio, at = 0, title, artist }) {
   name();
   stop.setAttribute("aria-label", "Stop and close");
   toggle.addEventListener("click", () => {
-    if (audio.paused) audio.play();
+    if (audio.paused) play(audio);
     else audio.pause();
     toggle.querySelector(".np-icon").replaceWith(icon(audio.paused ? PLAY : PAUSE, "np-icon"));
     name();
@@ -1601,7 +1631,7 @@ const SHELLS = {
       }
       next = null;
       cue("needle-down");
-      audio.play();
+      play(audio);
     }
     function pause() {
       audio.pause();
@@ -1609,7 +1639,7 @@ const SHELLS = {
     }
     function resume() {
       setDeck({ playing: true, armTo: "play" });
-      audio.play();
+      play(audio);
     }
     // the record out of its sleeve and over to the platter
     /* ONE RECORD ALL THE WAY: "is the vinyl image that is used for the sleeve animations loaded separately from the one that
@@ -1977,6 +2007,15 @@ function contactForm() {
   f.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (button.disabled) return;
+    /* A BOX OF SPACES IS EMPTY: the chief hole-poker's second hole (docs/GODZILLA-2026-11-08.md; Carl, 8 Nov 2026: "Fix
+       it"). The browser counts spaces as filled in, so a name and message of spaces sent, and HOLY MOLY said it had. Now
+       they are taken out and the browser's own "fill out this field" comes up, as for an empty box. */
+    const blank = [...f.querySelectorAll("[required]")].filter((x) => !x.value.trim());
+    if (blank.length) {
+      for (const x of blank) x.value = "";
+      f.reportValidity();
+      return;
+    }
     const v = Object.fromEntries(new FormData(f));
     const name = `${v.first} ${v.last}`.trim();
     const body = { name, email: v.email, _replyto: v.email, _subject: v.subject, message: v.message, _template: "box", _captcha: "false" };
