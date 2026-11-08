@@ -1087,14 +1087,37 @@ const leanEase = (x) => x * x * x * (x * (6 * x - 15) + 10);
 const OPEN_KIND = REDUCED ? null : new URLSearchParams(location.search).get("open");
 const OPEN_MS = +(new URLSearchParams(location.search).get("openms") || (OPEN_KIND === "above" ? 5600 : 4200));
 const OPENING = { k: OPEN_KIND ? 1 : 0, t0: 0 };
+/* THE LAMP WAITS FOR B: "b is cool except the lamp looks all sorts of fucked from that perspective haha" (Carl, 8 Nov
+   2026). The lamp is flat drawings turned to where the camera stands, made to be seen from about eye height far back;
+   from above and close its pole, base and necks come apart. So while B is overhead and dropping it is not drawn, and
+   it fades in (dithered, as a record fades) over LAMP_IN of the time, once the camera is nearly home. */
+const LAMP_FADE = { value: 1 },
+  LAMP_IN = [0.84, 0.97];
+function lampWaits() {
+  const ids = new Set(["lamp", "neck1", "neck2", "neck3"]);
+  for (const m of props)
+    if (ids.has(m.userData.prop.id))
+      m.traverse((o) => {
+        const mat = o.material;
+        if (!mat?.fragmentShader || mat.uniforms?.fade) return;
+        mat.uniforms.fade = LAMP_FADE;
+        mat.fragmentShader = mat.fragmentShader.replace(
+          /void main\(\)\s*\{/,
+          "uniform float fade;\nvoid main() {\n  if (fade < 1.0 && fract(sin(dot(floor(gl_FragCoord.xy), vec2(12.9898, 78.233))) * 43758.5453) > fade) discard;",
+        );
+        mat.needsUpdate = true;
+      });
+}
 function startOpening() {
   if (!OPENING.k) return nav.introFrom();
+  if (OPEN_KIND === "above") lampWaits(), (LAMP_FADE.value = 0);
   OPENING.t0 = performance.now();
   dirty = true;
 }
 function stepOpening(now) {
   if (!OPENING.k || !OPENING.t0) return !!OPENING.k;
   OPENING.k = Math.max(0, 1 - (now - OPENING.t0) / OPEN_MS);
+  if (OPEN_KIND === "above") LAMP_FADE.value = Math.min(1, Math.max(0, (1 - OPENING.k - LAMP_IN[0]) / (LAMP_IN[1] - LAMP_IN[0])));
   if (!OPENING.k) nav.introFrom();
   return true;
 }

@@ -46,7 +46,7 @@ import { inkMask, MASK_N, wobbleLine, wobblePath, BOIL_ORDER, BOIL_MS } from "./
    Bass drum SYNCS, Eye painting YOU+ME, Dog CONTACT, Mug PODCAST, Book HOMEGROWN". Keyed by the page a thing opens (or a
    link's own id): written as the bio moved from the frame onto the drum, so ABOUT goes with the bio and SYNCS with the
    logos, whichever thing opens them. */
-export const SAYS = { portfolio: "Listen", bio: "About", artists: "Quotes", tour: "Syncs", "my-people": "You+Me", contact: "Contact", book: "Homegrown", studioland: "StudioLand" };
+export const SAYS = { portfolio: "Listen", bio: "About", artists: "Quotes", tour: "Syncs", "my-people": "You+Me", contact: "Contact", studioland: "StudioLand" };
 export const THINGS = [
   { id: "console", hash: "portfolio", kind: "player", name: "Record console" },
   /* the picture frame opened the bio until 3 Nov 2026, the drum the logos ("COOL SYNC THINGS"); then "I want to put my
@@ -61,8 +61,9 @@ export const THINGS = [
      neither boils nor lights up), and an old #co-producer link opens the eye painting's page. */
   { id: "dog", hash: "contact", kind: "page", name: "Dog" },
   { id: "eyes", hash: "my-people", kind: "page", name: "Eye painting" },
-  // a link out, not a window: "I'm thinking the book should link out to https://homegrownapp.io" (Carl, 2 Nov 2026)
-  { id: "book", link: "https://homegrownapp.io", name: "Book", says: "Homegrown" },
+  /* the book linked out to Homegrown from 2 Nov 2026 ("I'm thinking the book should link out to https://homegrownapp.io")
+     until "we don't need a homegrown link, i'd rather put that inside the studioland page" (Carl, 8 Nov 2026). A plain
+     decoration again; Homegrown is the snow globe's card's third part. */
   /* the mug linked his Secret Sonics podcast on Spotify from 2 Nov 2026 until his officers' quiz, 7 Nov: "We can remove it
      actually" (Carl). It is a plain decoration again. */
   /* StudioLand, from the snow globe with his castle in it: "It should go to welcometostudioland.com", then "It should
@@ -167,6 +168,13 @@ export const WORDS = {
         title: "StudioLand MGMT",
         text: ["A producer management company that matches passionate artists with the producers and engineers born to be on their records. Our roster has worked on some of the most influential albums of the last 25 years."],
         link: { words: "VISIT STUDIOLAND MGMT", href: "https://studiolandmgmt.com", calm: true },
+      },
+      /* and Homegrown, moved off the book: "i'd rather put that inside the studioland page" (Carl, 8 Nov 2026). Its line is
+         Homegrown's motto, his: "Habits not hacks works great" (20 Oct 2026, in the marketing session) */
+      {
+        title: "Homegrown",
+        text: ["Habits not hacks."],
+        link: { words: "VISIT HOMEGROWN", href: "https://homegrownapp.io", calm: true },
       },
     ],
   },

@@ -2183,13 +2183,13 @@ export const HW_AT = { wall: "teal", x: 0.88, y: 1.19, w: 1.66, s: 0.42, dir: "a
 const across = (x, y, s) => ({ wall: "teal", x, y, w: 1.66, s, dir: "across", rot: 0 });
 const down = (y) => ({ wall: "cream", x: 1.248, y, w: 1.66, s: 0.165, dir: "down", rot: 0 });
 export const WORD_AT = {
-  portfolio: across(1.11, 1.33, 0.09),
-  artists: across(1.11, 1.23, 0.09),
-  contact: across(1.11, 1.13, 0.09),
-  book: across(1.11, 1.03, 0.09),
-  studioland: across(1.11, 0.93, 0.09),
+  portfolio: across(1.11, 1.31, 0.09),
+  artists: across(1.11, 1.2, 0.09),
+  contact: across(1.11, 1.09, 0.09),
+  studioland: across(1.11, 0.98, 0.09),
   bio: down(1.77),
-  "my-people": down(0.72),
+  // three rows, centred: "you + me needs to be on 3 rows, center-aligned: YOU / + / ME" (Carl, 8 Nov 2026)
+  "my-people": { wall: "cream", x: 1.248, y: 1.0, w: 1.66, s: 0.16, dir: "rows", rot: 0 },
   tour: down(1.77),
 };
 /* A PHONE'S OWN SPOTS: "i need an artifa5 that allows me to control the per-swipe-camera and the placement of the words.
@@ -2225,6 +2225,10 @@ function drawWords(S, text, at) {
   if (at.dir === "down") {
     lines = [...T].map((c) => (c === " " ? "" : c));
     lineH = () => F * 0.92;
+  } else if (at.dir === "rows") {
+    // a word to a row, and a + on a row of its own (YOU / + / ME), each centred
+    lines = T.split(/\s+|(?=\+)|(?<=\+)/).filter(Boolean);
+    lineH = () => F * 0.98;
   } else {
     const max = at.w * PPM;
     const wrap = () => {
@@ -2246,7 +2250,7 @@ function drawWords(S, text, at) {
   const widest = Math.max(1, ...lines.map((l) => g.measureText(l).width));
   // room round the letters for their outline (THE OUTLINE, below)
   const pad = Math.ceil(F * WORD_STROKE);
-  const W = Math.min(4096, Math.ceil(at.dir === "down" ? widest + F * 0.2 : Math.max(at.w * PPM, widest)) + 2 * pad),
+  const W = Math.min(4096, Math.ceil(at.dir === "down" || at.dir === "rows" ? widest + F * 0.2 : Math.max(at.w * PPM, widest)) + 2 * pad),
     H = Math.min(4096, Math.ceil(lines.length * lineH() + F * 0.2) + 2 * pad);
   S.cv.width = W;
   S.cv.height = H;

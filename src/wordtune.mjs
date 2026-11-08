@@ -45,6 +45,8 @@ export async function editWords({ says, wallAt }) {
     size = slider("ew-size", 0.06, 0.8, 0.005);
   const across = el("button", { type: "button", textContent: "Left to right" }),
     down = el("button", { type: "button", textContent: "Top to bottom" }),
+    // a word to a row, centred (YOU / + / ME, 8 Nov 2026)
+    rows = el("button", { type: "button", textContent: "Rows" }),
     left = el("button", { type: "button", textContent: "Turn left 90°" }),
     right = el("button", { type: "button", textContent: "Turn right 90°" }),
     save = el("button", { type: "button", textContent: "Save every word's spot" });
@@ -52,7 +54,7 @@ export async function editWords({ says, wallAt }) {
     el("label", {}, [el("span", { textContent: "Word" }), pick]),
     el("label", {}, [el("span", { textContent: "Width" }), width.input, width.num]),
     el("label", {}, [el("span", { textContent: "Size" }), size.input, size.num]),
-    el("div", { className: "ev-buttons" }, [across, down]),
+    el("div", { className: "ev-buttons" }, [across, down, rows]),
     el("div", { className: "ev-buttons" }, [left, right]),
     el("div", { className: "ev-buttons" }, [save]),
     status,
@@ -69,9 +71,8 @@ export async function editWords({ says, wallAt }) {
     width.num.textContent = (+at.w).toFixed(2) + " m";
     size.input.value = at.s;
     size.num.textContent = Math.round(at.s * 100) + " cm";
-    width.input.disabled = at.dir === "down"; // a column of letters runs as tall as the word is long
-    across.style.opacity = at.dir === "down" ? 0.5 : 1;
-    down.style.opacity = at.dir === "down" ? 1 : 0.5;
+    width.input.disabled = at.dir === "down" || at.dir === "rows"; // a column runs as tall as it needs
+    for (const [b, d] of [[across, "across"], [down, "down"], [rows, "rows"]]) b.style.opacity = (at.dir || "across") === d ? 1 : 0.5;
     setHoverWords(says[key()], key());
   }
   pick.addEventListener("change", show);
@@ -79,6 +80,7 @@ export async function editWords({ says, wallAt }) {
   size.input.addEventListener("input", () => set({ s: +size.input.value }));
   across.addEventListener("click", () => set({ dir: "across" }));
   down.addEventListener("click", () => set({ dir: "down" }));
+  rows.addEventListener("click", () => set({ dir: "rows" }));
   left.addEventListener("click", () => set({ rot: ((hoverWordsAt(key()).rot || 0) + 270) % 360 }));
   right.addEventListener("click", () => set({ rot: ((hoverWordsAt(key()).rot || 0) + 90) % 360 }));
   save.addEventListener("click", async () => {

@@ -601,6 +601,13 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   the editor where i can put the words and resize them?"): every word stays up while one is moved, and it saves at
   `words/layout-nov8`, so the 3 Nov spots no longer pull the words back. Read that back with ArtifactData and write it
   into `WORD_AT`.
+- The lamp waits for B ("b is cool except the lamp looks all sorts of fucked from that perspective haha"): not drawn
+  while B is overhead and dropping, it fades in as the camera comes home (THE LAMP WAITS FOR B in `src/studio.mjs`).
+- YOU / + / ME on three centred rows down the arch ("you + me needs to be on 3 rows, center-aligned"): `dir: "rows"`,
+  a Rows button on the word editor too.
+- No HOMEGROWN word and the book a plain decoration: "we don't need a homegrown link, i'd rather put that inside the
+  studioland page". The snow globe's card has a third part, Homegrown, its line his motto "Habits not hacks." and VISIT
+  HOMEGROWN.
 
 ## Laptop first. Phones wait.
 
