@@ -1486,6 +1486,7 @@ const SHELLS = {
       if (!REDUCED) await wait(DROP_MS + 100);
       if (over()) return;
       loaded = true;
+      wordsIn();
       mark();
       busy = false;
       // another sleeve was picked while this one was on its way: that one now, this one back home
@@ -1602,10 +1603,28 @@ const SHELLS = {
       returning.delete(i);
       mark();
     }
+    /* THE WORDS WAIT FOR THE RECORD: "can we make the words on the player not show up until the vinyl lands? it can fade
+       in?" (Carl, 8 Nov 2026). A song's title and artist are off the deck while its record is on its way, and fade in
+       over WORDS_IN_MS once it is down; "Choose a record", with nothing picked, shows as before. */
+    const WORDS_IN_MS = 600;
+    let wordsA = 1,
+      wordsFrom = 0;
     const paint = () => {
       box.classList.toggle("playing", !audio.paused);
       const on = SONGS[at];
-      drawControls({ playing: !audio.paused, title: at === -1 ? "Choose a record" : on?.song || W.tracks[at] || "", artist: on?.artist || "", k: audio.duration ? audio.currentTime / audio.duration : 0 });
+      if (at !== -1 && !loaded) wordsA = 0;
+      drawControls({ playing: !audio.paused, title: at === -1 ? "Choose a record" : on?.song || W.tracks[at] || "", artist: on?.artist || "", k: audio.duration ? audio.currentTime / audio.duration : 0, textA: at === -1 ? 1 : wordsA });
+    };
+    const wordsIn = () => {
+      wordsFrom = performance.now();
+      const g0 = gen;
+      const tick = () => {
+        if (g0 !== gen && !loaded) return;
+        wordsA = REDUCED ? 1 : Math.min(1, (performance.now() - wordsFrom) / WORDS_IN_MS);
+        paint();
+        if (wordsA < 1) requestAnimationFrame(tick);
+      };
+      tick();
     };
     // the deck's own buttons (nav's click on the deck, DECK_HIT)
     // a new card: the deck starts empty, whatever the last one left on it

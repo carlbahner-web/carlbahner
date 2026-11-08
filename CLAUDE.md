@@ -622,6 +622,8 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   card's padding too. The songs are two rows of two ("two rows of two songs instead of a row of 3 and a row of 1"),
   further apart so they come out smaller ("they should have more padding between them so they can be a bit smaller"),
   with no lengths under them ("we can remove the times from the page").
+- The deck's song and artist wait until the record has landed, then fade in: "can we make the words on the player not show
+  up until the vinyl lands? it can fade in?" (THE WORDS WAIT FOR THE RECORD in `src/nav.mjs`, `textA` in `drawControls`).
 
 ## Laptop first. Phones wait.
 

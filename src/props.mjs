@@ -1393,7 +1393,7 @@ export function setDeckUI(u) {
 }
 export function drawControls(st = {}) {
   Object.assign(CONTROLS.state, st);
-  const { title, artist, playing, k } = CONTROLS.state,
+  const { title, artist, playing, k, textA = 1 } = CONTROLS.state,
     N = 1024,
     g = CONTROLS.cv.getContext("2d"),
     px = (f) => f * N,
@@ -1437,12 +1437,14 @@ export function drawControls(st = {}) {
   };
   // bigger: "the text on the deck needs to be bigger - we can move things around if I need to make more space" (Carl,
   // 3 Nov 2026); it was 0.04 and 0.03 of the deck, the one line 0.042
+  // `textA` fades the words in once the record has landed (src/nav.mjs THE WORDS WAIT FOR THE RECORD)
+  g.globalAlpha = textA;
   if (artist) {
     line(title, 0.056 * U.titleSize, 0.03 * U.titleSize, px(0.731 + U.textY));
-    g.globalAlpha = 0.72;
+    g.globalAlpha = 0.72 * textA;
     line(artist, 0.042 * U.artistSize, 0.024 * U.artistSize, px(0.786 + U.textY));
-    g.globalAlpha = 1;
   } else line(title, 0.056 * U.titleSize, 0.03 * U.titleSize, px(0.7575 + U.textY));
+  g.globalAlpha = 1;
   // the progress line: a cream track, the played part charcoal, a knob where it is
   const [sx0, sy0, sx1, sy1] = DECK_HIT.scrub,
     y = px((sy0 + sy1) / 2),
