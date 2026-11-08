@@ -2180,17 +2180,16 @@ export const HW_AT = { wall: "teal", x: 0.88, y: 1.19, w: 1.66, s: 0.42, dir: "a
    under the map, each the same height from where the room opens; ABOUT and YOU+ME run down the arch, one under the
    other. `s` differs word to word only because each stands a different distance from the camera: a word moved needs its
    `s` measured again from the opening view. */
-const across = (x, y, s) => ({ wall: "teal", x, y, w: 1.66, s, dir: "across", rot: 0 });
-const down = (y) => ({ wall: "cream", x: 1.248, y, w: 1.66, s: 0.165, dir: "down", rot: 0 });
+/* then placed by him on the word editor and saved, 8 Nov 2026 ("updated the wording"; words/layout-nov8 there) */
+const at = (wall, x, y, s, dir = "across") => ({ wall, x, y, w: 1.66, s, dir, rot: 0 });
 export const WORD_AT = {
-  portfolio: across(1.11, 1.31, 0.09),
-  artists: across(1.11, 1.2, 0.09),
-  contact: across(1.11, 1.09, 0.09),
-  studioland: across(1.11, 0.98, 0.09),
-  bio: down(1.77),
-  // three rows, centred: "you + me needs to be on 3 rows, center-aligned: YOU / + / ME" (Carl, 8 Nov 2026)
-  "my-people": { wall: "cream", x: 1.248, y: 1.0, w: 1.66, s: 0.16, dir: "rows", rot: 0 },
-  tour: down(1.77),
+  artists: at("teal", 0.472, 2.442, 0.215),
+  bio: at("cream", 1.25, 1.066, 0.215, "down"),
+  contact: at("teal", 0.954, 1.165, 0.22),
+  "my-people": at("cream", 1.688, 1.144, 0.22, "rows"),
+  portfolio: at("console", 2.297, 0.536, 0.22),
+  studioland: at("teal", 2.45, 1.337, 0.22),
+  tour: at("cream", 1.25, 1.066, 0.215, "down"),
 };
 /* A PHONE'S OWN SPOTS: "i need an artifa5 that allows me to control the per-swipe-camera and the placement of the words.
    Phone/mobile version only please" (Carl, 4 Nov 2026). On a phone held upright a

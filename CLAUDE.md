@@ -608,6 +608,9 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
 - No HOMEGROWN word and the book a plain decoration: "we don't need a homegrown link, i'd rather put that inside the
   studioland page". The snow globe's card has a third part, Homegrown, its line his motto "Habits not hacks." and VISIT
   HOMEGROWN.
+- His word layout from the editor, saved and written into `WORD_AT` ("updated the wording").
+- The edge lean holds at the very edge: "when i havce my mouse on the left edge it bounces and doesn't really show the left
+  side". The mouse is read over the whole page, so the card's border and the margin past it count as the edge (`EDGE_OUT`).
 
 ## Laptop first. Phones wait.
 

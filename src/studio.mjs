@@ -1409,7 +1409,7 @@ cv.addEventListener("pointermove", (e) => {
   cam.pitch = cam.tpitch;
   dirty = true;
 });
-cv.addEventListener("pointerleave", () => (nav.leave(), (edgeAt = null)));
+cv.addEventListener("pointerleave", () => nav.leave());
 /* THE EDGES TURN THE VIEW: "can we have the edges of the card pan/tilt? so you don't have to click and drag but you CAN
    click and drag if you want" (Carl, 3 Nov 2026). A mouse resting in the outer EDGE of the room's card, with no button
    held and no window open, turns the view that way, faster the nearer the edge, within his limits as a drag is. A drag
@@ -1417,11 +1417,22 @@ cv.addEventListener("pointerleave", () => (nav.leave(), (edgeAt = null)));
 const EDGE = 0.1, // how deep the band round the card is, a share of its width and height
   EDGE_PX_S = 520; // how fast it turns at the very edge, in the drag's own screen pixels a second
 let edgeAt = null;
-cv.addEventListener("pointermove", (e) => {
+/* "when i havce my mouse on the left edge it bounces and doesn't really show the left side" (Carl, 8 Nov 2026). The mouse
+   was read only over the room itself, so pushed to the very edge it slipped onto the card's drawn border or the margin
+   past it, the room lost it, the lean let go, and coming back on it leaned again: a bounce. So it is read over the whole
+   page: anywhere in the band, on the border, or out in the margin up to EDGE_OUT past the card counts as the very edge,
+   and only further out, or over a window, a button or the panel, lets go. */
+const EDGE_OUT = 80; // px past the card's edge that still count as its edge
+addEventListener("pointermove", (e) => {
   if (e.pointerType !== "mouse" || e.buttons) return (edgeAt = null);
-  const b = view();
-  edgeAt = { x: (e.clientX - b.left) / b.width, y: (e.clientY - b.top) / b.height };
+  const b = view(),
+    over = e.target === cv || e.target === document.body || e.target === document.documentElement || !!e.target.closest?.("#stage > .wob");
+  const out = Math.max(b.left - e.clientX, e.clientX - b.left - b.width, b.top - e.clientY, e.clientY - b.top - b.height);
+  if (!over || out > EDGE_OUT) return (edgeAt = null);
+  const c = (v) => Math.min(1, Math.max(0, v));
+  edgeAt = { x: c((e.clientX - b.left) / b.width), y: c((e.clientY - b.top) / b.height) };
 });
+document.documentElement.addEventListener("pointerleave", () => (edgeAt = null));
 const edgeOf = (v) => (v < EDGE ? -((1 - v / EDGE) ** 2) : v > 1 - EDGE ? ((v - (1 - EDGE)) / EDGE) ** 2 : 0);
 /* THE EDGES LEAN THE VIEW: "i feel like i've asked multiple times to have it pan/tilt when the mouse is on the edges"
    (Carl, 3 Nov 2026). It was there, but from the opening view, which is his widest, his limits leave no room to turn, and
