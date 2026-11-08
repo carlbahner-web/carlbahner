@@ -1283,7 +1283,6 @@ const PLAY = "M8 5.5 L19 12 L8 18.5 Z",
   STOP = "M7 7 H17 V17 H7 Z",
   BACK = "M7 6 H9 V18 H7 Z M18 6 V18 L10 12 Z",
   NEXT = "M15 6 H17 V18 H15 Z M6 6 V18 L14 12 Z";
-const mmss = (s) => (isFinite(s) ? Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0") : "");
 
 /* ---------- the record between the window and the deck ---------- */
 let DECKCAM = null,
@@ -1418,18 +1417,14 @@ const SHELLS = {
     const shelf = el("div", "sleeves");
     const rows = TRACKS.map((src, i) => {
       const b = el("button", "sleeve-pick", { type: "button" });
-      const len = el("span", "len");
-      const probe = new Audio();
-      probe.preload = "metadata";
-      probe.src = src;
-      probe.addEventListener("loadedmetadata", () => (len.textContent = mmss(probe.duration)));
+      // no length under it: "we can remove the times from the page" (Carl, 8 Nov 2026)
       b.addEventListener("click", () => pick(i));
       const stack = el("div", "sleeve-stack");
       const peek = recordEl(COVERS[i], "sleeve-peek");
       const sleeve = slot("sleeve " + (i + 1), "sleeve");
       if (COVERS[i]) (sleeve.classList.add("cover-art"), (sleeve.style.backgroundImage = `url("${COVERS[i]}")`));
       stack.append(peek, sleeve);
-      b.append(stack, el("span", "track-name", { textContent: W.tracks[i] || "" }), len);
+      b.append(stack, el("span", "track-name", { textContent: W.tracks[i] || "" }));
       shelf.append(b);
       return b;
     });
