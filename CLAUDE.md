@@ -206,7 +206,8 @@ of sight onto the cover and grown to match. A card on the console turns and tilt
 its title in DW Fairfield (`assets/dwfairfield.woff2`, the garden's copy), drawn large so it stays sharp up
 close, with size, left/right, up/down and opacity sliders: "the book should have the title on the spine -
 id like it to be clear when you zoom in but I want an opacity and size/placement control. It should say
-"the complete book of composting" in my dw fairfield font". The panel shows
+"the complete book of composting" in my dw fairfield font". Its outline 1.4 times the room's line, wandering 2.5 mm as the
+room's lines do: "can we thicken the outlines a bit of hte book and give it ripple?" (Carl, 9 Nov 2026; THE BOOK'S LINES). The panel shows
 only these two for now ("Let's hide the current controls for the time being"): `ONLY` in studio.mjs. Since 6 Oct 2026
 it shows the room, light and wall shapes alone, every decoration's controls put away: "ok so let's remove the item
 controls for now and talk about how to define the camera limitations".
@@ -239,7 +240,9 @@ gong's rim is (`disc`, a Depth slider): "Can we add depth to the clock too? The 
 wood, not black, a thin black line kept round each edge of the rim (`tools/cut_bits.py`, a rim picker): "Can we make
 the outline of the clock the wood color is the kick drum instead of black?" (6 Oct 2026). Then all of it in charcoal, mustard and wood ("Then we need to recolor it to be
 charcoal mustard and wood"): the face the chair's mustard, the hour and minute hands charcoal, the second hand wood,
-the dots at their hubs mustard. The room lays both on their pieces as BITS in `src/props.mjs`; the flame has a Flame size slider.
+the dots at their hubs mustard. All three hands on one pin, his panel's nudges zeroed: made for the hands' old cut,
+on the true one they pushed the hubs apart by a different amount at each time of day ("it seems to look different on
+different sizes ... when one looks good the other doesn't always", Carl, 9 Nov 2026). The room lays both on their pieces as BITS in `src/props.mjs`; the flame has a Flame size slider.
 Testing: headless software WebGL takes about a second a frame, and the clock wants one every second, so a
 screenshot never finds the page quiet. Freeze `Date` in the test, and check the flame in a small window.
 

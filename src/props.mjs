@@ -497,12 +497,15 @@ export const PROPS = [
     /* each hand's own fine tuning: where its pivot sits on the face (X, Y, a share of the face's width) and its
        size: "The central pivot point of the hands don't look right though. Can you let me zoom in on it and
        fine tune each hand?" (Carl, 6 Oct 2026) */
-    // 0 since the hubs were cut true (tools/cut_bits.py); his nudges had been making up for them
-    hourX: -0.017, // his, as saved on his panel 6 Oct 2026, written in when the panel went (1 Nov 2026)
-    hourY: 0.013, // his, as saved on his panel 6 Oct 2026, written in when the panel went (1 Nov 2026)
+    // 0 since the hubs were cut true (tools/cut_bits.py). His nudges from his panel (hour -0.017, 0.013; minute 0.033,
+    // 0.02, 6 Oct 2026) had been making up for the old cut, and on the true one they pushed the hubs apart, by a different
+    // amount at each time of day as they turned with their hands: "can we fix this? it seems to look different on
+    // different sizes ... when one looks good the other doesn't always" (Carl, 9 Nov 2026). So all three on one pin.
+    hourX: 0,
+    hourY: 0,
     hourK: 1,
-    minuteX: 0.033, // his, as saved on his panel 6 Oct 2026, written in when the panel went (1 Nov 2026)
-    minuteY: 0.02, // his, as saved on his panel 6 Oct 2026, written in when the panel went (1 Nov 2026)
+    minuteX: 0,
+    minuteY: 0,
     minuteK: 1,
     secondX: 0,
     secondY: 0,
@@ -885,6 +888,7 @@ void main() { vUv = uv; vec3 q = position;
 const EDGE_FRAG = `${LIGHT_GLSL}
 uniform vec3 color; uniform vec3 ink; uniform float shade; uniform float linePx; uniform float dark; uniform float band;
 uniform sampler2D grain; uniform float grainM; uniform float grainK; uniform float hot; uniform float navLook;
+uniform float lineK; uniform float ripple; uniform vec3 ph;
 varying vec2 vUv; varying vec3 vW;
 vec3 softLight(vec3 b, float g) { vec3 d = mix(((16.0 * b - 12.0) * b + 4.0) * b, sqrt(b), step(.25, b)); return g <= .5 ? b - (1.0 - 2.0 * g) * b * (1.0 - b) : b + (2.0 * g - 1.0) * (d - b); }
 void main() {
@@ -892,7 +896,13 @@ void main() {
   vec2 g = vec2(length(vec2(dFdx(vUv.x), dFdy(vUv.x))), length(vec2(dFdx(vUv.y), dFdy(vUv.y))));
   vec2 t = e / max(g, vec2(1e-6));
   t.x = mix(t.x, 1e6, band);                    // a band round a disc: lines only along its two rims
-  float on = 1.0 - smoothstep(linePx * .5 - .75, linePx * .5 + .75, min(t.x, t.y));
+  /* THE BOOK'S LINES, thicker and rippled: "can we thicken the outlines a bit of hte book and give it ripple?" (Carl,
+     9 Nov 2026). lineK times the room's line, and its edge wandering ripple metres either way along its length, as
+     the room's own lines do (room.mjs LINE), in screen px however near the camera is */
+  float mpp = max(length(dFdx(vW)), length(dFdy(vW))), along = vW.x + vW.y + vW.z, A = 6.2831853;
+  float wob = ripple * (.5 * sin(A * along / .05 + ph.x) + .3 * sin(A * along / .023 + ph.y) + .2 * sin(A * along / .011 + ph.z)) / max(mpp, 1e-6);
+  float hw = linePx * lineK * .5 + wob;
+  float on = 1.0 - smoothstep(hw - .75, hw + .75, min(t.x, t.y));
   vec3 b = mix(color * shade * mix(1.0, vUv.x, band), ink * (1.0 - dark), on);
   // the grain laid flat on the face, whichever way it faces, so it never smears across it
   vec3 nf = abs(normalize(cross(dFdx(vW), dFdy(vW))));
@@ -934,6 +944,9 @@ function edgeMaterial(p, shared, shade, band = 0, face = null) {
       navLook: face ? face.navLook : { value: 0 },
       edgeOnly: { value: 0 },
       edgeK: { value: 1 },
+      lineK: { value: 1 },
+      ripple: { value: 0 },
+      ph: { value: [0, 0, 0] },
       boilK: { value: 0 },
       size: { value: [1, 1] },
       ...pickLight(shared),
@@ -1050,6 +1063,8 @@ function frameBand(mesh, p, shared) {
 /* BOOK: a closed book as a box in the room's own style, each face its colour shaded by which way it
    faces, a charcoal line round every face: its cover on top and its spine toward the room, its pages
    on the other three sides. Built in metres for a length of 1, scaled by `w`; its bottom at 0. */
+// the book's outline: 1.4 times the room's line, wandering 2.5 mm either way (THE BOOK'S LINES)
+const BOOK_LINE = { k: 1.4, ripple: 0.0025 };
 function buildBook(p, shared) {
   const g = new Group(),
     faces = [],
@@ -1060,6 +1075,8 @@ function buildBook(p, shared) {
     pages = { ...p, edgeColor: "pages" };
   const face = (a, b, pos, rx, ry, shade, src) => {
     const m = new Mesh(new PlaneGeometry(a, b), edgeMaterial(src, shared, shade));
+    // thicker than the room's line, and rippled (THE BOOK'S LINES, EDGE_FRAG): each face its own wobble
+    Object.assign(m.material.uniforms, { lineK: { value: BOOK_LINE.k }, ripple: { value: BOOK_LINE.ripple }, ph: { value: [faces.length * 1.7, faces.length * 2.9 + 1, faces.length * 4.1 + 2] } });
     m.rotation.set(rx, ry, 0);
     m.position.set(...pos);
     m.userData.swatch = src.edgeColor;
