@@ -656,10 +656,10 @@ over the console, which had swung the drum, the chair and the lamp round as the 
 flyover was tried and taken out the same day**: "The drum still looks so weird during the move, can it slide into place
 at the end instead?", then, shown it hidden overhead and sliding in from the right as the camera dropped: "No I don't
 like that either it's weird to have it appear on its own" (Carl, 9 Nov 2026). So the drum is drawn all the way through
-the flyover again, legs pinned; how it should look from overhead is still his to say. **Then turned about its right foot**: "Can we start
-with the left foot in this other new spot? Like rotating it clockwise but keeping the right foot where it is" (Carl, 9 Nov
-2026, the new spot drawn on the flyover's first view on his phone). 36 degrees clockwise seen from above, its right foot
-within a centimetre of where it stood (`pole`, `slide`, `spin` and PIVOT_FIX in `src/props.mjs`).
+the flyover again, legs pinned; how it should look from overhead is still his to say. **Turning it about its right foot was
+tried and undone the same day**: "Can we start with the left foot in this other new spot? Like rotating it clockwise but
+keeping the right foot where it is", then, shown it 36 degrees clockwise, narrower from the laptop's opening view: "hmmmm
+no undo that" (Carl, 9 Nov 2026). It stands as before.
 
 **The student officers' 33 findings, merged into one quiz, 9 Nov 2026** (https://claude.ai/artifact/L3wsezeEBG1PJnkq35QotX;
 the findings from his words, clutter, simplicity, delight and Godzilla officers, 8 Nov, on
