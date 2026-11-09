@@ -60,11 +60,12 @@ export function fitStage() {
      at his laptop's room (CARD_REF wide: a 1440 by 900 window), and drawn bigger or smaller with the room (index.html
      #win's zoom), so its words wrap the same way at every size. Upright, its words scale with the phone's width from a
      390-wide phone's. */
-  /* NO SMALLER THAN THREE QUARTERS: the student Godzilla officer's fourth hole: on a phone on its side the contact card
+  /* NO SMALLER THAN FULL SIZE: the student Godzilla officer's fourth hole: on a phone on its side the contact card
      came out a quarter of its size, SUBMIT and the X too small to tap, and a laptop zoomed to 200% got no bigger words.
      "Stop shrinking below a height, scroll instead" (Carl, 9 Nov 2026, the officers' fixes quiz). So the card scales with
      the room down to K_MIN and no further, its words scrolling inside it, never wider than the room leaves. */
-  const K_MIN = 0.75;
+  /* then full size: "Full size" (Carl, 9 Nov 2026, the consistency officer's question; three quarters until then) */
+  const K_MIN = 1;
   el.style.setProperty("--k", String(tall ? (window.PHONE_PREVIEW ? w : innerWidth) / 390 : Math.min(Math.max(w / CARD_REF, K_MIN), Math.max(w / CARD_REF, (w - 32) / 620))));
   box = { left: x, top: (innerHeight - h) / 2, width: w, height: h };
   return box;

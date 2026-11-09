@@ -709,6 +709,14 @@ chat". His answers, built the same day unless marked:
   Homegrown's red X closes every card ("Every card, it's also on the frontend repo"; THE RED X). The glove and the X are
   copied from ss-frontend (`garden/assets/fx/glove-down.webp`, `public/assets/icon-cancel.webp`), as the garden's other
   pieces are.
+- **The consistency officer's nine, added to the same quiz the same day** (Carl's "yes" to adding them). Eight answered
+  "match homegrown": the cards take Homegrown's own numbers (ss-frontend `src/styles/tokens.css`): gaps from 4, 8, 12, 16,
+  24, 40, the card's inside 24 all round; DM Sans at 1.2 and DW Fairfield at 0.8 line spacing; faded ink 38% and 55%; one
+  yellow, Homegrown's mustard `#f6cc60` (the quote marks and the line beside each name were a deeper one); every line 2px;
+  small capitals 0.06em apart and capitals at reading size 0.02em; and only DW Fairfield and DM Sans, the quote marks
+  moved off Georgia onto DM Sans. Corners (an eighth of the height up to 12) and the two creams (page and card) already
+  were Homegrown's; the covers' fixed corner went 10 to 12. MATCHED TO HOMEGROWN in `index.html`. The ninth, the card on a
+  phone held sideways: "Full size" (`K_MIN` 1 in `src/stage.mjs`), the card at its normal size, scrolling inside.
 
 ## Laptop first. Phones wait.
 
