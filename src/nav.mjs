@@ -573,8 +573,33 @@ export function startNav(v) {
     if (!c) return LEAN_AT;
     return { off: [c.ox, c.oy, c.oz], look: [0, c.ly, c.lz], fov: c.fov };
   }
+  /* A THING LOW IN THE ROOM, ON A PHONE: the drum on the floor landed low and half behind the card: "we need to make
+     sure we fix the landing framing so the item is in the right spot" (Carl, 9 Nov 2026). The framing is held from tipping
+     down past -0.65, since Sway walks the camera up as it tips and further on it goes up through the ceiling. So when a
+     phone's framing is held there, the camera stays where that framing stands it and only looks further down, the
+     thing's middle where the room over the card wants it (the console's lean, THE LEAN in studio.mjs, standing still). */
+  function lowLean(t) {
+    const f = frame(t),
+      box = room();
+    if (f.pitch > -0.65 + 1e-6) return null;
+    const P = pose(f.yaw, f.pitch, f.fov),
+      mid = corners(t.mesh)[4],
+      pos = P.c,
+      s = onScreen(P, mid);
+    if (!s || s[1] >= box.y - 0.02) return null;
+    const d0 = mid.map((v, i) => v - pos[i]),
+      dl = Math.hypot(...d0),
+      d = d0.map((v) => v / dl),
+      th = Math.atan(box.y * P.tv),
+      right = [-d[2], 0, d[0]].map((v, _, r) => v / Math.hypot(r[0], r[2])),
+      up = [right[1] * d[2] - right[2] * d[1], right[2] * d[0] - right[0] * d[2], right[0] * d[1] - right[1] * d[0]],
+      sgn = up[1] < 0 ? -1 : 1,
+      dir = d.map((v, i) => v * Math.cos(th) - sgn * up[i] * Math.sin(th));
+    return { pos, look: pos.map((v, i) => v + dir[i]), fov: (2 * Math.atan(P.tv) * 180) / Math.PI };
+  }
   function leanFor(t) {
     const m = t.mesh;
+    if (upright() && t.id !== "console") return lowLean(t);
     if (t.id !== "console" || !m.userData.lid) return null;
     const p = m.userData.prop,
       H = p.w * m.userData.aspect,
