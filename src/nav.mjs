@@ -122,7 +122,9 @@ export const WORDS = {
        words (SONGS). Until then: 'Great Good Fine OK remix // Smallpools "Fake A Happy Face!"', 'fun-yet-sad indie pop //
        Surname "Good Grief"', 'introspective indie // King Leer "The Garden"', 'ultra-catchy indie pop // Honestly "Night
        Life"'. */
-    tracks: ['Smallpools "Fake A Happy Face!" (GGFO remix) // Co-production, mixing, mastering', 'Surname "Good Grief" // Co-produced and mixed', 'King Leer "The Garden" // Mixed and mastered', 'Honestly "Night Life" // Mixed and mastered', 'Saint Slumber "CRUSH!" // Co-production, mixing and mastering', 'Cheerleader "The Sunshine of Your Youth" // Drumming and additional engineering'],
+    /* every part an -ing word, as Cheerleader's is: "Can we make my roles consistently verbs?", then, offered past tenses
+       ("Co-produced, mixed and mastered"): "Active verbs like drumming" (Carl, 9 Nov 2026) */
+    tracks: ['Smallpools "Fake A Happy Face!" (GGFO remix) // Co-producing, mixing and mastering', 'Surname "Good Grief" // Co-producing and mixing', 'King Leer "The Garden" // Mixing and mastering', 'Honestly "Night Life" // Mixing and mastering', 'Saint Slumber "CRUSH!" // Co-producing, mixing and mastering', 'Cheerleader "The Sunshine of Your Youth" // Drumming and additional engineering'],
     more: "MORE SONGS ON SPOTIFY",
     // his playlist, sent 2 Nov 2026
     moreLink: "https://open.spotify.com/playlist/3Bt7j0jThvjdHSlVSRH6HK",
