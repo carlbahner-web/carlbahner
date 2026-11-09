@@ -2414,7 +2414,8 @@ export function buildAllWords(list) {
 export function setAllWords(level, hot = null) {
   // a level, 0 to 1 (true and false still work), and the one word up full whatever it is (src/nav.mjs QUIET UNTIL HOVERED)
   level = +level;
-  for (const S of SIGNS.values()) S.to = level > 0 && S.key === hot ? 1 : level;
+  // the one word stays up even with the rest gone, for a tap's flight in (src/nav.mjs NO HOLD, THE WORD STAYS UP)
+  for (const S of SIGNS.values()) S.to = S.key === hot ? 1 : level;
   bitsChanged = true;
 }
 // where each word is in the room, for a tap on a word (src/nav.mjs): its key and its four corners
