@@ -467,7 +467,8 @@ first song reads as the others do ("fix it"). The player is four songs, in his o
 grief, the garden, night life. those 4", three across so the next row shows ("a bit smaller so it's clear there are more
 than two"). Then six, two more after Night Life (9 Nov 2026): "I want to add two more songs to the player - Crush by
 Saint Slumber and Sunshine Of Your Youth by Cheerleader", "Yeah after night life", their silent ends cut ("You can remove
-the extra silence"), his parts "co-production, mixing and mastering" and "drumming and additional engineering". Changing songs, the old record fades away on the deck over a second while the new one comes out of its
+the extra silence"), his parts "co-production, mixing and mastering" and "drumming and additional engineering". Then every part an -ing word: "Can we make my roles consistently verbs?", "Active verbs like drumming"
+(Carl, 9 Nov 2026). Changing songs, the old record fades away on the deck over a second while the new one comes out of its
 sleeve (A RECORD FADES AWAY in `src/props.mjs`): flying it home glitched. His name on the wall is gone: "no need for the wall I like the rug better".
 
 **The room's sounds, 2 Nov 2026** (Carl, asked where they are put to the room's moments: "Personal site's room"; his
