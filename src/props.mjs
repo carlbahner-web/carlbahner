@@ -2947,12 +2947,13 @@ export function placeProp(mesh) {
       mesh.position.set(out, up, p.along + w / 2);
     } else mesh.position.set(p.along + w / 2, up, out);
   } else if (p.ceiling) {
-    /* hanging from the ceiling by its wheels, upside down like a coaster car round a loop, upright and turned to the
+    /* hanging just under the ceiling, upright and turned to the
        camera as the floor's cards are (the turn is set where they get theirs): "It should be on the ceiling not the
        wall", then "can we make it look like he's vertical and staying in front of the ceiling? Like his wheels are
        pinned but he is always vertical" (Carl, 9 Nov 2026, Buzz's egg). `out` metres from the teal wall, `along` it
        from the corner. */
-    mesh.rotation.set(0, mesh.rotation.y, Math.PI);
+    // right way up, his top to the ceiling: "he's upside down, flip him 180" (Carl, 9 Nov 2026)
+    mesh.rotation.set(0, mesh.rotation.y, 0);
     mesh.position.set(p.out, CEILING_H - h / 2, p.along);
   } else if (p.floor) {
     // flat on the floor, its face up `depth` above it, its edge down to the floor (frameBand)
