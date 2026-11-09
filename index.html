@@ -29,6 +29,10 @@
         overflow: hidden;
         /* the page round the room's card: Homegrown's quiet cream (tokens.css --paper) */
         background: #fefdf9;
+        /* NO TAP FLASH: a phone's browser lays a pale box over whatever is tapped, and on a sleeve it flashed white as the
+           record came out: "there is a quick white flash/glitch when selecting a vinyl", on the phone, "On the sleeve"
+           (Carl, 9 Nov 2026). What is pressed shows on the thing itself instead. */
+        -webkit-tap-highlight-color: transparent;
       }
       /* THE ROOM'S CARD (src/stage.mjs): 16:9 whatever the window, centred, sized and placed by fitStage; its
          corner Homegrown's 12 and its line drawn over the room's edge (drawBox, front) */
@@ -1186,7 +1190,12 @@
       .sleeve-pick:focus-visible {
         z-index: 3;
       }
-      .sleeve-pick:hover .sleeve-peek,
+      /* under a mouse only: a finger's tap left the phone's hover on, so the record jumped out before it flew (NO TAP FLASH) */
+      @media (hover: hover) {
+        .sleeve-pick:hover .sleeve-peek {
+          transform: translateX(30%);
+        }
+      }
       .sleeve-pick:focus-visible .sleeve-peek {
         transform: translateX(30%);
       }
