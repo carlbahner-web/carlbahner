@@ -1612,16 +1612,8 @@ const SHELLS = {
       return b;
     });
     box.append(shelf);
-    /* THE GARDEN'S GLOVE, OVER THE FIRST SLEEVE: nothing plays until a song is picked ("Keep it they pick but maybe give a
-       little floating hint (like the glove from the garden?)", Carl, 9 Nov 2026, the officers' fixes quiz). Homegrown's
-       pointing glove (ss-frontend garden/assets/fx/glove-down.webp, copied as assets/glove-down.webp) floats over the
-       first sleeve, bobbing as the garden's does, 18px every 1.1s, until a sleeve is first tapped on this visit; held
-       still for a visitor who asks for less motion. A picture only: it says nothing to a screen reader. */
-    if (!gloveGone && rows[0]) {
-      const g = el("img", "sleeve-glove", { src: "assets/glove-down.webp", alt: "" });
-      g.setAttribute("aria-hidden", "true");
-      rows[0].querySelector(".sleeve-stack").append(g);
-    }
+    /* No hint over the sleeves: Homegrown's pointing glove floated over the first one for a day, then "I want to remove
+       the glove pointer, it doesn't really fit or work for me visually or UX-wise" (Carl, 9 Nov 2026). */
     /* A SONG THAT DIDN'T LOAD: the student Godzilla officer's third hole: a song tapped as the signal dropped stayed
        silent, a second tap did nothing, and nothing said why. "Fix it: "Ugh, that one didn't load. Tap it to try again.""
        (Carl, 9 Nov 2026, the officers' fixes quiz). The line shows under the sleeves while it can't load, and a tap on
@@ -1655,9 +1647,6 @@ const SHELLS = {
     let busy = false,
       next = null;
     async function pick(i) {
-      // the first tap on a sleeve, and the glove has done its job (THE GARDEN'S GLOVE)
-      gloveGone = true;
-      box.querySelector(".sleeve-glove")?.remove();
       if (busy) {
         if (i !== at) next = i;
         return;
@@ -1848,8 +1837,6 @@ const SHELLS = {
       // its song back: on the deck as it was left, the arm on the record, turning unless it was paused
       at = kept.at;
       loaded = true;
-      gloveGone = true;
-      box.querySelector(".sleeve-glove")?.remove();
       setDeck({ on: true, label: COVERS[at] || null, playing: !audio.paused, armTo: "play", drop: 0, dropTo: 0, k: audio.duration ? audio.currentTime / audio.duration : 0 });
       mark();
     }
@@ -2075,7 +2062,6 @@ function sentToast() {
   t.addEventListener("click", go);
   setTimeout(go, 6000); // long enough to read his line
 }
-let gloveGone = false; // a sleeve has been tapped this visit (THE GARDEN'S GLOVE, in the player)
 const DRAFT = {}; // what the visitor has typed, until it is sent (A HALF-WRITTEN MESSAGE IS KEPT)
 const EMAIL_SAYS = "Almost there! Just need your email so I can reply.";
 function contactForm() {

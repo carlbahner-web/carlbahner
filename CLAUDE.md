@@ -708,11 +708,11 @@ chat". His answers, built the same day unless marked:
   and built: his part after each song on the songs' card, as the words officer's draft had it ("Co-production, mixing,
   mastering" on the GGFO remix, "Co-produced and mixed", "Mixed and mastered", "Mixed and mastered"), the style words
   going; Homegrown's line on the snow globe's card is the landing page's own sentence, his of 12 Oct, then his motto
-  ("Look at the homegrown landing page"); Homegrown's pointing glove floats over the first sleeve, bobbing as the garden's
-  does, until a sleeve is first tapped ("Connect to the Ss-frontend repo"; THE GARDEN'S GLOVE in `src/nav.mjs`); and
-  Homegrown's red X closes every card ("Every card, it's also on the frontend repo"; THE RED X). The glove and the X are
-  copied from ss-frontend (`garden/assets/fx/glove-down.webp`, `public/assets/icon-cancel.webp`), as the garden's other
-  pieces are.
+  ("Look at the homegrown landing page"); Homegrown's pointing glove floated over the first sleeve, bobbing as the garden's
+  does, until a sleeve was first tapped ("Connect to the Ss-frontend repo"), and was taken out the same day: "I want to
+  remove the glove pointer, it doesn't really fit or work for me visually or UX-wise" (Carl, 9 Nov 2026), so nothing
+  hints over the sleeves; and Homegrown's red X closes every card ("Every card, it's also on the frontend repo"; THE RED
+  X), copied from ss-frontend (`public/assets/icon-cancel.webp`), as the garden's other pieces are.
 - **The consistency officer's nine, added to the same quiz the same day** (Carl's "yes" to adding them). Eight answered
   "match homegrown": the cards take Homegrown's own numbers (ss-frontend `src/styles/tokens.css`): gaps from 4, 8, 12, 16,
   24, 40, the card's inside 24 all round; DM Sans at 1.2 and DW Fairfield at 0.8 line spacing; faded ink 38% and 55%; one
