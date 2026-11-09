@@ -465,7 +465,9 @@ and does not press down ("You should be able to drag it and skip through the son
 view tilts down onto the rug ("yes"; the most of four, "4"), his top and bottom limits moved with it (`TILT` in `src/studio.mjs`, `?tilt=`). The
 first song reads as the others do ("fix it"). The player is four songs, in his order, two by two: "fake a happy face, good
 grief, the garden, night life. those 4", three across so the next row shows ("a bit smaller so it's clear there are more
-than two"). Changing songs, the old record fades away on the deck over a second while the new one comes out of its
+than two"). Then six, two more after Night Life (9 Nov 2026): "I want to add two more songs to the player - Crush by
+Saint Slumber and Sunshine Of Your Youth by Cheerleader", "Yeah after night life", their silent ends cut ("You can remove
+the extra silence"), his parts "co-production, mixing and mastering" and "drumming and additional engineering". Changing songs, the old record fades away on the deck over a second while the new one comes out of its
 sleeve (A RECORD FADES AWAY in `src/props.mjs`): flying it home glitched. His name on the wall is gone: "no need for the wall I like the rug better".
 
 **The room's sounds, 2 Nov 2026** (Carl, asked where they are put to the room's moments: "Personal site's room"; his

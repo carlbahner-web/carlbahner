@@ -85,7 +85,8 @@ const TRACKS = ["assets/tracks/small-pools-fake-a-happy-face.mp3", "assets/track
 /* Then two more after Night Life: "I want to add two more songs to the player - Crush by Saint Slumber and Sunshine Of
    Your Youth by Cheerleader", "Yeah after night life" (Carl, 9 Nov 2026), the titles as Spotify writes them. Both mp3s he sent
    the same day, at 256k, the silence at their ends cut off ("You can remove the extra silence"); Cheerleader's cover cut
-   from his Spotify screenshot, Crush's from a bigger one ("Here's a better one to crop from"). */
+   from his Spotify screenshot, Crush's from a bigger one ("Here's a better one to crop from"). His part on each: "Crush was co-production, mixing and mastering… sunshine was
+   drumming and additional engineering". */
 // NEXT, not on the player yet: mrnoname's "Futurism", its cover sent 2 Nov 2026 and made the same way
 // (assets/covers/mrnoname-futurism.webp); "i just need to find the mp3 so don't worry about adding it to the live player yet"
 // on the deck, the song's title over its artist (props.mjs drawControls); the card keeps the description line
@@ -121,7 +122,7 @@ export const WORDS = {
        words (SONGS). Until then: 'Great Good Fine OK remix // Smallpools "Fake A Happy Face!"', 'fun-yet-sad indie pop //
        Surname "Good Grief"', 'introspective indie // King Leer "The Garden"', 'ultra-catchy indie pop // Honestly "Night
        Life"'. */
-    tracks: ['Smallpools "Fake A Happy Face!" (GGFO remix) // Co-production, mixing, mastering', 'Surname "Good Grief" // Co-produced and mixed', 'King Leer "The Garden" // Mixed and mastered', 'Honestly "Night Life" // Mixed and mastered', 'Saint Slumber "CRUSH!"', 'Cheerleader "The Sunshine of Your Youth"'],
+    tracks: ['Smallpools "Fake A Happy Face!" (GGFO remix) // Co-production, mixing, mastering', 'Surname "Good Grief" // Co-produced and mixed', 'King Leer "The Garden" // Mixed and mastered', 'Honestly "Night Life" // Mixed and mastered', 'Saint Slumber "CRUSH!" // Co-production, mixing and mastering', 'Cheerleader "The Sunshine of Your Youth" // Drumming and additional engineering'],
     more: "MORE SONGS ON SPOTIFY",
     // his playlist, sent 2 Nov 2026
     moreLink: "https://open.spotify.com/playlist/3Bt7j0jThvjdHSlVSRH6HK",
