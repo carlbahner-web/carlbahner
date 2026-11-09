@@ -633,9 +633,12 @@ suddenly" (Carl, 9 Nov 2026).
 **Buzz in his coaster car, an Easter egg, 9 Nov 2026**: "How could we sneak a small icon in the top left corner of the
 room that we don't mention and it's like an Easter egg?", then, the spot marked on his phone, "And it should be the buzz
 coaster image from the wild-ride repo" (Carl). The wild-ride repo's `games/src/assets/buzz-car.png` (kept in
-`art/buzz-car-source.png`), small and flat on the ceiling by the teal wall, up and left of the clock, where he marked it,
-read the right way round from below (`ceiling`, `out`, `along`). First put beside the clock ("That's not where I showed
-you in the marked up screenshot"), then on the wall under the ceiling: "It should be on the ceiling not the wall". Seen
+`art/buzz-car-source.png`), hanging from the ceiling by its wheels by the teal wall, up and left of the clock, where he marked
+it: upside down like a coaster car round a loop, upright and turned to the camera as the floor's cards are (`ceiling`,
+`out`, `along`). First put beside the clock ("That's not where I showed
+you in the marked up screenshot"), then on the wall under the ceiling ("It should be on the ceiling not the wall"), then flat on the ceiling, seen
+almost edge-on: "can we make it look like he's vertical and staying in front of the ceiling? Like his wheels are pinned
+but he is always vertical". Seen
 when the view is tilted up, as his screenshot was, never in the opening view. Not one of the things that open: no boil, no light, no word, no zone; a mouse over him turns to a
 hand, and a click or tap opens Buzz's Wild Ride (https://buzzs-wild-ride.netlify.app/) in a new tab (THE EGG in
 `src/nav.mjs`, `egg` on the prop). Nothing on the site mentions him.

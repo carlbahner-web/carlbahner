@@ -541,7 +541,6 @@ export const PROPS = [
     ceiling: true,
     out: 0.2,
     along: 2.95,
-    flip: true, // so from below he faces the way he was drawn
     egg: "https://buzzs-wild-ride.netlify.app/",
   },
   /* THE BASS DRUM (Carl's drawing, sent 5 Oct 2026: "Can this go along the right wall?"). Cut by
@@ -2948,13 +2947,13 @@ export function placeProp(mesh) {
       mesh.position.set(out, up, p.along + w / 2);
     } else mesh.position.set(p.along + w / 2, up, out);
   } else if (p.ceiling) {
-    /* flat on the ceiling, looking down into the room, `out` metres from the teal wall to its middle and `along` the
-       teal wall from the corner: "It should be on the ceiling not the wall" (Carl, 9 Nov 2026, Buzz's egg). Laid so it
-       reads the right way up from below (checked on a render, looking up from where the camera stands), and drawn from
-       both sides. */
-    mesh.rotation.set(-Math.PI / 2, 0, -Math.PI / 2); // its across away from the corner, its top toward the room
-    mesh.material.side = DoubleSide;
-    mesh.position.set(p.out, CEILING_H - 0.004, p.along);
+    /* hanging from the ceiling by its wheels, upside down like a coaster car round a loop, upright and turned to the
+       camera as the floor's cards are (the turn is set where they get theirs): "It should be on the ceiling not the
+       wall", then "can we make it look like he's vertical and staying in front of the ceiling? Like his wheels are
+       pinned but he is always vertical" (Carl, 9 Nov 2026, Buzz's egg). `out` metres from the teal wall, `along` it
+       from the corner. */
+    mesh.rotation.set(0, mesh.rotation.y, Math.PI);
+    mesh.position.set(p.out, CEILING_H - h / 2, p.along);
   } else if (p.floor) {
     // flat on the floor, its face up `depth` above it, its edge down to the floor (frameBand)
     // (its order is YXZ: turned in its own picture, then laid down)
@@ -3206,7 +3205,6 @@ export function faceProps(meshes, eye) {
       m.userData.prop.on ||
       m.userData.prop.wall ||
       m.userData.prop.floor ||
-      m.userData.prop.ceiling ||
       m.userData.prop.lean != null ||
       m.userData.prop.against
     )
