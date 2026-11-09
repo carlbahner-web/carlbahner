@@ -1033,7 +1033,6 @@ export function startNav(v) {
       Object.assign(document.createElement("a"), { href: t.link, target: "_blank", rel: "noopener" }).click();
       return;
     }
-    document.body.classList.add("going"); // the phone's row of words steps aside (A ROW OF WORDS ON A PHONE)
     // from another window: its card slides out as the camera leaves, and the new one comes in on landing
     if (open) {
       win.classList.remove("in");
@@ -1097,7 +1096,6 @@ export function startNav(v) {
   // Back pressed while the camera flies in: it turns round and goes home, and no card opens (BACK PRESSED MID-FLIGHT)
   function callOff() {
     coming = null;
-    document.body.classList.remove("going");
     pushed = false;
     setLid(false);
     setMapLights(false);
@@ -1136,7 +1134,7 @@ export function startNav(v) {
     v.lean?.(false);
     goToView("opening");
     win.classList.remove("in");
-    document.body.classList.remove("win-open", "going");
+    document.body.classList.remove("win-open");
     stopAudio();
     const back = away || { ...START };
     open = null;
@@ -1265,58 +1263,13 @@ export function startNav(v) {
     const t = byHash();
     setPhoneWords(upright()); // a phone held upright reads its own word spots (props.mjs WORD_AT_PHONE)
     introUntil = performance.now() + INTRO_MS;
-    phoneRow();
     if (t) openThing(t, { jump: true, push: false });
   }
-  /* A ROW OF WORDS ON A PHONE: four officers found the phone's room opening with LISTEN cut to "EN", ABOUT, YOU + ME and
-     STUDIOLAND off the screen and nothing saying the room drags. "Open on the console and the row of words" (Carl, 9 Nov
-     2026, the officers' fixes quiz). So on a phone held upright the room opens on the console (studio.mjs PHONE.turn) and
-     every page's word sits in a row along the bottom of the room, in the room's order left to right, the walls' cream
-     and charcoal; a tap opens its page as a tap on its thing does. Gone while a card is open or the camera is flying.
-     This is the one label in the room: until then what opens showed only on the thing itself. */
-  function phoneRow() {
-    const row = el("nav", "phone-row");
-    row.setAttribute("aria-label", "Pages");
-    for (const t of ordered()) {
-      const w = wordsOf(t);
-      if (!w || t.link) continue;
-      const b = el("button", "", { type: "button", textContent: w, tabIndex: -1 }); // the keyboard has its own buttons
-      b.addEventListener("click", () => {
-        if (busy() || open) return;
-        panThenOpen(t);
-      });
-      row.append(b);
-    }
-    document.querySelector("#stage").append(row);
-  }
-  /* THE ROW PANS FIRST: "When clicking on a button to on mobile, can the camera pan over so that the item is in view
-     before starting the zoom in? If I'm on one side and click a button that takes me to the other side, it is a bit
-     disorienting" (Carl, 9 Nov 2026). So a word in the row whose thing is off the middle of the screen first turns the
-     view (the turn alone, its zoom and tilt kept) until the thing is in the middle, lit and its words up as a tap lights
-     it, the longer the turn the longer it takes, then a beat, then the flight in. Closing comes back to where the
-     visitor was. Already in the middle, or less motion asked for, it flies straight in. */
-  const ROW_BEAT_MS = 250;
-  function panThenOpen(t) {
-    const was = { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov },
-      at = onScreen(pose(was.yaw, was.pitch, was.fov), corners(t.mesh)[4]);
-    if (reduced || (at && Math.abs(at[0]) < 0.45)) return openThing(t);
-    const to = { ...was, yaw: fitAll(corners(t.mesh).slice(0, 4), was, SNAP_BOX).yaw },
-      deg = (Math.abs(to.yaw - was.yaw) * 180) / Math.PI,
-      dur = Math.max(TURN_MS, Math.min(1400, 350 + deg * 22));
-    holding = true;
-    hovered = t;
-    document.body.classList.add("going"); // the row steps aside while it turns
-    const up = allOn && allWordsCorners().find((w) => w.key === keyOfThing(t));
-    if (!up) sayFor(t);
-    cue("hover:" + t.id);
-    v.dirty();
-    fly(to, null, dur);
-    setTimeout(() => {
-      holding = false;
-      openThing(t);
-      away = was;
-    }, dur + ROW_BEAT_MS);
-  }
+  /* A ROW OF WORDS ON A PHONE ran along the bottom of the room for a day ("Open on the console and the row of words", Carl,
+     9 Nov 2026, the officers' fixes quiz), every page's word a button, a tap on one turning the view to its thing first
+     (THE ROW PANS FIRST). Taken out the same day, the words on the walls being full on a phone all the time: "I say lose em
+     because the user will see the bottom of the drum during the flyover and that signals that there is something on that
+     side (and swipe-worthy)" (Carl, 9 Nov 2026). */
   // for the tests: where a thing's middle is on screen, -1..1
   window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, word: (x, y) => wordThingAt(x, y)?.hash ?? null, zone: (x, y) => zoneAt(x, y)?.hash ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room, deck: () => deckState(), player: () => PLAYER };
   /* THE WINDOW RESIZED with a page open: the thing is framed again for the new shape, at once. It kept the camera it

@@ -737,24 +737,21 @@ chat". His answers, built the same day unless marked:
   again on a tap (A SONG THAT DIDN'T LOAD); the cards stop shrinking at three quarters and scroll, the X a finger's size,
   "Stop shrinking below a height, scroll instead" (NO SMALLER THAN THREE QUARTERS in `src/stage.mjs`), which bounds his
   3 Nov "I want the card contents to scale with the resizing".
-- **On a phone**: the room opens on the console, LISTEN whole, and every page's word sits in a row along the bottom of
-  the room, a tap opening its page: "Open on the console and the row of words" (`PHONE.turn` in `src/studio.mjs`, A ROW
-  OF WORDS ON A PHONE in `src/nav.mjs`). It is the one label in the room, against the rule above that what opens shows
-  only on the thing itself, on his word. Every card fills the screen from the moment it opens, "Whole screen", asked
+- **On a phone**: the room opens on the console, LISTEN whole (`PHONE.turn` in `src/studio.mjs`). Every page's word sat in
+  a row along the bottom of the room for a day ("Open on the console and the row of words"), then went: "I say lose em
+  because the user will see the bottom of the drum during the flyover and that signals that there is something on that
+  side (and swipe-worthy)" (Carl, 9 Nov 2026), the wall words being full on a phone all the time. So what opens shows on
+  the thing itself again, as the rule above has it (A ROW OF WORDS ON A PHONE in `src/nav.mjs` says what it was). Every card fills the screen from the moment it opens, "Whole screen", asked
   knowing the player above is then out of sight. Then back to the bottom 65% the same day: "Can we make the mobile version
   card sixes back to the 2/3 or whatever we had instead of full? Now I can't see the record player deck" (Carl, 9 Nov
-  2026; THE BOTTOM 65% AGAIN in `index.html`). A word in the row whose thing is off the middle first turns the view
-  to it, lit and its words up, then flies in: "can the camera pan over so that the item is in view before starting the
-  zoom in? If I'm on one side and click a button that takes me to the other side, it is a bit disorienting" (Carl, 9 Nov
-  2026; THE ROW PANS FIRST in `src/nav.mjs`). Each thing lands whole in the room over the card; the drum on the floor had
+  2026; THE BOTTOM 65% AGAIN in `index.html`). Each thing lands whole in the room over the card; the drum on the floor had
   landed low and half behind it, the camera held from tipping further (Sway walks it up through the ceiling), so on a
   phone the camera stays where it stands and only looks down at it: "we need to make sure we fix the landing framing so
   the item is in the right spot" (Carl, 9 Nov 2026; A THING LOW IN THE ROOM, ON A PHONE in `src/nav.mjs`). NOW PLAYING
-  goes to the bottom while a card is open, out of the X's way: "Move it out of the way". The row comes in out of a blur as the opening
-  flyover lands, not there from load, and the room takes taps from then on, not only once the camera is still; a click on
-  the way home from a card opens the next one too: "can you make the mobile menu words at the bottom blur/fade in as the
-  opening camera settles instead of being there right from load? And can we make it that things can still be clicked even
-  if the camera isn't 100% still?" (Carl, 9 Nov 2026; NEARLY HOME IS HOME in `src/studio.mjs`).
+  goes to the bottom while a card is open, out of the X's way: "Move it out of the way". The room takes taps once the opening flyover is nearly home, not
+  only once the camera is still, and a click on the way home from a card opens the next one too: "can we make it that
+  things can still be clicked even if the camera isn't 100% still?" (Carl, 9 Nov 2026; NEARLY HOME IS HOME in
+  `src/studio.mjs`).
 - **The cards**: Spotify is small underlined words under HOLY MOLY on the songs' card ("Spotify as small words under
   HOLY MOLY"); the logos moved from under the bio to the top of the quotes card ("Move them to Quotes"); the email and
   Instagram icons left the contact form for the foot of the bio, under HOLY MOLY ("Drop em both, put them at the bottom

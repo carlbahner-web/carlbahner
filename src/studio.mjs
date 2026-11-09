@@ -1122,14 +1122,11 @@ function lampWaits() {
 }
 /* NEARLY HOME IS HOME: "can we make it that things can still be clicked even if the camera isn't 100% still?" (Carl, 9 Nov
    2026). The flyover's last second is the camera easing the last few centimetres in, and until it was still nothing took
-   a click. So from NEARLY_HOME of the way through (when the lamp starts coming in) the room takes clicks and taps, and the
-   phone's row of words comes in out of a blur over that last stretch: "can you make the mobile menu words at the bottom
-   blur/fade in as the opening camera settles instead of being there right from load?" (`body.home`, index.html A ROW OF
-   WORDS ON A PHONE). A click then flies from wherever the camera is, the flyover's last bit easing out under it. */
+   a click. So from NEARLY_HOME of the way through (when the lamp starts coming in) the room takes clicks and taps. A
+   click then flies from wherever the camera is, the flyover's last bit easing out under it. */
 const NEARLY_HOME = 0.84;
-const home = () => document.body.classList.add("home");
 function startOpening() {
-  if (!OPENING.k) return home(), nav.introFrom();
+  if (!OPENING.k) return nav.introFrom();
   if (OPEN_KIND === "above") lampWaits(), (LAMP_FADE.value = 0);
   OPENING.t0 = performance.now();
   dirty = true;
@@ -1138,7 +1135,6 @@ function stepOpening(now) {
   if (!OPENING.k || !OPENING.t0) return !!OPENING.k;
   OPENING.k = Math.max(0, 1 - (now - OPENING.t0) / OPEN_MS);
   if (OPEN_KIND === "above") LAMP_FADE.value = Math.min(1, Math.max(0, (1 - OPENING.k - LAMP_IN[0]) / (LAMP_IN[1] - LAMP_IN[0])));
-  if (OPENING.k <= 1 - NEARLY_HOME) home();
   if (!OPENING.k) nav.introFrom();
   return true;
 }
