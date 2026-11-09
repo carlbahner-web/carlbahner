@@ -537,8 +537,8 @@ export const PROPS = [
     w: 0.2,
     wall: "teal",
     // where Carl marked it on his phone, tucked under the ceiling's edge left of the clock
-    x: 3.0,
-    y: 2.88,
+    x: 2.9,
+    y: 2.78,
     egg: "https://buzzs-wild-ride.netlify.app/",
   },
   /* THE BASS DRUM (Carl's drawing, sent 5 Oct 2026: "Can this go along the right wall?"). Cut by
