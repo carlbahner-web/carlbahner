@@ -530,7 +530,8 @@ export const PROPS = [
      that we don't mention and it's like an Easter egg?", then, the spot marked on his phone, "And it should be the
      buzz coaster image from the wild-ride repo" (Carl, 9 Nov 2026). The wild-ride repo's games/src/assets/buzz-car.png,
      kept as it came in art/buzz-car-source.png. Small and flat on the ceiling by the teal wall, up and left of the clock.
-     It never boils, lights or says a word; a click or tap on it opens Buzz's Wild Ride (`egg`, THE EGG in nav.mjs). */
+     It never boils, lights or says a word; a click or tap flies in to him and opens his card (`egg`, THE EGG in nav.mjs).
+     His picture is the drawing's full size, so he stays sharp with the camera on him. */
   {
     id: "buzz",
     label: "Buzz",
