@@ -699,7 +699,10 @@ chat". His answers, built the same day unless marked:
   only on the thing itself, on his word. Every card fills the screen from the moment it opens, "Whole screen", asked
   knowing the player above is then out of sight. Then back to the bottom 65% the same day: "Can we make the mobile version
   card sixes back to the 2/3 or whatever we had instead of full? Now I can't see the record player deck" (Carl, 9 Nov
-  2026; THE BOTTOM 65% AGAIN in `index.html`). NOW PLAYING
+  2026; THE BOTTOM 65% AGAIN in `index.html`). A word in the row whose thing is off the middle first turns the view
+  to it, lit and its words up, then flies in: "can the camera pan over so that the item is in view before starting the
+  zoom in? If I'm on one side and click a button that takes me to the other side, it is a bit disorienting" (Carl, 9 Nov
+  2026; THE ROW PANS FIRST in `src/nav.mjs`). NOW PLAYING
   goes to the bottom while a card is open, out of the X's way: "Move it out of the way".
 - **The cards**: Spotify is small underlined words under HOLY MOLY on the songs' card ("Spotify as small words under
   HOLY MOLY"); the logos moved from under the bio to the top of the quotes card ("Move them to Quotes"); the email and
