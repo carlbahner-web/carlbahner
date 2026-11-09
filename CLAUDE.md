@@ -815,9 +815,11 @@ will draw them (the boil, the tap-on-ink test), copied ready for that.
 
 ## Run it
 
-**Carl's live link is https://claude.ai/artifact/DQ8ij9nV3LYqoqFPctKkyx** (Carl, 5 Oct 2026: "this is
-a playable page right? i dont just want a video"). After a change, run `studio/build-artifact.sh
-<folder>` and publish the page it writes to that same link, so he plays the real thing.
+**Carl plays the real thing at https://carlbahner.com.** A change reaches it once its PR merges (Netlify builds `main`),
+so that is the link he gets. No more claude.ai preview: "Stop giving me the artifact" (Carl, 9 Nov 2026), after it was
+published three times without its code beside it and showed him the old player. Until then his live link was
+https://claude.ai/artifact/DQ8ij9nV3LYqoqFPctKkyx (5 Oct 2026: "this is a playable page right? i dont just want a
+video"), built by `build-artifact.sh`, which stays for the editors that still use it.
 
 
 Serve the folder with anything static (`npx vite studio`), or render it with
