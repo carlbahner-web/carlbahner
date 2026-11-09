@@ -1241,34 +1241,83 @@ function place() {
     t = 1 - OPENING.k;
   /* ONE SMOOTH MOVE: "I think all the camera movements (including the flyover) need to be smooth motions not stop and
      pivots" (Carl, 9 Nov 2026). B rose from close over the rug to the high place, stopped there, and dropped into the
-     room, two moves each easing in and out. Now it is one curve through the same three places, close, high and home: it
-     slows only at its start and its end, passes over the top still moving, never higher than the high place, and its aim
-     and lens follow the same curve. The top is reached at the same moment as before (RISE). */
+     room, two moves each easing in and out. Now it is one move along the same path (EVEN ALL THE WAY, below). */
   if (close) {
-    const p1 = camera.position.clone(),
-      q = camera.quaternion,
-      // where home looks, from the camera as it stands (the edges' lean included): forward, rotated by its turn
-      f = [-2 * (q.x * q.z + q.w * q.y), -2 * (q.y * q.z - q.w * q.x), -(1 - 2 * (q.x * q.x + q.y * q.y))],
-      reach = Math.hypot(p1.x - close[1][0], p1.y - close[1][1], p1.z - close[1][2]),
+    /* EVEN ALL THE WAY: "It should be even from start to finish other than the ease in and out" (Carl, 9 Nov 2026), after
+       the curve above slowed to a third over the top, and a single arc tried in its place, turning early, was "way weirder
+       and the opposite of smooth". So the path is as it was, straight up over his name and then down into the room, its
+       corner at the top rounded wide (ROUND), and the camera goes along it at one speed, easing up to it over the
+       first EASE of the time and down from it over the last (PACE). It looks straight down at the rug, his name square,
+       until the top, then turns to the room on a smootherstep over the rest of the way. */
+    const ROUND = 0.45, // the share of the shorter straight the corner takes: "You can round the turns too instead of elbows" (Carl, 9 Nov 2026)
+      EASE = 0.2,
+      p1 = camera.position.clone(),
+      q1 = camera.quaternion.clone(),
       [hi, hiLook, hiFov] = openingFrom(p1, lookDir(cam.yaw, cam.pitch), fov),
-      home = [p1.x, p1.y, p1.z],
-      homeLook = [p1.x + f[0] * reach, p1.y + f[1] * reach, p1.z + f[2] * reach],
-      u = leanEase(t),
-      uB = leanEase(RISE),
-      // a curve through a at 0, b at uB and c at 1 (Hermite, its slope at b from both sides); `top` holds b's height level
-      through = (a, b, c, top) => {
-        const mA = (b - a) / uB,
-          mC = (c - b) / (1 - uB),
-          mB = top ? 0 : ((b - a) / uB) * (1 - uB) + ((c - b) / (1 - uB)) * uB,
-          first = u < uB,
-          span = first ? uB : 1 - uB,
-          v = first ? u / uB : (u - uB) / (1 - uB),
-          [p0, p1_, m0, m1] = first ? [a, b, mA, mB] : [b, c, mB, mC];
-        return (2 * v ** 3 - 3 * v ** 2 + 1) * p0 + (v ** 3 - 2 * v ** 2 + v) * span * m0 + (-2 * v ** 3 + 3 * v ** 2) * p1_ + (v ** 3 - v ** 2) * span * m1;
+      A = close[0],
+      C = [p1.x, p1.y, p1.z],
+      sub = (x, y) => x.map((v, i) => v - y[i]),
+      len = (x) => Math.hypot(...x),
+      unit = (x) => x.map((v) => v / (len(x) || 1)),
+      r = ROUND * Math.min(len(sub(hi, A)), len(sub(C, hi))),
+      // the corner's own point raised until the rounded top's highest point is the high place's height, no higher (his
+      // name whole on a phone, and the ceiling just over it there)
+      shape = (lift) => {
+        const Bc = [hi[0], hi[1] + lift, hi[2]],
+          a = unit(sub(Bc, A)),
+          c = unit(sub(C, Bc)),
+          b1 = Bc.map((v, i) => v - a[i] * r),
+          b2 = Bc.map((v, i) => v + c[i] * r),
+          q = (u) => b1.map((v, i) => (1 - u) ** 2 * v + 2 * u * (1 - u) * Bc[i] + u * u * b2[i]);
+        let peak = -Infinity;
+        for (let i = 0; i <= 32; i++) peak = Math.max(peak, q(i / 32)[1]);
+        return { a, c, b1, b2, q, peak };
       };
-    camera.position.set(through(close[0][0], hi[0], home[0]), through(close[0][1], hi[1], home[1], true), through(close[0][2], hi[2], home[2]));
-    camera.lookAt(through(close[1][0], hiLook[0], homeLook[0]), through(close[1][1], hiLook[1], homeLook[1]), through(close[1][2], hiLook[2], homeLook[2]));
-    fov = Math.min(Math.max(close[2], hiFov, fov), Math.max(Math.min(close[2], hiFov, fov), through(close[2], hiFov, fov)));
+    let lift = 0,
+      sh = shape(0);
+    for (let n = 0; n < 4; n++) (lift += hi[1] - sh.peak), (sh = shape(lift));
+    const dAB = sh.a,
+      dBC = sh.c,
+      B1 = sh.b1,
+      B2 = sh.b2,
+      quad = sh.q,
+      // the rounded corner, measured, so going round it is the same speed as the straights
+      K = 24,
+      marks = [0];
+    for (let i = 1; i <= K; i++) marks.push(marks[i - 1] + len(sub(quad(i / K), quad((i - 1) / K))));
+    const L1 = len(sub(B1, A)),
+      Lf = marks[K],
+      L2 = len(sub(C, B2)),
+      S = L1 + Lf + L2,
+      // PACE: the share of the way gone at t, its speed rising on a half wave over EASE, even, then falling over EASE
+      area = (x) => (x <= 0 ? 0 : x >= EASE ? EASE / 2 + (x - EASE) : (x - (EASE / Math.PI) * Math.sin((Math.PI * x) / EASE)) / 2),
+      pace = (x) => (x <= 1 - EASE ? area(x) : 1 - EASE - area(1 - x)) / (1 - EASE),
+      d = S * pace(t);
+    const posAt = (d) => {
+      if (d <= L1) return A.map((v, i) => v + dAB[i] * d);
+      if (d <= L1 + Lf) {
+        const want = d - L1;
+        let i = 1;
+        while (i < K && marks[i] < want) i++;
+        return quad((i - 1 + (want - marks[i - 1]) / Math.max(1e-9, marks[i] - marks[i - 1])) / K);
+      }
+      return B2.map((v, i) => v + dBC[i] * (d - L1 - Lf));
+    };
+    /* up to the corner it looks down at the rug, his name square; from where the corner starts it holds the view it has
+       there and turns to the room on a smootherstep, so the turn starts from nothing rather than swinging round as it
+       moves off */
+    const top = L1,
+      rise = Math.min(1, d / top);
+    if (d <= top) {
+      camera.position.set(...posAt(d));
+      camera.lookAt(...close[1].map((v, i) => v + (hiLook[i] - v) * rise));
+    } else {
+      camera.position.set(...posAt(top));
+      camera.lookAt(...hiLook);
+      camera.position.set(...posAt(d));
+      camera.quaternion.slerp(q1, leanEase(Math.min(1, (d - top) / (S - top))));
+    }
+    fov = d <= top ? close[2] + (hiFov - close[2]) * leanEase(rise) : hiFov + (fov - hiFov) * leanEase(Math.min(1, (d - top) / (S - top)));
   } else if (OPENING.k > 0) {
     const e = leanEase(close ? 1 - (t - RISE) / (1 - RISE) : OPENING.k),
       mix = (a, b) => a + (b - a) * e,
