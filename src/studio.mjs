@@ -1241,9 +1241,8 @@ function place() {
     t = 1 - OPENING.k;
   /* ONE SMOOTH MOVE: "I think all the camera movements (including the flyover) need to be smooth motions not stop and
      pivots" (Carl, 9 Nov 2026). B rose from close over the rug to the high place, stopped there, and dropped into the
-     room, two moves each easing in and out. Now it is one curve through the same three places, close, high and home: it
-     slows only at its start and its end, passes over the top still moving, never higher than the high place, and its aim
-     and lens follow the same curve. The top is reached at the same moment as before (RISE). */
+     room, two moves each easing in and out. Now it is one move from close to home over the high place's height: it slows
+     only at its start and its end and passes over the top still moving (ONE ARC and EVEN ALL THE WAY, below). */
   if (close) {
     const p1 = camera.position.clone(),
       q = camera.quaternion,
@@ -1253,22 +1252,50 @@ function place() {
       [hi, hiLook, hiFov] = openingFrom(p1, lookDir(cam.yaw, cam.pitch), fov),
       home = [p1.x, p1.y, p1.z],
       homeLook = [p1.x + f[0] * reach, p1.y + f[1] * reach, p1.z + f[2] * reach],
-      u = leanEase(t),
-      uB = leanEase(RISE),
-      // a curve through a at 0, b at uB and c at 1 (Hermite, its slope at b from both sides); `top` holds b's height level
-      through = (a, b, c, top) => {
-        const mA = (b - a) / uB,
-          mC = (c - b) / (1 - uB),
-          mB = top ? 0 : ((b - a) / uB) * (1 - uB) + ((c - b) / (1 - uB)) * uB,
-          first = u < uB,
-          span = first ? uB : 1 - uB,
-          v = first ? u / uB : (u - uB) / (1 - uB),
-          [p0, p1_, m0, m1] = first ? [a, b, mA, mB] : [b, c, mB, mC];
-        return (2 * v ** 3 - 3 * v ** 2 + 1) * p0 + (v ** 3 - 2 * v ** 2 + v) * span * m0 + (-2 * v ** 3 + 3 * v ** 2) * p1_ + (v ** 3 - v ** 2) * span * m1;
-      };
-    camera.position.set(through(close[0][0], hi[0], home[0]), through(close[0][1], hi[1], home[1], true), through(close[0][2], hi[2], home[2]));
-    camera.lookAt(through(close[1][0], hiLook[0], homeLook[0]), through(close[1][1], hiLook[1], homeLook[1]), through(close[1][2], hiLook[2], homeLook[2]));
-    fov = Math.min(Math.max(close[2], hiFov, fov), Math.max(Math.min(close[2], hiFov, fov), through(close[2], hiFov, fov)));
+      /* ONE ARC: the curve through close, high and home still turned a corner at the top, straight up and then across,
+         and its aim held on the rug until that corner ("ok it's still a bit clunky, can it be one smoothed out motion?",
+         Carl, 9 Nov 2026). So it is one arc (a cubic Bezier) from close over the rug to home, its top at the high place's
+         height above the rug, its aim leaving the rug a little at a time from the start, and its lens with it. */
+      lift = (hi[1] - 0.125 * (close[0][1] + home[1])) / 0.75, // the handles' height that puts the arc's top at hi's
+      P = [close[0], [close[0][0], lift, close[0][2]], [hi[0], lift, hi[2]], home],
+      L = [close[1], close[1], hiLook, homeLook],
+      bez = (Q, u) => {
+        const w = [(1 - u) ** 3, 3 * u * (1 - u) ** 2, 3 * u * u * (1 - u), u ** 3];
+        return [0, 1, 2].map((k) => w[0] * Q[0][k] + w[1] * Q[1][k] + w[2] * Q[2][k] + w[3] * Q[3][k]);
+      },
+      arcLens = (u) => {
+        const w = [(1 - u) ** 3, 3 * u * (1 - u) ** 2, 3 * u * u * (1 - u), u ** 3];
+        return w[0] * close[2] + w[1] * close[2] + w[2] * hiFov + w[3] * fov;
+      },
+      at = (u) => [bez(P, u), bez(L, u)],
+      /* EVEN ALL THE WAY: the curve's own pace bunched up, slowing to a third over the top and saving its turn for after
+         it ("ok it's still a bit clunky, can it be one smoothed out motion?", Carl, 9 Nov 2026). So the curve is measured,
+         each step by how far the camera moves plus how far its aim turns (a metre a radian), and one smootherstep runs
+         over that whole measure: the camera speeds up once and slows down once, and it turns as it travels. */
+      N = 96,
+      marks = [0];
+    let [pp, ll] = at(0);
+    const dirOf = (p, l) => {
+      const d = [l[0] - p[0], l[1] - p[1], l[2] - p[2]],
+        n = Math.hypot(...d) || 1;
+      return d.map((x) => x / n);
+    };
+    let dd = dirOf(pp, ll);
+    for (let i = 1; i <= N; i++) {
+      const [p, l] = at(i / N),
+        d = dirOf(p, l);
+      marks.push(marks[i - 1] + Math.hypot(p[0] - pp[0], p[1] - pp[1], p[2] - pp[2]) + Math.acos(Math.min(1, d[0] * dd[0] + d[1] * dd[1] + d[2] * dd[2])));
+      pp = p;
+      dd = d;
+    }
+    const want = leanEase(t) * marks[N];
+    let i = 1;
+    while (i < N && marks[i] < want) i++;
+    const u = (i - 1 + (want - marks[i - 1]) / Math.max(1e-9, marks[i] - marks[i - 1])) / N,
+      [pos, look] = at(Math.min(1, Math.max(0, u)));
+    camera.position.set(...pos);
+    camera.lookAt(...look);
+    fov = arcLens(Math.min(1, Math.max(0, u)));
   } else if (OPENING.k > 0) {
     const e = leanEase(close ? 1 - (t - RISE) / (1 - RISE) : OPENING.k),
       mix = (a, b) => a + (b - a) * e,
