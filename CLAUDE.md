@@ -641,9 +641,14 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   the camera movements (including the flyover) need to be smooth motions not stop and pivots" (Carl, 9 Nov 2026; ONE
   SMOOTH MOVE in `src/studio.mjs`). Then at one even speed the whole way along that path, easing only
   at its start and end: "It should be even from start to finish other than the ease in and out", after a single arc that
-  turned early was "way weirder and the opposite of smooth"; and its corner rounded wide, its top still the high place's
-  height: "You can round the turns too instead of elbows" (Carl, 9 Nov 2026; EVEN ALL THE WAY in `src/studio.mjs`). His name
-  stays square until the corner, then the view turns to the room from a standstill. On a phone its top is higher, near the ceiling, and a little wider, so
+  turned early was "way weirder and the opposite of smooth"; then, the rise, a tight bend and the drop reading as a
+  dogleg ("You can round the turns too instead of elbows", "there are some weird like... doglegs in the placement?"), one
+  curve that bends a little all the way, its top still the high place's height (NO DOGLEGS). Its aim is set at the ends,
+  never aimed from where the camera is, which spun his name diagonal; it eases evenly from the close-up's view to the
+  top's on the way up, his name square ("it may need a subtle even rotation while rising?"), and turns to the room by how
+  far across it has gone, so it never slides sideways over the rug before turning ("it like, moves sideways before
+  continuing? That's the dogleg I meant"; TURNING AS IT GOES ACROSS). Then: "This is great please make it live!" (Carl,
+  9 Nov 2026; EVEN ALL THE WAY in `src/studio.mjs`). On a phone its top is higher, near the ceiling, and a little wider, so
   his whole name fits the narrow screen: "Can we have the camera go just a bit higher at the top of the flyover in mobile?
   Just enough to get the whole wordmark in it" (Carl, 9 Nov 2026; `UPRIGHT_TOP`, `?otop=`). The lens is worked out for
   each screen's shape, his name taking 94% of its width, after one size for every phone "goes out too far" on his (Carl,
