@@ -478,7 +478,8 @@ sleeve (A RECORD FADES AWAY in `src/props.mjs`): flying it home glitched. His na
 **The room's sounds, 2 Nov 2026** (Carl, asked where they are put to the room's moments: "Personal site's room"; his
 brief: "Sound must be opt-in with a visible mute toggle, and nothing autoplays with audio"). Each moment says so as it
 happens (`src/cues.mjs`; the list, numbered for him, is `docs/STUDIO-ROOM-SOUND-MOMENTS.md` in the repo), and
-`src/sound.mjs` plays his sounds on them once a visitor turns sound on with the garden's speaker, top left of the card.
+`src/sound.mjs` plays his sounds on them once a visitor turns sound on with the garden's speaker, bottom right of the card ("Bottom right", Carl, 2 Nov 2026), and hidden
+until the room has sounds of his to play: the site is silent for now, so no speaker shows.
 Nothing makes a sound of its own and no audio starts before that tap. His sounds are made on the admin app's room sound
 page, which shows this folder in a frame (copied in by its `vite.config.ts`, never imported) and can ask the room to
 repeat one moment (`room-repeat`). `docs/STUDIO-ROOM-SOUNDS.md` in the repo says the rest.
@@ -628,6 +629,15 @@ than 2 (44% less work a frame), to be shown side by side; and merging the stacke
 200 drawings a frame), left for if the rest is not enough. A phone's card slides down its own height on closing, so it
 leaves the screen whole: "the page cards do not slide all the way off screen, they slide mostly then stop and disappear
 suddenly" (Carl, 9 Nov 2026).
+
+**Buzz in his coaster car, an Easter egg, 9 Nov 2026**: "How could we sneak a small icon in the top left corner of the
+room that we don't mention and it's like an Easter egg?", then, the spot marked on his phone, "And it should be the buzz
+coaster image from the wild-ride repo" (Carl). The wild-ride repo's `games/src/assets/buzz-car.png` (kept in
+`art/buzz-car-source.png`), small and flat at the top of the teal wall, just under the ceiling, up and left of the clock, where he
+marked it ("That's not where I showed you in the marked up screenshot": first placed beside the clock). Seen when the
+view is tilted up, as his screenshot was, not in the opening view. Not one of the things that open: no boil, no light, no word, no zone; a mouse over him turns to a
+hand, and a click or tap opens Buzz's Wild Ride (https://buzzs-wild-ride.netlify.app/) in a new tab (THE EGG in
+`src/nav.mjs`, `egg` on the prop). Nothing on the site mentions him.
 
 **Nothing takes a click under the loading screen, 8 Nov 2026**: "it accepts clicks during the loading screen, which makes
 it glitch out" (Carl). Until it lifts (`body.loaded`), every press, wheel, key and touch is stopped before the room hears
