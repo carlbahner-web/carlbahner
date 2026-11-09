@@ -2867,6 +2867,10 @@ export function placeProp(mesh) {
     mesh.material.uniforms.band.value = [a / h, (b + raise) / h, POLE[0], POLE[1]];
     mesh.material.uniforms.bandK.value = h / h0;
   }
+  /* a rider (the pillow) starts each placing upright: the chair's lean for the opening tipped it with the chair, and what
+     was left of that tip piled up frame on frame, until the pillow lay edge-on across the chair: "Something weird happened
+     with the pillow, it should be locked with the chair" (Carl, 9 Nov 2026) */
+  if (p.on) mesh.rotation.x = 0;
   mesh.rotation.z = ((p.tilt || 0) * Math.PI) / 180;
   const parent = p.on && all.find((m) => m.userData.prop.id === p.on);
   if (p.against === "teal") {
