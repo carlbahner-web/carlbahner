@@ -1245,12 +1245,10 @@ function place() {
   if (close) {
     /* EVEN ALL THE WAY: "It should be even from start to finish other than the ease in and out" (Carl, 9 Nov 2026), after
        the curve above slowed to a third over the top, and a single arc tried in its place, turning early, was "way weirder
-       and the opposite of smooth". So the path is as it was, straight up over his name and then down into the room, its
-       corner at the top rounded wide (ROUND), and the camera goes along it at one speed, easing up to it over the
-       first EASE of the time and down from it over the last (PACE). It looks straight down at the rug, his name square,
+       and the opposite of smooth". So it goes up over his name and then down into the room along one curve (NO DOGLEGS,
+       below), at one speed, easing up to it over the first EASE of the time and down from it over the last (PACE). It looks straight down at the rug, his name square,
        until the top, then turns to the room on a smootherstep over the rest of the way. */
-    const ROUND = 0.45, // the share of the shorter straight the corner takes: "You can round the turns too instead of elbows" (Carl, 9 Nov 2026)
-      EASE = 0.2,
+    const EASE = 0.2,
       p1 = camera.position.clone(),
       q1 = camera.quaternion.clone(),
       [hi, hiLook, hiFov] = openingFrom(p1, lookDir(cam.yaw, cam.pitch), fov),
@@ -1258,66 +1256,75 @@ function place() {
       C = [p1.x, p1.y, p1.z],
       sub = (x, y) => x.map((v, i) => v - y[i]),
       len = (x) => Math.hypot(...x),
-      unit = (x) => x.map((v) => v / (len(x) || 1)),
-      r = ROUND * Math.min(len(sub(hi, A)), len(sub(C, hi))),
-      // the corner's own point raised until the rounded top's highest point is the high place's height, no higher (his
-      // name whole on a phone, and the ceiling just over it there)
-      shape = (lift) => {
-        const Bc = [hi[0], hi[1] + lift, hi[2]],
-          a = unit(sub(Bc, A)),
-          c = unit(sub(C, Bc)),
-          b1 = Bc.map((v, i) => v - a[i] * r),
-          b2 = Bc.map((v, i) => v + c[i] * r),
-          q = (u) => b1.map((v, i) => (1 - u) ** 2 * v + 2 * u * (1 - u) * Bc[i] + u * u * b2[i]);
-        let peak = -Infinity;
-        for (let i = 0; i <= 32; i++) peak = Math.max(peak, q(i / 32)[1]);
-        return { a, c, b1, b2, q, peak };
+      /* NO DOGLEGS: a straight rise, a tight bend and a straight drop read as a dogleg ("there are some weird like...
+         doglegs in the placement?", Carl, 9 Nov 2026). So the path is one curve that bends a little all the way along: up
+         off the rug, over the top above the rug at the high place's height (its handles raised until it peaks there, no
+         higher), and down into the room along the line the drop came in on. */
+      curve = (H) => {
+        const P = [A, [A[0], H, A[2]], [hi[0], H, hi[2]], C];
+        return (u) => [0, 1, 2].map((k) => (1 - u) ** 3 * P[0][k] + 3 * u * (1 - u) ** 2 * P[1][k] + 3 * u * u * (1 - u) * P[2][k] + u ** 3 * P[3][k]);
+      },
+      peakOf = (f) => {
+        let m = -Infinity,
+          at = 0;
+        for (let i = 0; i <= 64; i++) {
+          const y = f(i / 64)[1];
+          if (y > m) (m = y), (at = i / 64);
+        }
+        return [m, at];
       };
-    let lift = 0,
-      sh = shape(0);
-    for (let n = 0; n < 4; n++) (lift += hi[1] - sh.peak), (sh = shape(lift));
-    const dAB = sh.a,
-      dBC = sh.c,
-      B1 = sh.b1,
-      B2 = sh.b2,
-      quad = sh.q,
-      // the rounded corner, measured, so going round it is the same speed as the straights
-      K = 24,
-      marks = [0];
-    for (let i = 1; i <= K; i++) marks.push(marks[i - 1] + len(sub(quad(i / K), quad((i - 1) / K))));
-    const L1 = len(sub(B1, A)),
-      Lf = marks[K],
-      L2 = len(sub(C, B2)),
-      S = L1 + Lf + L2,
+    let H = hi[1],
+      path = curve(H);
+    for (let n = 0; n < 5; n++) (H += hi[1] - peakOf(path)[0]), (path = curve(H));
+    // measured, so it goes along at one speed
+    const K = 96,
+      marks = [0],
+      across = [0]; // how far across the floor it has gone, at each mark
+    for (let i = 1; i <= K; i++) {
+      const a = path(i / K),
+        b = path((i - 1) / K);
+      marks.push(marks[i - 1] + len(sub(a, b)));
+      across.push(across[i - 1] + Math.hypot(a[0] - b[0], a[2] - b[2]));
+    }
+    const S = marks[K],
       // PACE: the share of the way gone at t, its speed rising on a half wave over EASE, even, then falling over EASE
       area = (x) => (x <= 0 ? 0 : x >= EASE ? EASE / 2 + (x - EASE) : (x - (EASE / Math.PI) * Math.sin((Math.PI * x) / EASE)) / 2),
       pace = (x) => (x <= 1 - EASE ? area(x) : 1 - EASE - area(1 - x)) / (1 - EASE),
-      d = S * pace(t);
-    const posAt = (d) => {
-      if (d <= L1) return A.map((v, i) => v + dAB[i] * d);
-      if (d <= L1 + Lf) {
-        const want = d - L1;
+      d = S * pace(t),
+      uAt = (d) => {
         let i = 1;
-        while (i < K && marks[i] < want) i++;
-        return quad((i - 1 + (want - marks[i - 1]) / Math.max(1e-9, marks[i] - marks[i - 1])) / K);
-      }
-      return B2.map((v, i) => v + dBC[i] * (d - L1 - Lf));
-    };
-    /* up to the corner it looks down at the rug, his name square; from where the corner starts it holds the view it has
-       there and turns to the room on a smootherstep, so the turn starts from nothing rather than swinging round as it
-       moves off */
-    const top = L1,
-      rise = Math.min(1, d / top);
-    if (d <= top) {
-      camera.position.set(...posAt(d));
-      camera.lookAt(...close[1].map((v, i) => v + (hiLook[i] - v) * rise));
-    } else {
-      camera.position.set(...posAt(top));
-      camera.lookAt(...hiLook);
-      camera.position.set(...posAt(d));
-      camera.quaternion.slerp(q1, leanEase(Math.min(1, (d - top) / (S - top))));
-    }
-    fov = d <= top ? close[2] + (hiFov - close[2]) * leanEase(rise) : hiFov + (fov - hiFov) * leanEase(Math.min(1, (d - top) / (S - top)));
+        while (i < K && marks[i] < d) i++;
+        return Math.min(1, (i - 1 + (d - marks[i - 1]) / Math.max(1e-9, marks[i] - marks[i - 1])) / K);
+      },
+      top = marks[Math.round(peakOf(path)[1] * K)],
+      rise = Math.min(1, d / Math.max(1e-9, top));
+    /* where it points is set at the ends and the top, never by aiming from where it is: looking almost straight down, an
+       aim kept on the rug spun the view round as the camera moved off sideways, his name swinging diagonal. So it eases
+       rises square over his name, held at the view it has at the top (the close-up's own angle differed by a few
+       degrees, and easing between the two stopped the turn at the top), and from the top turns to the room's on one
+       smootherstep, from a standstill */
+    // his name square: the close-up's view and the high place's, each aimed from where it was before the curve (looking
+    // almost straight down, an aim from the curve's own top, off to one side, tipped his name 30 degrees)
+    camera.position.set(...A);
+    camera.lookAt(...close[1]);
+    const qA = camera.quaternion.clone();
+    camera.position.set(...hi);
+    camera.lookAt(...hiLook);
+    const qTop = camera.quaternion.clone();
+    camera.position.set(...path(uAt(d)));
+    /* TURNING AS IT GOES ACROSS: "why does it rise up and then at the top it like, moves sideways before continuing?
+       That's the dogleg I meant" (Carl, 9 Nov 2026). Held looking down until the top while the camera had already begun
+       to move across, the view slid sideways over the rug first and turned after. So it turns by how far across the floor
+       it has gone, a share for a share: none on the way up, his name square, then turning as it moves across, so the
+       slide and the turn are one move, slowing together as it lands. */
+    const u = uAt(d),
+      j = Math.min(K, Math.floor(u * K)),
+      gone = Math.min(1, (across[j] + (j < K ? (u * K - j) * (across[j + 1] - across[j]) : 0)) / Math.max(1e-9, across[K]));
+    // and on the way up an even turn from the close-up's view to the top's, a subtle one: "it doesn't show my wordmark
+    // properly now, it may need a subtle even rotation while rising?" (Carl, 9 Nov 2026)
+    camera.quaternion.slerpQuaternions(qA, qTop, rise);
+    camera.quaternion.slerp(q1, gone);
+    fov = gone <= 0 ? close[2] + (hiFov - close[2]) * leanEase(rise) : hiFov + (fov - hiFov) * gone;
   } else if (OPENING.k > 0) {
     const e = leanEase(close ? 1 - (t - RISE) / (1 - RISE) : OPENING.k),
       mix = (a, b) => a + (b - a) * e,
