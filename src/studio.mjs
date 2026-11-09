@@ -1239,13 +1239,36 @@ function place() {
   }
   const close = OPENING.k > 0 && openingClose(fov),
     t = 1 - OPENING.k;
-  if (close && t < RISE) {
-    const [hi, hiLook, hiFov] = openingFrom(camera.position, lookDir(cam.yaw, cam.pitch), fov),
-      e = leanEase(t / RISE),
-      mix = (a, b) => a + (b - a) * e;
-    camera.position.set(mix(close[0][0], hi[0]), mix(close[0][1], hi[1]), mix(close[0][2], hi[2]));
-    camera.lookAt(mix(close[1][0], hiLook[0]), mix(close[1][1], hiLook[1]), mix(close[1][2], hiLook[2]));
-    fov = mix(close[2], hiFov);
+  /* ONE SMOOTH MOVE: "I think all the camera movements (including the flyover) need to be smooth motions not stop and
+     pivots" (Carl, 9 Nov 2026). B rose from close over the rug to the high place, stopped there, and dropped into the
+     room, two moves each easing in and out. Now it is one curve through the same three places, close, high and home: it
+     slows only at its start and its end, passes over the top still moving, never higher than the high place, and its aim
+     and lens follow the same curve. The top is reached at the same moment as before (RISE). */
+  if (close) {
+    const p1 = camera.position.clone(),
+      q = camera.quaternion,
+      // where home looks, from the camera as it stands (the edges' lean included): forward, rotated by its turn
+      f = [-2 * (q.x * q.z + q.w * q.y), -2 * (q.y * q.z - q.w * q.x), -(1 - 2 * (q.x * q.x + q.y * q.y))],
+      reach = Math.hypot(p1.x - close[1][0], p1.y - close[1][1], p1.z - close[1][2]),
+      [hi, hiLook, hiFov] = openingFrom(p1, lookDir(cam.yaw, cam.pitch), fov),
+      home = [p1.x, p1.y, p1.z],
+      homeLook = [p1.x + f[0] * reach, p1.y + f[1] * reach, p1.z + f[2] * reach],
+      u = leanEase(t),
+      uB = leanEase(RISE),
+      // a curve through a at 0, b at uB and c at 1 (Hermite, its slope at b from both sides); `top` holds b's height level
+      through = (a, b, c, top) => {
+        const mA = (b - a) / uB,
+          mC = (c - b) / (1 - uB),
+          mB = top ? 0 : ((b - a) / uB) * (1 - uB) + ((c - b) / (1 - uB)) * uB,
+          first = u < uB,
+          span = first ? uB : 1 - uB,
+          v = first ? u / uB : (u - uB) / (1 - uB),
+          [p0, p1_, m0, m1] = first ? [a, b, mA, mB] : [b, c, mB, mC];
+        return (2 * v ** 3 - 3 * v ** 2 + 1) * p0 + (v ** 3 - 2 * v ** 2 + v) * span * m0 + (-2 * v ** 3 + 3 * v ** 2) * p1_ + (v ** 3 - v ** 2) * span * m1;
+      };
+    camera.position.set(through(close[0][0], hi[0], home[0]), through(close[0][1], hi[1], home[1], true), through(close[0][2], hi[2], home[2]));
+    camera.lookAt(through(close[1][0], hiLook[0], homeLook[0]), through(close[1][1], hiLook[1], homeLook[1]), through(close[1][2], hiLook[2], homeLook[2]));
+    fov = Math.min(Math.max(close[2], hiFov, fov), Math.max(Math.min(close[2], hiFov, fov), through(close[2], hiFov, fov)));
   } else if (OPENING.k > 0) {
     const e = leanEase(close ? 1 - (t - RISE) / (1 - RISE) : OPENING.k),
       mix = (a, b) => a + (b - a) * e,
