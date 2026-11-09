@@ -642,8 +642,10 @@ almost edge-on: "can we make it look like he's vertical and staying in front of 
 but he is always vertical", then, hung by his wheels upside down: "he's upside down, flip him 180", then, hung under it: "You aren't getting it.
 Move him up on the screen so he is above the line". Seen
 when the view is tilted up, as his screenshot was, never in the opening view. Not one of the things that open: no boil, no light, no word, no zone; a mouse over him turns to a
-hand, and a click or tap opens Buzz's Wild Ride (https://buzzs-wild-ride.netlify.app/) in a new tab (THE EGG in
-`src/nav.mjs`, `egg` on the prop). He answers anywhere in a box at least 48px across round him, a fingertip's size: "he
+hand, and a click or tap flies in to him and opens his card, BUZZ'S WILD RIDE, its line and LET'S RIDE out to
+https://buzzs-wild-ride.netlify.app/ (THE EGG in `src/nav.mjs`, `egg` on the prop; `#wild-ride` opens it): "should it go
+to a card about buzz's wild ride? If the cam zooms in it should show a higher res version as it gets closer", then, of
+drafts, "1, D, I" (Carl, 9 Nov 2026). His picture is the drawing's full size (827px), so he stays sharp up close. He answers anywhere in a box at least 48px across round him, a fingertip's size: "he
 needs a tappable hitbox" (Carl, 9 Nov 2026). Nothing on the site mentions him.
 
 **Nothing takes a click under the loading screen, 8 Nov 2026**: "it accepts clicks during the loading screen, which makes

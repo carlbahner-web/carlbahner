@@ -207,6 +207,13 @@ export const WORDS = {
       },
     ],
   },
+  /* Buzz's card, the Easter egg's: "should it go to a card about buzz's wild ride?", then, of drafts: "1, D, I" (Carl,
+     9 Nov 2026), the title, line and button he picked. Its one action boils, as a card's one action does */
+  "wild-ride": {
+    title: "Buzz’s Wild Ride",
+    text: ["Buzz lives in Homegrown, the app I built for producers and engineers. When he’s not helping people with their outreach, he’s riding this coaster with no brakes and WAY too much coffee."],
+    link: { words: "LET’S RIDE", href: "https://buzzs-wild-ride.netlify.app/" },
+  },
   contact: {
     // "CONTACT (and then use the hey carl line as a subheadline)" (Carl, 3 Nov 2026)
     title: "Contact",
@@ -536,6 +543,11 @@ export function startNav(v) {
     if (b && x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3]) return eggMesh.userData.prop.egg;
     return thingAt(x, y, true)?.egg || null;
   };
+  /* and a tap flies in to him and opens his card, as every thing in the room does: "should it go to a card about buzz's
+     wild ride? If the cam zooms in it should show a higher res version as it gets closer" (Carl, 9 Nov 2026). He is kept
+     out of `things`, so he never boils, lights up, says a word on the wall or joins the keyboard's round; his address
+     (#wild-ride) still opens his card. */
+  const EGG = eggMesh && { id: "buzz", hash: "wild-ride", kind: "page", name: "Buzz", mesh: eggMesh, hot: 0 };
 
   /* THE BOOK'S FACES: a click on the book is a click on one of its faces, each a flat square in the room. It was a
      box round the faces lined up with the room's walls, and the book sits turned on the console, so the box was much
@@ -1197,7 +1209,8 @@ export function startNav(v) {
   // in any case: "#PORTFOLIO" opens the player as "#portfolio" does (docs/GODZILLA-2026-11-08.md, "Fix it")
   const byHash = () => {
     const h = decodeURIComponent(location.hash).toLowerCase();
-    return things.find((t) => "#" + t.hash === ({ "#co-producer": "#my-people", "#tour": "#bio" }[h] || h)) || null;
+    const k = { "#co-producer": "#my-people", "#tour": "#bio" }[h] || h;
+    return things.find((t) => "#" + t.hash === k) || (EGG && "#" + EGG.hash === k ? EGG : null);
   };
   addEventListener("popstate", () => {
     const t = byHash();
@@ -1426,10 +1439,8 @@ export function startNav(v) {
     // a click or a tap that did not drag
     tap(x, y) {
       if (busy()) return false;
-      const egg = eggAt(x, y);
-      if (egg) {
-        // at once, in the tap itself, or the new tab is blocked as a popup (as the book's link was)
-        Object.assign(document.createElement("a"), { href: egg, target: "_blank", rel: "noopener" }).click();
+      if (eggAt(x, y)) {
+        openThing(EGG);
         return true;
       }
       const t = thingAt(x, y) || wordThingAt(x, y) || zoneAt(x, y); // a word on the wall opens its page too (ALL THE WORDS), and the zone round both (EACH PAGE ONE ZONE)
