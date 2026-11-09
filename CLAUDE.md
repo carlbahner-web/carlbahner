@@ -702,7 +702,10 @@ chat". His answers, built the same day unless marked:
   2026; THE BOTTOM 65% AGAIN in `index.html`). A word in the row whose thing is off the middle first turns the view
   to it, lit and its words up, then flies in: "can the camera pan over so that the item is in view before starting the
   zoom in? If I'm on one side and click a button that takes me to the other side, it is a bit disorienting" (Carl, 9 Nov
-  2026; THE ROW PANS FIRST in `src/nav.mjs`). NOW PLAYING
+  2026; THE ROW PANS FIRST in `src/nav.mjs`). Each thing lands whole in the room over the card; the drum on the floor had
+  landed low and half behind it, the camera held from tipping further (Sway walks it up through the ceiling), so on a
+  phone the camera stays where it stands and only looks down at it: "we need to make sure we fix the landing framing so
+  the item is in the right spot" (Carl, 9 Nov 2026; A THING LOW IN THE ROOM, ON A PHONE in `src/nav.mjs`). NOW PLAYING
   goes to the bottom while a card is open, out of the X's way: "Move it out of the way".
 - **The cards**: Spotify is small underlined words under HOLY MOLY on the songs' card ("Spotify as small words under
   HOLY MOLY"); the logos moved from under the bio to the top of the quotes card ("Move them to Quotes"); the email and
