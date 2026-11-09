@@ -620,7 +620,7 @@
         align-items: center;
         gap: 8px;
         max-width: min(440px, calc(100% - 32px));
-        padding: 8px 10px 8px 14px;
+        padding: 8px 10px; /* the buttons first, the song after (src/nav.mjs) */
         --fill: #fcf7e8;
         --line: #2c2c2a;
         color: #2c2c2a;
@@ -677,6 +677,7 @@
         z-index: 1;
         display: grid;
         min-width: 0;
+        margin-left: 4px;
       }
       .np-words b,
       .np-words span {
