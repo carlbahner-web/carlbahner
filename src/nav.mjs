@@ -475,7 +475,7 @@ export function startNav(v) {
     if (mesh.userData.prop?.flip) u = 1 - u;
     return { u, v: y + 0.5, t };
   }
-  function thingAt(x, y) {
+  function thingAt(x, y, egg = false) {
     const r = rayAt(x, y);
     let best = null;
     for (const mesh of props) {
@@ -499,8 +499,11 @@ export function startNav(v) {
         cy = Math.min(MASK_N - 1, Math.floor((1 - c.v) * MASK_N));
       if (m[cy * MASK_N + cx]) best = { mesh, t: c.t };
     }
-    return best ? things.find((t) => t.mesh === best.mesh) || null : null;
+    return best ? things.find((t) => t.mesh === best.mesh) || (egg && { egg: best.mesh.userData.prop.egg }) || null : null;
   }
+  /* THE EGG: Buzz in his coaster car, high on the teal wall (props.mjs), opens Buzz's Wild Ride and nothing else. No
+     boil, no light, no word; only the pointer turns to a hand over him, so he is found by someone who looks. */
+  const eggAt = (x, y) => thingAt(x, y, true)?.egg || null;
 
   /* THE BOOK'S FACES: a click on the book is a click on one of its faces, each a flat square in the room. It was a
      box round the faces lined up with the room's walls, and the book sits turned on the console, so the box was much
@@ -1272,7 +1275,7 @@ export function startNav(v) {
      because the user will see the bottom of the drum during the flyover and that signals that there is something on that
      side (and swipe-worthy)" (Carl, 9 Nov 2026). */
   // for the tests: where a thing's middle is on screen, -1..1
-  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, word: (x, y) => wordThingAt(x, y)?.hash ?? null, zone: (x, y) => zoneAt(x, y)?.hash ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room, deck: () => deckState(), player: () => PLAYER };
+  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, word: (x, y) => wordThingAt(x, y)?.hash ?? null, zone: (x, y) => zoneAt(x, y)?.hash ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room, egg: (x, y) => eggAt(x, y), deck: () => deckState(), player: () => PLAYER };
   /* THE WINDOW RESIZED with a page open: the thing is framed again for the new shape, at once. It kept the camera it
      flew to, so the thing drifted off the middle of the room beside the card, and half off a tall window: "if i resize
      the then the focus point of the room is no longer in teh center of the viewing area" (Carl, 2 Nov 2026). */
@@ -1367,15 +1370,16 @@ export function startNav(v) {
     // a mouse over the room, no button held
     hover(x, y) {
       if (busy() || phone() || window.WORDS_EDITOR) return; // the word editor shows the word it is placing
-      const t = thingAt(x, y) || wordThingAt(x, y) || zoneAt(x, y);
+      const egg = eggAt(x, y);
+      const t = egg ? null : thingAt(x, y) || wordThingAt(x, y) || zoneAt(x, y);
       if (t) introDone = true; // the first hover: the one under the pointer takes over (ALL THE WORDS)
       if (t !== hovered) {
         hovered = t;
         sayFor(t);
         if (t) cue("hover:" + t.id); // each thing its own: "Can the different items get different hover sounds too?" (Carl, 2 Nov 2026)
-        canvas.style.cursor = t ? "pointer" : "";
         v.dirty();
       }
+      canvas.style.cursor = t || egg ? "pointer" : "";
     },
     leave() {
       // a finger lifted leaves too: while a tap holds its words up, they stay
@@ -1390,6 +1394,12 @@ export function startNav(v) {
     // a click or a tap that did not drag
     tap(x, y) {
       if (busy()) return false;
+      const egg = eggAt(x, y);
+      if (egg) {
+        // at once, in the tap itself, or the new tab is blocked as a popup (as the book's link was)
+        Object.assign(document.createElement("a"), { href: egg, target: "_blank", rel: "noopener" }).click();
+        return true;
+      }
       const t = thingAt(x, y) || wordThingAt(x, y) || zoneAt(x, y); // a word on the wall opens its page too (ALL THE WORDS), and the zone round both (EACH PAGE ONE ZONE)
       if (!t) return false;
       /* THE WORD FIRST, ON A PHONE (4 Nov 2026) lit a tapped thing and held its words up before the flight, the view
