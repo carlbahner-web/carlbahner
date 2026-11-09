@@ -33,7 +33,7 @@ import {
   setPaint,
 } from "./room.mjs";
 import { hashN, BOIL_ORDER, BOIL_MS } from "./garden-bits.mjs";
-import { buildProps, setProp, faceProps, tickProps, colorProp, follows, followers, lampLights, lidAt, picturesIn, phoneProps, buildHoverWords, buildAllWords, consoleFront, setWordsAnisotropy } from "./props.mjs";
+import { buildProps, setProp, faceProps, setLeanBack, tickProps, colorProp, follows, followers, lampLights, lidAt, picturesIn, phoneProps, buildHoverWords, buildAllWords, consoleFront, setWordsAnisotropy } from "./props.mjs";
 import { LIGHTS, lightUniforms, setLights } from "./light.mjs";
 import { startNav, SAYS } from "./nav.mjs";
 import { startViews, stepViews, editViews, cameraFor } from "./viewtune.mjs";
@@ -1137,6 +1137,18 @@ function stepOpening(now) {
    is in use it looks wrong. Is it possible to start there and then at the 4s mark it starts moving back to the original
    position?" (Carl, 9 Nov 2026). No flyover (a link straight to a page, less motion asked for), no turn. */
 const DRUM_BACK_MS = Math.min(4000, OPEN_MS * 0.7);
+/* THE CHAIR AND DRUM LEAN BACK FOR THE OPENING: "What if the chair and drum lean back a bit for the opening shots?", then,
+   shown both at 20 degrees: "Drum looks great at 20%, try chair at 10% please" (Carl, 9 Nov 2026). Leaned back about their
+   feet while the camera is over the rug (props.mjs LEANS_BACK), easing upright from 4 s in, as the drum's phone turn does
+   (THE DRUM TURNS BACK), upright as it lands. How far through that it is, 1 all the way back. */
+function leanBackNow(now) {
+  if (!OPEN_KIND || !OPENING.k) return 0;
+  if (!OPENING.t0) return 1;
+  const t = (now - OPENING.t0 - DRUM_BACK_MS) / (OPEN_MS - DRUM_BACK_MS);
+  if (t <= 0) return 1;
+  if (t >= 1) return 0;
+  return 1 - t * t * t * (t * (t * 6 - 15) + 10);
+}
 function drumTurn(now) {
   if (!OPEN_KIND || !upright() || !OPENING.k) return 0;
   if (!OPENING.t0) return 1;
@@ -1257,6 +1269,7 @@ function place() {
     camera.fov = fov;
     camera.updateProjectionMatrix();
   }
+  setLeanBack(leanBackNow(performance.now())); // THE CHAIR AND DRUM LEAN BACK
   faceProps(props, stands);
   setLights(shared, lampLights());
 }

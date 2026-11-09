@@ -367,6 +367,11 @@ window measures the card (`view()`), so every screen sees the framing he chose.
 
 ## The landing page: the room is the way round the site
 
+**No trial switches. Carl, 9 Nov 2026, after the chair and drum's lean and the barn's floor were built behind `?leanback=`
+and `?floor=`: "Please stop putting things behind trial switches".** So something he asks to see is shown on pictures,
+then built straight into the room once he picks it; nothing new waits behind a `?` switch for him to turn on. The
+switches already in the code (`?open=`, `?otop=` and the like) are tuning knobs, not trials.
+
 **Carl, 6 Oct 2026: "This was going to be my landing page on my new personal website. I want the user to
 land on this, and be able to hover on certain items, and clicking will zoom in on them and open certain
 modals (like a portfolio player, my bio, etc). It needs to be smooth and easy to navigate on desktop, as
@@ -613,13 +618,21 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   his whole name fits the narrow screen: "Can we have the camera go just a bit higher at the top of the flyover in mobile?
   Just enough to get the whole wordmark in it" (Carl, 9 Nov 2026; `UPRIGHT_TOP`, `?otop=`). The lens is worked out for
   each screen's shape, his name taking 94% of its width, after one size for every phone "goes out too far" on his (Carl,
-  9 Nov 2026; `UPRIGHT_TOP_FILL`, `?ofill=`, `?ofov=`).
+  9 Nov 2026; `UPRIGHT_TOP_FILL`, `?ofill=`, `?ofov=`). The drum and the chair lean back about their feet while the camera
+  is over the rug, easing upright from 4 s as it lands: "What if the chair and drum lean back a bit for the opening
+  shots?", then, shown both at 20 degrees, "Drum looks great at 20%, try chair at 10% please" (Carl, 9 Nov 2026; LEANS_BACK
+  in `src/props.mjs`, THE CHAIR AND DRUM LEAN BACK in `src/studio.mjs`). The barn's floor from Homegrown was shown beside
+  this one the same day ("what would it look like if we used the same floor as the barn?"), mostly under the rug; it is
+  not in the room.
 - The word editor (https://claude.ai/artifact/L5sZYGwWCpwAeN1sRASJxB, `build-words.sh`) is back up to date ("do you hvae
   the editor where i can put the words and resize them?"): every word stays up while one is moved, and it saves at
   `words/layout-nov8`, so the 3 Nov spots no longer pull the words back. Read that back with ArtifactData and write it
   into `WORD_AT`.
 - The lamp waits for B ("b is cool except the lamp looks all sorts of fucked from that perspective haha"): not drawn
   while B is overhead and dropping, it fades in as the camera comes home (THE LAMP WAITS FOR B in `src/studio.mjs`).
+- ABOUT and YOU+ME each in the middle of its column, the yellow left of the panel and the panel: "Both "about" and the
+  "you + me" look just a few pixels off-center relative to their columns, don't you think?" (Carl, 9 Nov 2026); they
+  stood 3 and 2 cm right of the middles (`WORD_AT`).
 - YOU / + / ME on three centred rows down the arch ("you + me needs to be on 3 rows, center-aligned"): `dir: "rows"`,
   a Rows button on the word editor too.
 - No HOMEGROWN word and the book a plain decoration: "we don't need a homegrown link, i'd rather put that inside the

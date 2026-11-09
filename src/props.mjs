@@ -2214,14 +2214,17 @@ export const HW_AT = { wall: "teal", x: 0.88, y: 1.19, w: 1.66, s: 0.42, dir: "a
 const at = (wall, x, y, s, dir = "across") => ({ wall, x, y, w: 1.66, s, dir, rot: 0 });
 export const WORD_AT = {
   artists: at("teal", 0.472, 2.442, 0.215),
-  bio: at("cream", 1.25, 1.066, 0.215, "down"),
+  // ABOUT and YOU+ME each in the middle of its column: the arch's yellow left of the panel (1.01 to 1.43 m) and the panel
+  // (1.43 to 1.90 m): "Both "about" and the "you + me" look just a few pixels off-center relative to their columns, don't
+  // you think?" (Carl, 9 Nov 2026). They stood 3 and 2 cm right of the middles.
+  bio: at("cream", 1.22, 1.066, 0.215, "down"),
   contact: at("teal", 0.954, 1.165, 0.22),
-  "my-people": at("cream", 1.688, 1.144, 0.22, "rows"),
+  "my-people": at("cream", 1.665, 1.144, 0.22, "rows"),
   portfolio: at("console", 2.297, 0.536, 0.22),
   // a little smaller than the rest, about 2.5px of its 38 from the opening view: "Keep it since I run it, but maybe make
   // it a little smaller like 2-3px smaller" (Carl, 9 Nov 2026, the officers' fixes quiz)
   studioland: at("teal", 2.45, 1.337, 0.205),
-  tour: at("cream", 1.25, 1.066, 0.215, "down"),
+  tour: at("cream", 1.22, 1.066, 0.215, "down"),
 };
 /* A PHONE'S OWN SPOTS: "i need an artifa5 that allows me to control the per-swipe-camera and the placement of the words.
    Phone/mobile version only please" (Carl, 4 Nov 2026). On a phone held upright a
@@ -3105,6 +3108,31 @@ function turnTo(at, follow, eye) {
   d = Math.atan2(Math.sin(d), Math.cos(d));
   return home + follow * d;
 }
+/* THE CHAIR AND DRUM LEAN BACK FOR THE OPENING (studio.mjs): tipped back about their feet, the drum 20 degrees and the
+   chair 10, the pillow on the chair going with it: "Drum looks great at 20%, try chair at 10% please" (Carl, 9 Nov 2026).
+   `LEAN_BACK_K` is how far through it is, 1 all the way back. */
+let LEAN_BACK_K = 0;
+const LEANS_BACK = { chair: 10, drum: 20 };
+export function setLeanBack(k) {
+  LEAN_BACK_K = k;
+}
+function leanBack(m) {
+  const p = m.userData.prop,
+    a = (LEAN_BACK_K * LEANS_BACK[p.id] * Math.PI) / 180;
+  if (!a && !m.userData.leaned) return;
+  m.userData.leaned = !!a;
+  if (!a) return;
+  const h = p.w * m.userData.aspect,
+    ry = m.rotation.y,
+    axis = m.position.clone().set(Math.cos(ry), 0, -Math.sin(ry)), // the card's own across, in the room (the bundle's Vector3)
+    feet = m.position.clone().setY(m.position.y - h / 2);
+  const riders = [m, ...all.filter((r) => r.userData.prop.on === p.id)];
+  for (const r of riders) {
+    const d = r.position.clone().sub(feet).applyAxisAngle(axis, -a);
+    r.position.copy(feet).add(d);
+    r.rotateOnWorldAxis(axis, -a);
+  }
+}
 export function faceProps(meshes, eye) {
   lastEye = eye;
   homeEye ||= { x: eye.x, z: eye.z };
@@ -3129,10 +3157,12 @@ export function faceProps(meshes, eye) {
        "I feel like the chair moves too much now relative to everything else" (Carl, 5 Oct 2026). Tried,
        then its feet held, layers and a build, all undone: "maybe we should go back to the original
        way, except maybe we can unanchor the legs and try the turn control again". */
+    if (m.userData.leaned) m.rotation.set(0, m.rotation.y, 0);
     m.rotation.y =
       turnTo(m.userData.anchor || m.position, m.userData.prop.follow ?? 1, eye) +
       ((m.userData.prop.spin || 0) * Math.PI) / 180;
     placeProp(m);
+    if (m.userData.prop.id in LEANS_BACK) leanBack(m);
   }
 }
 
