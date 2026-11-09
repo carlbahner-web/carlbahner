@@ -27,7 +27,7 @@
      them" (Carl, 6 Oct 2026). So the press is a real squash and spring back, the dog blinks twice, and
      the paper lands with more give. studio/NAVIGATION.md has the rest. */
 import { view, upright, CARD_REF, UPRIGHT_CARD } from "./stage.mjs";
-import { setLid, setMapLights, setDeck, FADE_MS, preloadPictures, setHoverWords, hoverWordsCorners, setAllWords, allWordsCorners, setPhoneWords, deckPoints, ARM_SWING_MS, drawControls, deckControls, DECK_HIT, pressKey, releaseKeys, DECK_LIFT, DROP_MS, deckState } from "./props.mjs";
+import { setLid, setMapLights, setDeck, FADE_MS, preloadPictures, setHoverWords, setAllWords, allWordsCorners, setPhoneWords, deckPoints, ARM_SWING_MS, drawControls, deckControls, DECK_HIT, pressKey, releaseKeys, DECK_LIFT, DROP_MS, deckState } from "./props.mjs";
 import { goToView, cameraFor } from "./viewtune.mjs";
 import { cue } from "./cues.mjs";
 import { inkMask, MASK_N, wobbleLine, wobblePath, BOIL_ORDER, BOIL_MS } from "./garden-bits.mjs";
@@ -403,13 +403,6 @@ export function startNav(v) {
     away = null, // where the visitor was before flying in
     flying = false,
     holding = false; // a phone's tap showing the words before the flight (THE WORD FIRST, ON A PHONE)
-  /* NO HOLD: "Ok we can remove the hold and keep the words up?" (Carl, 9 Nov 2026), told a phone's tap held the thing lit
-     with its word up for 0.9 s before the flight. So the flight sets off as soon as the word is in view, and the words fade
-     as it does, as they always have. Read first as the tapped word staying up through the flight, which he took back the
-     same day: "Wait why are the words not going transparent anymore? There may have been a miscommunication". `?hold=`
-     still tries a hold. */
-  const WORD_HOLD_MS = +(Q.get("hold") || 0),
-    TURN_MS = 600; // the turn to bring a tapped thing's words into view
   // a soft flight (a stop's nudge, ONE THING AT A TIME ON A PHONE) never holds a finger off the room
   // and the flight home from a closed card never holds one off either: "can we make it that things can still be clicked
   // even if the camera isn't 100% still?" (Carl, 9 Nov 2026; studio.mjs NEARLY HOME IS HOME)
@@ -1391,43 +1384,11 @@ export function startNav(v) {
       if (busy()) return false;
       const t = thingAt(x, y) || wordThingAt(x, y) || zoneAt(x, y); // a word on the wall opens its page too (ALL THE WORDS), and the zone round both (EACH PAGE ONE ZONE)
       if (!t) return false;
-      /* THE WORD FIRST, ON A PHONE: "On phone when I'm moving around in free camera mode, I would love to see the text show
-         up for a second before it zooms into place" (Carl, 4 Nov 2026). A finger has no hover, so the words on the wall
-         never showed before the flight. So a tap lights the thing and puts its words up for WORD_HOLD_MS, then flies in.
-         */
-      // a link opens at once: a new tab opened a second after the tap is blocked as a popup
-      if (TOUCH && !reduced && !t.link) {
-        holding = true;
-        hovered = t;
-        // its word is already on the wall when every word is up (ALL THE WORDS): not drawn a second time over itself
-        const up = allOn && allWordsCorners().find((w) => w.key === keyOfThing(t));
-        if (!up) sayFor(t);
-        cue("hover:" + t.id);
-        v.dirty();
-        // the words are where the laptop has them, often off the side of a phone: the view turns to take in the thing
-        // and its words first, no wider than a third more than it was, and the card's close comes back to where it was
-        const was = { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov },
-          words = up ? up.corners : hoverWordsCorners(),
-          P = pose(cam.yaw, cam.pitch, cam.fov),
-          seen = words.length && words.every((q) => {
-            const s = onScreen(P, q);
-            return s && Math.abs(s[0]) < 0.95 && Math.abs(s[1]) < 0.95;
-          });
-        let turn = 0;
-        if (words.length && !seen) {
-          const pts = [...corners(t.mesh).slice(0, 4), ...words],
-            to = fitAll(pts, was, SNAP_BOX);
-          to.fov = Math.min(to.fov, (2 * Math.atan(Math.tan((was.fov * Math.PI) / 360) * 1.35) * 180) / Math.PI);
-          turn = TURN_MS;
-          fly(to, null, turn);
-        }
-        setTimeout(() => {
-          holding = false;
-          openThing(t);
-          away = was;
-        }, turn + WORD_HOLD_MS);
-        return true;
-      }
+      /* THE WORD FIRST, ON A PHONE (4 Nov 2026) lit a tapped thing and held its words up before the flight, the view
+         first turning to take them in if they were off the screen. The hold went on 9 Nov 2026 ("Ok we can remove the
+         hold"), then the turn, every move of the camera made one smooth move with no stop and turn: "the pan-first can
+         also be a bit weird and jarring / I think all the camera movements (including the flyover) need to be smooth
+         motions not stop and pivots" (Carl, 9 Nov 2026). So a tap flies straight in, as a click does. */
       openThing(t);
       return true;
     },
