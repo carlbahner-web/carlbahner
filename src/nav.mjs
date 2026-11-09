@@ -227,14 +227,22 @@ const RUST = [0.749, 0.459, 0.22]; // the focus ring's rust, #bf7538, as the pan
 const INK = [0.1, 0.1, 0.1]; // the drawing's ink, #1b1b1b
 
 export function startNav(v) {
-  // every picture the cards show, in before the loading screen lifts (props.mjs EVERY PICTURE THE CARDS SHOW)
-  preloadPictures([
-    ...COVERS,
-    ...Object.values(WORDS).flatMap((w) => (w.quotes || []).map((q) => q.photo)),
-    "assets/people/carl.webp",
-    ...LOGOS.map((n) => "assets/logos/" + n + ".webp"),
-    ...SOCIALS.map((x) => x.icon),
-  ]);
+  /* every picture the cards show, fetched behind the room (props.mjs EVERY PICTURE THE CARDS SHOW). They started as the
+     page did, and on a phone's connection took a share of it from the room's own pictures; they start once the loading
+     screen has lifted now (the speed sweep, 9 Nov 2026) */
+  const cardPictures = () =>
+    preloadPictures([
+      ...COVERS,
+      ...Object.values(WORDS).flatMap((w) => (w.quotes || []).map((q) => q.photo)),
+      "assets/people/carl.webp",
+      ...LOGOS.map((n) => "assets/logos/" + n + ".webp"),
+      ...SOCIALS.map((x) => x.icon),
+    ]);
+  if (document.body.classList.contains("loaded")) cardPictures();
+  else {
+    const watch = new MutationObserver(() => document.body.classList.contains("loaded") && (watch.disconnect(), cardPictures()));
+    watch.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  }
   const { cam, START, props, canvas, pose, onScreen, clamp, reduced } = v;
   DECKCAM = v.camera;
   REDUCED = reduced;
