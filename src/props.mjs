@@ -547,6 +547,12 @@ export const PROPS = [
     // only while the flyover is still over the rug: "it looks good during flyover but then once the main page is in use
     // it looks wrong. Is it possible to start there and then at the 4s mark it starts moving back to the original
     // position?" (Carl, 9 Nov 2026), so it eases back from 4 s until the camera lands (studio.mjs THE DRUM TURNS BACK)
+    /* and at rest on a phone, its right foot (as you look at it) brought forward, turned about its left foot, that foot
+       where it stood: "could you possibly (on phone only) rotate the audience-right drum leg forward a bit?" (Carl, 9 Nov
+       2026, the spot marked on his phone's screenshot). `pole` is the left foot, 4.5% across; `slide` and `fwd` stand
+       it where it stood; `spin` -6.9 holds its old turn about that foot, and 12 degrees more brings the right foot about
+       15 cm toward you. */
+    phoneRest: { pole: 0.045, slide: (0.045 - 0.5) * 0.98, fwd: 0.216, spin: -6.9 - 12 },
     phone: { pole: 0.81, slide: (0.81 - 0.5) * 0.98 + 0.004, fwd: 0.15 - 0.046, spin: -31.2 },
     colors: [
       { id: "wood", label: "shell", base: "#aa5225", color: null },
@@ -3048,17 +3054,21 @@ export function placeProp(mesh) {
    during the opening flyover, then easing back). The drum's turn about its right foot is the first. A number it does not
    have counts as its plain one (a pole in the middle, no slide, no spin), and at 0 it is exactly as it was. */
 const PLAIN = { pole: 0.5, slide: 0, fwd: 0, spin: 0 };
-export function phoneProps(w) {
+// `onPhone`: the phone's layout is on, so the prop rests on its `phoneRest` numbers where it has them, not its own
+export function phoneProps(w, onPhone = false) {
   for (const m of all) {
     const p = m.userData.prop;
-    if (!p.phone || p.phoneW === w) continue;
+    if (!p.phone) continue;
+    const key = w + "/" + onPhone;
+    if (p.phoneW === key) continue;
     p.laptop ??= Object.fromEntries(Object.keys(p.phone).map((k) => [k, p[k]]));
-    p.phoneW = w;
+    p.phoneW = key;
+    const rest = onPhone && p.phoneRest ? p.phoneRest : p.laptop;
     if (!w) {
-      setProp(m, p.laptop);
+      setProp(m, rest);
       continue;
     }
-    setProp(m, Object.fromEntries(Object.entries(p.phone).map(([k, v]) => { const own = p.laptop[k] ?? PLAIN[k]; return [k, own + (v - own) * w]; })));
+    setProp(m, Object.fromEntries(Object.entries(p.phone).map(([k, v]) => { const own = rest[k] ?? PLAIN[k]; return [k, own + (v - own) * w]; })));
   }
 }
 // changes some of a prop's numbers and places it again

@@ -1628,7 +1628,7 @@ function tick(now) {
     dirty = true;
   }
   if (!W || !H) return;
-  phoneProps(drumTurn(now)); // THE DRUM TURNS BACK
+  phoneProps(drumTurn(now), upright()); // THE DRUM TURNS BACK, to where it rests on a phone
   const dt = Math.min(0.1, (now - last) / 1000 || 0);
   last = now;
   const navMoved = nav.step(now);
