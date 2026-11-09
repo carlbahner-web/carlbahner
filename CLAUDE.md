@@ -504,7 +504,8 @@ says its page's title on the teal wall** under the map, where his name was tried
 `src/props.mjs`): "maybe in that teal spot where we tried to have my wordmark before?". **Then the bio moved onto the
 drum**, and the picture frame opens nothing: "I want to put my bio behind the drum now and turn off the boil/click
 ability if the photo frame" (3 Nov 2026). The logos' page ("COOL SYNC THINGS") has no thing for now. **Then the logos went under the bio**, smaller, running past as a carousel under his COOL SYNC THINGS title: "intead of
-a separate sync page, i think you're right... make them smaller to fit under the bio, maybe as a carousel?" (3 Nov 2026).
+a separate sync page, i think you're right... make them smaller to fit under the bio, maybe as a carousel?" (3 Nov 2026). It never stops under the mouse, the logos not being links: "please stop the logo carousel from stopping on hover since
+theyre not clickable" (Carl, 9 Nov 2026).
 **Going live, 3 Nov 2026:** it replaces carlbahner.com ("i want to replace my current site"), with the four songs ("launch
 with four songs"), built here until then and moved to its own repo for the launch. His launch quiz answers (https://claude.ai/artifact/5LWQs73jHMp7yRByiUZgP1): the tab
 says "Carl Bahner"; a shared link shows the room as it opens (`assets/share.jpg`; on the charcoal and grain round the card since 9 Nov 2026: "Can we

@@ -801,9 +801,8 @@
         align-items: center;
         animation: logos-run 25s linear infinite; /* 1.6 times its first 40s: "maybe 1.6 X speed" (Carl, 3 Nov 2026) */
       }
-      .logo-strip:hover .logo-run {
-        animation-play-state: paused;
-      }
+      /* no pause under the mouse: the logos aren't links, so stopping them asked for a click that does nothing: "please stop
+         the logo carousel from stopping on hover since theyre not clickable" (Carl, 9 Nov 2026) */
       .logo-run img {
         height: 34px;
         margin-right: 24px;
