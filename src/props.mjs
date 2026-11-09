@@ -2214,14 +2214,17 @@ export const HW_AT = { wall: "teal", x: 0.88, y: 1.19, w: 1.66, s: 0.42, dir: "a
 const at = (wall, x, y, s, dir = "across") => ({ wall, x, y, w: 1.66, s, dir, rot: 0 });
 export const WORD_AT = {
   artists: at("teal", 0.472, 2.442, 0.215),
-  bio: at("cream", 1.25, 1.066, 0.215, "down"),
+  // ABOUT and YOU+ME each in the middle of its column: the arch's yellow left of the panel (1.01 to 1.43 m) and the panel
+  // (1.43 to 1.90 m): "Both "about" and the "you + me" look just a few pixels off-center relative to their columns, don't
+  // you think?" (Carl, 9 Nov 2026). They stood 3 and 2 cm right of the middles.
+  bio: at("cream", 1.22, 1.066, 0.215, "down"),
   contact: at("teal", 0.954, 1.165, 0.22),
-  "my-people": at("cream", 1.688, 1.144, 0.22, "rows"),
+  "my-people": at("cream", 1.665, 1.144, 0.22, "rows"),
   portfolio: at("console", 2.297, 0.536, 0.22),
   // a little smaller than the rest, about 2.5px of its 38 from the opening view: "Keep it since I run it, but maybe make
   // it a little smaller like 2-3px smaller" (Carl, 9 Nov 2026, the officers' fixes quiz)
   studioland: at("teal", 2.45, 1.337, 0.205),
-  tour: at("cream", 1.25, 1.066, 0.215, "down"),
+  tour: at("cream", 1.22, 1.066, 0.215, "down"),
 };
 /* A PHONE'S OWN SPOTS: "i need an artifa5 that allows me to control the per-swipe-camera and the placement of the words.
    Phone/mobile version only please" (Carl, 4 Nov 2026). On a phone held upright a
@@ -3105,16 +3108,17 @@ function turnTo(at, follow, eye) {
   d = Math.atan2(Math.sin(d), Math.cos(d));
   return home + follow * d;
 }
-/* THE CHAIR AND DRUM LEAN BACK, a trial (studio.mjs): tipped back about their feet by `LEAN_BACK_RAD`, the pillow on the
-   chair going with it */
-let LEAN_BACK_RAD = 0;
-const LEANS_BACK = new Set(["chair", "drum"]);
-export function setLeanBack(rad) {
-  LEAN_BACK_RAD = rad;
+/* THE CHAIR AND DRUM LEAN BACK FOR THE OPENING (studio.mjs): tipped back about their feet, the drum 20 degrees and the
+   chair 10, the pillow on the chair going with it: "Drum looks great at 20%, try chair at 10% please" (Carl, 9 Nov 2026).
+   `LEAN_BACK_K` is how far through it is, 1 all the way back. */
+let LEAN_BACK_K = 0;
+const LEANS_BACK = { chair: 10, drum: 20 };
+export function setLeanBack(k) {
+  LEAN_BACK_K = k;
 }
 function leanBack(m) {
   const p = m.userData.prop,
-    a = LEAN_BACK_RAD;
+    a = (LEAN_BACK_K * LEANS_BACK[p.id] * Math.PI) / 180;
   if (!a && !m.userData.leaned) return;
   m.userData.leaned = !!a;
   if (!a) return;
@@ -3158,7 +3162,7 @@ export function faceProps(meshes, eye) {
       turnTo(m.userData.anchor || m.position, m.userData.prop.follow ?? 1, eye) +
       ((m.userData.prop.spin || 0) * Math.PI) / 180;
     placeProp(m);
-    if (LEANS_BACK.has(m.userData.prop.id)) leanBack(m);
+    if (m.userData.prop.id in LEANS_BACK) leanBack(m);
   }
 }
 
