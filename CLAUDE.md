@@ -509,7 +509,8 @@ a separate sync page, i think you're right... make them smaller to fit under the
 with four songs"), built here until then and moved to its own repo for the launch. His launch quiz answers (https://claude.ai/artifact/5LWQs73jHMp7yRByiUZgP1): the tab
 says "Carl Bahner"; a shared link shows the room as it opens (`assets/share.jpg`; on the charcoal and grain round the card since 9 Nov 2026: "Can we
 make the page background charcoal with grain? Like outside the main card border. On the page and the preview", the page
-round the card is too, THE PAGE ROUND THE CARD in `index.html`), his name and his line "Mixer, educator,
+round the card is too, THE PAGE ROUND THE CARD in `index.html`; and no words on the walls in it: "Can we do a render for the preview that does not have the page
+titles on the walls etc?", rendered with `?open=none&quiet=0`), his name and his line "Mixer, educator,
 and sonic chaos gremlin."; visitor counts, yes; old addresses go to the room (`404.html`). `studio/build-site.sh <folder>`
 lays out the real site. **On Netlify, the contact form goes to Netlify's own forms** (a hidden copy of it in `index.html` for Netlify to find), FormSubmit only if Netlify will not take it: the first FormSubmit sends from the live site did not arrive ("this isn't a test link, that's from the live netlify site", 3 Nov 2026). **The snow globe, 3 Nov 2026**, his drawing with his Brand Castle from Homegrown's classroom inside, its flag waving:
 "I'm gonna replace the candle with a snow globe with this inside it", and "It should go to welcometostudioland.com".
