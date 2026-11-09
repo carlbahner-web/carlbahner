@@ -18,12 +18,18 @@ export const view = () => box;
    box), and it fits itself again once the field lets go. */
 export const typing = () => matchMedia("(pointer: coarse)").matches && !!document.activeElement?.matches?.("#win input, #win textarea, #win select");
 let wasUpright = null;
+const PHONE_W = 520; // a laptop window narrower than this, and taller than wide, takes the phone's layout
 export const upright = () => {
   if (typing() && wasUpright !== null) return wasUpright;
   /* a touch screen only: "man it gets real weird when resizing" (Carl, 5 Nov 2026). A laptop's window dragged taller than
      it was wide switched to the phone's layout and back as it crossed square, the room jumping between the two; a laptop
      keeps its 16:9 card at any shape, letterboxed. */
-  return (wasUpright = (innerHeight > innerWidth && matchMedia("(pointer: coarse)").matches && !window.STUDIO_EDITOR && !window.WORDS_EDITOR) || !!window.PHONE_PREVIEW);
+  /* and a laptop window dragged phone-narrow again: "i used to be able to resize my window and it would switch to mobile
+     view when it got to a certain dimension", asked whether to bring it back switching only below a clearly phone-sized
+     width rather than as it crossed square: "switching" (Carl, 9 Nov 2026). PHONE_W: narrower than any laptop window is
+     kept, wider than any phone held upright. */
+  const phoneNarrow = innerWidth < PHONE_W && innerHeight > innerWidth;
+  return (wasUpright = ((innerHeight > innerWidth && matchMedia("(pointer: coarse)").matches) || phoneNarrow) && !window.STUDIO_EDITOR && !window.WORDS_EDITOR) || !!window.PHONE_PREVIEW;
 };
 // the view editor's "Show as a phone": the room drawn phone-shaped, a 390 by 844 phone's proportions (src/viewtune.mjs)
 const PHONE_SHAPE = 390 / 844;

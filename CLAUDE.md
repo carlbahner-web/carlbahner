@@ -555,7 +555,11 @@ visitor was. A link (the book, the mug) opens at once, since a new tab opened la
 FIRST, ON A PHONE in `src/nav.mjs`).
 **The phone's layout is for touch screens alone, 5 Nov 2026**: "man it gets real weird when resizing" (Carl). A laptop window
 dragged taller than wide switched to the phone's layout and back as it crossed square; `upright()` in `src/stage.mjs` now
-needs a coarse pointer too, so a laptop keeps its 16:9 card at any shape, letterboxed.
+needs a coarse pointer too, so a laptop keeps its 16:9 card at any shape, letterboxed. **Then a laptop window dragged
+phone-narrow switches again, 9 Nov 2026**: "i used to be able to resize my window and it would switch to mobile view when it
+got to a certain dimension, but now it doesn't", then, offered switching only below a clearly phone-sized width rather than
+as it crossed square: "switching" (Carl). Narrower than 520px and taller than wide (`PHONE_W` in `src/stage.mjs`), it takes
+the phone's layout; dragged back wide, the room returns to his laptop's opening turn if it hadn't been moved.
 
 **His officers' quiz, 7 Nov 2026** (https://claude.ai/artifact/VNbCtGWc4tvWrT4aFmp57s; his delight, simplicity, clutter and
 words officers, the Homegrown skills, walked the site). His answers, built the same day:
