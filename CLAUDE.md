@@ -437,7 +437,11 @@ and the camera turns the shortest way between its two aims over 2.4 s on a smoot
 **From one window to the next: tried and taken out, 2 Nov 2026.** With a window open, a click on another thing glided
 straight to it ("can we try glide?"); the same day: "i think we should disallow clicking on other pages from a page view"
 (Carl). So a click in the room with a window open closes it. A move from one window to another (the eye painting's
-button) is one Back: closing never walks back through the windows before it.
+button) is one Back: closing never walks back through the windows before it. That held only for windows opened in the
+room: a visitor who landed on a link straight to the player (carlbahner.com/#portfolio) and pressed HOLY MOLY closed
+Contact onto the player again. Asked "Fix it, or add it to the list?": "Fix it" (Carl, 9 Nov 2026), so the next window
+takes the link's address in place and closing goes to the room (A WINDOW OPENED BY A LINK in `src/nav.mjs`;
+`node tests/holes-player.mjs link`).
 
 **His answers of 2 Nov 2026, evening.** The Spotify button under the sleeves opens his playlist. The contact form sends to
 his Gmail through FormSubmit, falling back to the visitor's own email (`contactForm` in `src/nav.mjs`); FormSubmit asks

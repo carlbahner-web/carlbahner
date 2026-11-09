@@ -3,7 +3,7 @@
    player instead of having the record still playing visually and sonically". Each made to happen again on the real
    page; fails on any that comes back.
    Run from the repo root:
-     node tests/holes-player.mjs [again|backmid] */
+     node tests/holes-player.mjs [again|backmid|link] */
 import { chromium } from "playwright";
 import { serve } from "./serve.mjs";
 
@@ -87,6 +87,28 @@ if (!only || only === "backmid") {
   expect(np === "Pause", "2. NOW PLAYING does not show the song playing: " + np);
   expect(!errors.length, "2. page errors: " + errors.join(" | "));
   await ctx.close();
+}
+
+// 3. landed on a link straight to the player, then HOLY MOLY to Contact: closing it goes to the room, never back to the player
+//    ("A move from one window to another ... is one Back: closing never walks back through the windows before it")
+if (!only || only === "link") {
+  for (const how of ["the X", "Escape"]) {
+    const { p, ctx, errors } = await page();
+    await p.goto(url + "#portfolio");
+    await loaded(p);
+    await p.waitForFunction(() => !document.querySelector("#win").hidden, null, { timeout: 30000 });
+    await p.waitForTimeout(1500);
+    await p.evaluate(() => document.querySelector("#win .words-button").click());
+    await p.waitForFunction(() => location.hash === "#contact" && !!document.querySelector("#win [name=email]"), null, { timeout: 30000 });
+    await p.waitForTimeout(1500);
+    if (how === "Escape") await p.keyboard.press("Escape");
+    else await p.evaluate(() => document.querySelector("#win .close").click());
+    await p.waitForTimeout(4000);
+    const at = await p.evaluate(() => ({ open: !document.querySelector("#win").hidden, hash: location.hash, href: location.href }));
+    expect(!at.open && !at.hash && at.href.startsWith("http://"), `3. closing Contact with ${how} after a link to the player went to ${JSON.stringify(at)}`);
+    expect(!errors.length, "3. page errors: " + errors.join(" | "));
+    await ctx.close();
+  }
 }
 
 await browser.close();

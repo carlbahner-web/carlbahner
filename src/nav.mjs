@@ -1015,8 +1015,15 @@ export function startNav(v) {
       try {
         // from one window to the next it is the same Back: closing never walks back through the windows before it
         if (open && pushed) history.replaceState({ studio: t.hash }, "", "#" + t.hash);
-        else history.pushState({ studio: t.hash }, "", "#" + t.hash);
-        pushed = true;
+        else if (open) {
+          /* A WINDOW OPENED BY A LINK: a visitor who landed on carlbahner.com/#portfolio has no step of ours behind it to
+             go back to, so the next window takes that address's place and closing it goes to the room, never back to the
+             player (Carl, 9 Nov 2026, "Fix it", of HOLY MOLY's contact card closing onto the player) */
+          history.replaceState({ studio: t.hash }, "", "#" + t.hash);
+        } else {
+          history.pushState({ studio: t.hash }, "", "#" + t.hash);
+          pushed = true;
+        }
       } catch {
         /* no history here (a sandboxed frame): the window still opens */
       }
