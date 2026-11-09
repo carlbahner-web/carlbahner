@@ -402,6 +402,16 @@
         width: 620px;
         zoom: var(--k, 1);
       }
+      /* A CARD AS TALL AS ITS WORDS: it ends under its last button rather than running to the room's foot, and one with
+         more than fits scrolls as before. Shown the thin cards (Buzz's, Contact, StudioLand, Are you my people?) as they
+         were and shrunk: "That looks better" (Carl, 9 Nov 2026). A phone keeps the bottom 65% he picked. */
+      body:not(.upright) #win.sheet {
+        bottom: auto;
+        max-height: calc(100% - 32px);
+      }
+      body:not(.upright) #win .body {
+        flex: 0 1 auto;
+      }
       /* upright, the card fills the phone's width and its words scale with that width */
       .upright #win .body {
         zoom: var(--k, 1);

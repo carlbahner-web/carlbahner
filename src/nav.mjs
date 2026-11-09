@@ -547,7 +547,9 @@ export function startNav(v) {
      wild ride? If the cam zooms in it should show a higher res version as it gets closer" (Carl, 9 Nov 2026). He is kept
      out of `things`, so he never boils, lights up, says a word on the wall or joins the keyboard's round; his address
      (#wild-ride) still opens his card. */
-  const EGG = eggMesh && { id: "buzz", hash: "wild-ride", kind: "page", name: "Buzz", mesh: eggMesh, hot: 0 };
+  /* Small and far off on the ceiling, he came out a speck beside his card at the closest lens a thing lands at (3
+     degrees), so his lens may go further: "coaster buzz needs to be way bigger in frame" (Carl, 9 Nov 2026) */
+  const EGG = eggMesh && { id: "buzz", hash: "wild-ride", kind: "page", name: "Buzz", mesh: eggMesh, hot: 0, minFov: 0.8 };
 
   /* THE BOOK'S FACES: a click on the book is a click on one of its faces, each a flat square in the room. It was a
      box round the faces lined up with the room's walls, and the book sits turned on the console, so the box was much
@@ -736,11 +738,11 @@ export function startNav(v) {
     return { pos, look, fov: (2 * Math.atan(tanV) * 180) / Math.PI };
   }
   function frame(t, box = room()) {
-    return framePts(corners(t.mesh), box);
+    return framePts(corners(t.mesh), box, t.minFov);
   }
   // the same for any points: all but the last are its edges, the last its middle (ONE THING AT A TIME ON A PHONE frames
   // a thing with its words on the wall)
-  function framePts(pts, box = room()) {
+  function framePts(pts, box = room(), minFov = 3) {
     const mid = pts[pts.length - 1],
       edges = pts.slice(0, -1);
     // from the opening view, so the answer is the same wherever the visitor is: from a far turn, Sway's walk
@@ -768,7 +770,7 @@ export function startNav(v) {
           ey = Math.max(...ss.map((q) => q[1])) - Math.min(...ss.map((q) => q[1]));
         const k = Math.max(ex / box.w, ey / box.h);
         fov = (2 * Math.atan(Math.tan((fov * Math.PI) / 360) * Math.pow(k, 0.8)) * 180) / Math.PI;
-        fov = Math.max(3, Math.min(60, fov));
+        fov = Math.max(minFov, Math.min(60, fov));
       }
     }
     return { yaw, pitch, fov };
