@@ -654,6 +654,44 @@ only after a real drag, and a finger the page loses track of lets go. In `tests/
 turn to where it stands in the room (`stands` in `src/studio.mjs`), never to the flyover high over the rug or the lean
 over the console, which had swung the drum, the chair and the lamp round as the room opened.
 
+**The student officers' 33 findings, merged into one quiz, 9 Nov 2026** (https://claude.ai/artifact/L3wsezeEBG1PJnkq35QotX;
+the findings from his words, clutter, simplicity, delight and Godzilla officers, 8 Nov, on
+https://claude.ai/artifact/EDaPDi6bsdhrD6XhKpKRFB). Carl, asked whether to fix them "now, or the list?": "Now, in a new
+chat". His answers, built the same day unless marked:
+- **The four Godzilla holes**, each recreated by `node tests/holes-nov9.mjs`, seen failing before and passing after: a
+  half-written contact message is kept when the card closes, "Keep it until it's sent" (not through a reload; A
+  HALF-WRITTEN MESSAGE IS KEPT in `src/nav.mjs`); an email that can't be replied to ("maya@gmail", ".con") is caught,
+  "Catch it", in his words for a missed email box, "Almost there! Just need your email so I can reply." (AN EMAIL YOU
+  CAN'T REPLY TO IS CAUGHT); a song that didn't load says "Ugh, that one didn't load. Tap it to try again." and loads
+  again on a tap (A SONG THAT DIDN'T LOAD); the cards stop shrinking at three quarters and scroll, the X a finger's size,
+  "Stop shrinking below a height, scroll instead" (NO SMALLER THAN THREE QUARTERS in `src/stage.mjs`), which bounds his
+  3 Nov "I want the card contents to scale with the resizing".
+- **On a phone**: the room opens on the console, LISTEN whole, and every page's word sits in a row along the bottom of
+  the room, a tap opening its page: "Open on the console and the row of words" (`PHONE.turn` in `src/studio.mjs`, A ROW
+  OF WORDS ON A PHONE in `src/nav.mjs`). It is the one label in the room, against the rule above that what opens shows
+  only on the thing itself, on his word. Every card fills the screen from the moment it opens, "Whole screen", asked
+  knowing the player above is then out of sight; it replaces the bottom 65% and the pinned card of 3 Nov. NOW PLAYING
+  goes to the bottom while a card is open, out of the X's way: "Move it out of the way".
+- **The cards**: Spotify is small underlined words under HOLY MOLY on the songs' card ("Spotify as small words under
+  HOLY MOLY"); the logos moved from under the bio to the top of the quotes card ("Move them to Quotes"); the email and
+  Instagram icons left the contact form for the foot of the bio, under HOLY MOLY ("Drop em both, put them at the bottom
+  of the about page"); orange only on the three lines of the You + Me list ("Only the three lines").
+- **His words**: the Subject comes filled with "I want to talk to you about my song"; the co-producer line is "I'll
+  tighten up the transitions, find those perfect moments for ear candy, and cut out those unnecessary layers you kinda
+  forgot were even there." ("Use the draft"); the bio ends on "...borderline sentient." ("End a sentence sooner");
+  Jean-Philip's quote starts "...the approach that Carl took" ("Start it with ..."); the tab and a shared link's title
+  say "Carl Bahner // mixing and co-production", replacing his launch quiz's "Carl Bahner".
+- **STUDIOLAND on the wall stays, a little smaller**: "Keep it since I run it, but maybe make it a little smaller like
+  2-3px smaller" (0.205 for 0.22, about 2.5px of its 38 from the opening view).
+- **Kept as they are, so not to be suggested again**: SUBMIT ("Keep SUBMIT"); the wall word and the card's title naming
+  one place two ways ("Keep both, it's on purpose"); the snow globe's three VISIT buttons ("3 visits, but we need a better
+  description for homegrown"); no song playing when the console opens ("Keep it they pick", his brief's "nothing
+  autoplays with audio" standing).
+- **Waiting on him**: what he did on each song ("Quiz me and I'll answer"); Homegrown's line on the snow globe's card
+  ("Suggest some better ones for homegrown"); a little floating hint on the songs' card, "like the glove from the
+  garden" (the drawing is in ss-frontend, which this repo's sessions can't reach); and his red X for the cards' close
+  button ("I have a red x close button icon"). Asked on a second quiz, below.
+
 ## Laptop first. Phones wait.
 
 **Carl, 5 Oct 2026: "dont do phone yet i'll make them turn it sideways anyway. let's jsut get

@@ -8,11 +8,13 @@
     <!-- THE SITE'S NAME AND ITS LINK PREVIEW, Carl's answers on the launch quiz (3 Nov 2026,
          https://claude.ai/artifact/5LWQs73jHMp7yRByiUZgP1): the tab "Carl Bahner"; a shared link shows the room as it
          opens, his name and his own line, "Mixer, educator, and sonic chaos gremlin." -->
-    <title>Carl Bahner</title>
+    <!-- then the tab and the shared link's title say what he does: ""Carl Bahner // mixing and co-production"" (Carl, 9 Nov
+         2026, the officers' fixes quiz; asked knowing it is also what a shared link shows) -->
+    <title>Carl Bahner // mixing and co-production</title>
     <meta name="description" content="Mixer, educator, and sonic chaos gremlin." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://carlbahner.com/" />
-    <meta property="og:title" content="Carl Bahner" />
+    <meta property="og:title" content="Carl Bahner // mixing and co-production" />
     <meta property="og:description" content="Mixer, educator, and sonic chaos gremlin." />
     <meta property="og:image" content="https://carlbahner.com/assets/share.jpg" />
     <meta property="og:image:width" content="1200" />
@@ -401,7 +403,7 @@
         width: auto;
         margin: 0;
         padding: 24px 18px 20px;
-        transform: translateY(calc(var(--half, 50vh) + 40px));
+        transform: translateY(calc(100% + 40px)); /* from below the screen, now the card is the whole of it */
         transition:
           transform 0.62s cubic-bezier(0.2, 1, 0.4, 1),
           opacity 0.3s;
@@ -413,6 +415,12 @@
          "once i start typing, i'd like the card to take up the whole page since we don't need the dog to be in the way
          once they're at the home stretch of reaching out" (Carl, 3 Nov 2026). It stays up until the card closes. */
       .upright #win.sheet.full {
+        top: 8px;
+      }
+      /* THE WHOLE SCREEN: then every card on a phone, from the moment it opens: "Whole screen" (Carl, 9 Nov 2026, the
+         officers' fixes quiz, of the simplicity officer's "Quotes from 4 scrolls to 2"; asked knowing the player above is
+         then out of sight). It replaces the bottom 65% (UPRIGHT_CARD) and the pinned card of 3 Nov. */
+      .upright #win.sheet {
         top: 8px;
       }
       .upright #win.sheet {
@@ -477,6 +485,11 @@
         background: none;
         --fill: #f6cc60;
         cursor: pointer;
+      }
+      /* a finger's size on screen however small the card is drawn (src/stage.mjs NO SMALLER THAN THREE QUARTERS) */
+      body:not(.upright) #win .close {
+        width: calc(44px * max(1, 1 / var(--k, 1)));
+        height: calc(44px * max(1, 1 / var(--k, 1)));
       }
       #win .close svg:not(.wob) {
         width: 20px;
@@ -605,6 +618,48 @@
         top: 12px;
         bottom: auto;
       }
+      /* and at the bottom while a card is open, out of the way of the card's close X: "Move it out of the way" (Carl, 9 Nov
+         2026, the officers' fixes quiz; the delight officer found a tap on the X stopping the song instead). The card's
+         words scroll clear of it. */
+      .upright.win-open .now-playing {
+        top: auto;
+        bottom: 12px;
+      }
+      .upright.win-open:has(.now-playing) #win .body {
+        padding-bottom: 76px;
+      }
+      /* A ROW OF WORDS ON A PHONE (src/nav.mjs): every page's word along the bottom of the room, the walls' cream with their
+         charcoal outline, while no card is open */
+      .phone-row {
+        display: none;
+      }
+      .upright:not(.win-open):not(.going) .phone-row {
+        position: absolute;
+        left: 8px;
+        right: 8px;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        z-index: 3;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2px 6px;
+      }
+      .phone-row button {
+        min-height: 44px;
+        padding: 6px 8px;
+        border: 0;
+        background: none;
+        color: #fdfaf0;
+        font: 400 22px/1 "DW Fairfield", Georgia, serif;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        -webkit-text-stroke: 5px #2c2c2a;
+        paint-order: stroke fill;
+        cursor: pointer;
+      }
+      .phone-row button:active {
+        transform: scale(0.94);
+      }
       .np-words {
         position: relative;
         z-index: 1;
@@ -685,6 +740,27 @@
       }
       .words-button:active {
         transform: scale(0.97);
+      }
+      /* Spotify, small underlined words under HOLY MOLY ("Spotify as small words under HOLY MOLY", Carl, 9 Nov 2026) */
+      .spotify-words {
+        align-self: center;
+        margin-top: -2px;
+        padding: 4px 8px;
+        font: 700 var(--fs-small)/1.2 "DM Sans", system-ui, sans-serif;
+        letter-spacing: 0.02em;
+        color: var(--ink);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      /* a song that didn't load, said under the sleeves (src/nav.mjs A SONG THAT DIDN'T LOAD) */
+      .song-note {
+        margin: 0;
+        font: 400 var(--fs-small)/1.35 "DM Sans", system-ui, sans-serif;
+        color: var(--rust);
+      }
+      /* the logos on the quotes card, under its title and above the first quote (src/nav.mjs THE LOGOS on the quotes card) */
+      .logo-strip + .quote {
+        margin-top: 30px;
       }
       /* THE QUOTES, given room: "can we make the quotes card look better? It's all kinda 'jammed together as a placeholder'
          looking" (Carl, 2 Nov 2026). Each its own block well apart from the next, its photo the card's width, a big mustard

@@ -994,7 +994,10 @@ function uprightPitch(yaw, fov, top = LIMITS.top, cap = START.pitch) {
    view" for them. MOBILE ONLY", then, offered sliders, "yes" (Carl, 3 Nov 2026). `turn` is radians from the laptop's
    opening turn, `tilt` how far up from as low as it goes (0) to the soffit (1, as a thumb may tilt it), `zoom` how much of
    the phone's widest lens (1) it opens on. Saved at phone/opening. */
-export const PHONE = { turn: 0, tilt: 0, zoom: 1 };
+/* turned onto the console, LISTEN and all: "Open on the console and the row of words" (Carl, 9 Nov 2026, the officers'
+   fixes quiz; four officers found it opening with LISTEN cut to "EN"). 0.42 puts the console in the middle of a phone;
+   `?pturn=` tries another. */
+export const PHONE = { turn: +(new URLSearchParams(location.search).get("pturn") || 0.42), tilt: 0, zoom: 1 };
 function phoneOpening() {
   const yaw = START.yaw + PHONE.turn,
     fov = scaleLens(START.fov, PHONE.zoom),
