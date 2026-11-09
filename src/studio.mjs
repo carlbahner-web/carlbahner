@@ -23,6 +23,7 @@ import {
 } from "../vendor/three-garden.js";
 import {
   buildRoom,
+  barnBoards,
   ROOM,
   LINE,
   GRAIN_M,
@@ -33,7 +34,7 @@ import {
   setPaint,
 } from "./room.mjs";
 import { hashN, BOIL_ORDER, BOIL_MS } from "./garden-bits.mjs";
-import { buildProps, setProp, faceProps, tickProps, colorProp, follows, followers, lampLights, lidAt, picturesIn, phoneProps, buildHoverWords, buildAllWords, consoleFront, setWordsAnisotropy } from "./props.mjs";
+import { buildProps, setProp, faceProps, setLeanBack, tickProps, colorProp, follows, followers, lampLights, lidAt, picturesIn, phoneProps, buildHoverWords, buildAllWords, consoleFront, setWordsAnisotropy } from "./props.mjs";
 import { LIGHTS, lightUniforms, setLights } from "./light.mjs";
 import { startNav, SAYS } from "./nav.mjs";
 import { startViews, stepViews, editViews, cameraFor } from "./viewtune.mjs";
@@ -85,6 +86,14 @@ const shared = {
   navRest: { value: 0 }, // how much the things you can open boil at rest (src/nav.mjs)
   navLook: { value: 0 }, // how the one under the pointer shows it: 0 boil, 1 light, 2 ink
   ...lightUniforms(),
+  // THE BARN'S FLOOR, a trial (room.mjs): `?floor=barn`
+  ...(() => {
+    const on = new URLSearchParams(location.search).get("floor") === "barn";
+    if (!on) return { boardsOn: { value: 0 }, boards: { value: tex(grey) }, boardsM: { value: 1 } };
+    const t = tex(barnBoards());
+    t.wrapS = t.wrapT = 1000; // three.js's RepeatWrapping: boards run on, never mirrored
+    return { boardsOn: { value: 1 }, boards: { value: t }, boardsM: { value: 6 } };
+  })(),
 };
 for (const m of buildRoom(shared)) scene.add(m);
 /* NOTHING TAKES A CLICK UNDER THE LOADING SCREEN: "it accepts clicks during the loading screen, which makes it glitch out"
@@ -1137,6 +1146,18 @@ function stepOpening(now) {
    is in use it looks wrong. Is it possible to start there and then at the 4s mark it starts moving back to the original
    position?" (Carl, 9 Nov 2026). No flyover (a link straight to a page, less motion asked for), no turn. */
 const DRUM_BACK_MS = Math.min(4000, OPEN_MS * 0.7);
+/* THE CHAIR AND DRUM LEAN BACK FOR THE OPENING, a trial behind `?leanback=<degrees>`: "What if the chair and drum lean back
+   a bit for the opening shots?" (Carl, 9 Nov 2026). Leaned back about their feet while the camera is over the rug, easing
+   upright from 4 s in, as the drum's phone turn does (THE DRUM TURNS BACK), upright as it lands. */
+const LEAN_BACK = +(new URLSearchParams(location.search).get("leanback") || 0);
+function leanBackNow(now) {
+  if (!OPEN_KIND || !LEAN_BACK || !OPENING.k) return 0;
+  if (!OPENING.t0) return 1;
+  const t = (now - OPENING.t0 - DRUM_BACK_MS) / (OPEN_MS - DRUM_BACK_MS);
+  if (t <= 0) return 1;
+  if (t >= 1) return 0;
+  return 1 - t * t * t * (t * (t * 6 - 15) + 10);
+}
 function drumTurn(now) {
   if (!OPEN_KIND || !upright() || !OPENING.k) return 0;
   if (!OPENING.t0) return 1;
@@ -1257,6 +1278,7 @@ function place() {
     camera.fov = fov;
     camera.updateProjectionMatrix();
   }
+  setLeanBack((LEAN_BACK * leanBackNow(performance.now()) * Math.PI) / 180); // THE CHAIR AND DRUM LEAN BACK, a trial
   faceProps(props, stands);
   setLights(shared, lampLights());
 }

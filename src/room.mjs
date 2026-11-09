@@ -109,6 +109,7 @@ uniform vec3 color; uniform vec3 ink; uniform sampler2D grain; uniform float gra
 uniform vec3 origin; uniform vec3 axisU; uniform vec3 axisV;
 uniform vec4 edge[4]; uniform float side[4]; uniform float inset[4]; uniform vec2 range[4]; uniform int edges;
 uniform vec3 ph[${EDGES}]; uniform vec3 waves; uniform float wander; uniform float linePx; uniform float dark;
+uniform int floored; uniform int boardsOn; uniform sampler2D boards; uniform float boardsM;
 uniform int paint; uniform vec4 arch; uniform vec4 panel; uniform vec3 archColor; uniform vec3 panelColor;
 varying vec3 vW;
 vec3 softLight(vec3 b, float g) { vec3 d = mix(((16.0 * b - 12.0) * b + 4.0) * b, sqrt(b), step(.25, b)); return g <= .5 ? b - (1.0 - 2.0 * g) * b * (1.0 - b) : b + (2.0 * g - 1.0) * (d - b); }
@@ -139,6 +140,8 @@ void main() {
     on = max(on, inRange * (1.0 - smoothstep(hw - gq * .75, hw + gq * .75, abs(q - c))));
   }
   vec3 base = color;
+  // THE BARN FLOOR, a trial (?floor=barn): his boards from the barn in Homegrown, laid on the floor
+  if (floored == 1 && boardsOn == 1) base = texture2D(boards, vec2(u, v) / boardsM).rgb;
   if (paint == 1) {
     // the arch: half its width round on top, square below; the panel: a box. How far outside
     // each one a point is, in metres (negative inside), so the outline can wander across it.
@@ -174,6 +177,7 @@ function surface({ color, origin, axisU, axisV, edges, w, h, place, painted = fa
       ...shared,
       color: { value: hex(color) },
       paint: { value: painted ? 1 : 0 },
+      floored: { value: color === PAL.floor ? 1 : 0 },
       arch: { value: archU(PAINT.arch) },
       panel: { value: panelU(PAINT.panel) },
       archColor: { value: hex(PAL.arch) },
@@ -399,3 +403,47 @@ export function buildRoom(shared) {
 }
 
 export const inkColor = () => hex(CHARCOAL);
+
+/* THE BARN'S FLOOR, a trial behind `?floor=barn`: "what would it look like if we used the same floor as the barn?" (Carl,
+   9 Nov 2026). The barn's boards as Homegrown's garden draws them (ss-frontend garden/src/template.html roomFlatBoards,
+   copied here): rows of boards in his planks' brown, a hair lighter or darker board to board, rippled charcoal between
+   them, the joins across a board staggered row to row. The barn's sizes in metres: a board BOARD_W wide, about BOARD_L
+   long. One tile of TILE_M metres, repeated. */
+export const BOARDS = { tile: 6, w: 0.16, len: 1.9, seam: 0.022, end: 2.5, ripple: 0.006, fill: "#965131", shade: 0.78 };
+export function barnBoards(B = BOARDS, px = 340) {
+  const cw = Math.round(B.tile * px), ch = cw, cv = Object.assign(document.createElement("canvas"), { width: cw, height: ch }),
+    g = cv.getContext("2d");
+  let s = 67;
+  const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const [fr, fg, fb] = [1, 3, 5].map((i) => parseInt(B.fill.slice(i, i + 2), 16) * B.shade);
+  const amp = B.ripple * px;
+  const ripple = () => {
+    const w = [0, 1, 2].map((i) => [rnd() * 6.28, (0.006 + 0.01 * rnd()) * (i + 1) * (1.5 / px) * 340, ((1 - i * 0.3) * amp) / 2]);
+    return (t) => w.reduce((v, [ph, f, a]) => v + a * Math.sin(ph + f * t), 0);
+  };
+  g.fillStyle = "#2c2c2a";
+  g.fillRect(0, 0, cw, ch);
+  const rows = Math.max(1, Math.round(B.tile / B.w)),
+    rh = ch / rows,
+    m = (B.seam * px) / 2,
+    e = ((B.seam * px) / 2) * B.end,
+    bl = B.len * px;
+  for (let y = 0; y < ch - 1; y += rh) {
+    for (let x = -rnd() * bl; x < cw; ) {
+      const b = bl * (0.7 + 0.6 * rnd()),
+        t = 0.96 + 0.08 * rnd();
+      const top = ripple(), bot = ripple(), l = ripple(), r = ripple(),
+        x0 = x + e, x1 = x + b - e, y0 = y + m, y1 = y + rh - m;
+      g.fillStyle = `rgb(${Math.min(255, fr * t) | 0},${Math.min(255, fg * t) | 0},${Math.min(255, fb * t) | 0})`;
+      g.beginPath();
+      for (let u = x0; u < x1; u += 6) g.lineTo(u, y0 + top(u));
+      for (let v = y0; v < y1; v += 6) g.lineTo(x1 + r(v * 3) * B.end, v);
+      for (let u = x1; u > x0; u -= 6) g.lineTo(u, y1 + bot(u));
+      for (let v = y1; v > y0; v -= 6) g.lineTo(x0 + l(v * 3) * B.end, v);
+      g.closePath();
+      g.fill();
+      x += b;
+    }
+  }
+  return cv;
+}

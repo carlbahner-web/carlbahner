@@ -3105,6 +3105,30 @@ function turnTo(at, follow, eye) {
   d = Math.atan2(Math.sin(d), Math.cos(d));
   return home + follow * d;
 }
+/* THE CHAIR AND DRUM LEAN BACK, a trial (studio.mjs): tipped back about their feet by `LEAN_BACK_RAD`, the pillow on the
+   chair going with it */
+let LEAN_BACK_RAD = 0;
+const LEANS_BACK = new Set(["chair", "drum"]);
+export function setLeanBack(rad) {
+  LEAN_BACK_RAD = rad;
+}
+function leanBack(m) {
+  const p = m.userData.prop,
+    a = LEAN_BACK_RAD;
+  if (!a && !m.userData.leaned) return;
+  m.userData.leaned = !!a;
+  if (!a) return;
+  const h = p.w * m.userData.aspect,
+    ry = m.rotation.y,
+    axis = m.position.clone().set(Math.cos(ry), 0, -Math.sin(ry)), // the card's own across, in the room (the bundle's Vector3)
+    feet = m.position.clone().setY(m.position.y - h / 2);
+  const riders = [m, ...all.filter((r) => r.userData.prop.on === p.id)];
+  for (const r of riders) {
+    const d = r.position.clone().sub(feet).applyAxisAngle(axis, -a);
+    r.position.copy(feet).add(d);
+    r.rotateOnWorldAxis(axis, -a);
+  }
+}
 export function faceProps(meshes, eye) {
   lastEye = eye;
   homeEye ||= { x: eye.x, z: eye.z };
@@ -3129,10 +3153,12 @@ export function faceProps(meshes, eye) {
        "I feel like the chair moves too much now relative to everything else" (Carl, 5 Oct 2026). Tried,
        then its feet held, layers and a build, all undone: "maybe we should go back to the original
        way, except maybe we can unanchor the legs and try the turn control again". */
+    if (m.userData.leaned) m.rotation.set(0, m.rotation.y, 0);
     m.rotation.y =
       turnTo(m.userData.anchor || m.position, m.userData.prop.follow ?? 1, eye) +
       ((m.userData.prop.spin || 0) * Math.PI) / 180;
     placeProp(m);
+    if (LEANS_BACK.has(m.userData.prop.id)) leanBack(m);
   }
 }
 
