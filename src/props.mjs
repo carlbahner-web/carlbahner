@@ -1063,8 +1063,8 @@ function frameBand(mesh, p, shared) {
 /* BOOK: a closed book as a box in the room's own style, each face its colour shaded by which way it
    faces, a charcoal line round every face: its cover on top and its spine toward the room, its pages
    on the other three sides. Built in metres for a length of 1, scaled by `w`; its bottom at 0. */
-// the book's outline: 1.4 times the room's line, wandering 2.5 mm either way (THE BOOK'S LINES)
-const BOOK_LINE = { k: 1.4, ripple: 0.0025 };
+// the book's outline: 1.15 times the room's line (1.4 was a little thick, Carl, 9 Nov 2026), wandering 2.5 mm (THE BOOK'S LINES)
+const BOOK_LINE = { k: 1.15, ripple: 0.0025 };
 function buildBook(p, shared) {
   const g = new Group(),
     faces = [],
@@ -2966,7 +2966,9 @@ export function placeProp(mesh) {
     mesh.rotation.set(0, ((p.spin || 0) * Math.PI) / 180, 0);
     mesh.userData.book?.scale.setScalar(p.w);
     mesh.userData.title?.place();
-    const top = parent.position.y + parent.scale.y / 2 + liftOf(p.id) + panelUnder(P, p.along);
+    /* 2 mm clear of the panel it stands on, so its bottom edge and thicker line never sink into the panel's top as the
+       two fight for the same depth: "i think it may be clipping into the panel" (Carl, 9 Nov 2026) */
+    const top = parent.position.y + parent.scale.y / 2 + liftOf(p.id) + panelUnder(P, p.along) + 0.002;
     mesh.position.set(parent.position.x - (p.inset || 0) - p.w * 0.31, top, P.alongTeal + p.along);
     mesh.userData.top = top + p.w * 0.16;
   } else if (parent && p.neck != null) {

@@ -1585,7 +1585,9 @@ function nowPlaying({ audio, at = 0, title, artist }) {
   });
   stop.addEventListener("click", () => (cue("key:stop"), endNowPlaying()));
   audio.addEventListener("ended", endNowPlaying, { once: true });
-  box.append(words, back, toggle, next, stop, audio);
+  /* the buttons first, then the song: "can the buttons be before the song info? then they won't bounce around when the
+     song changes" (Carl, 9 Nov 2026). The card is pinned at its left, so whatever follows the words moves as a name grows */
+  box.append(back, toggle, next, words, stop, audio);
   document.querySelector("#stage").append(box);
   drawBox(box);
   for (const b of [back, toggle, next]) drawBox(b, { round: true });

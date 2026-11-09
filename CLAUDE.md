@@ -206,8 +206,10 @@ of sight onto the cover and grown to match. A card on the console turns and tilt
 its title in DW Fairfield (`assets/dwfairfield.woff2`, the garden's copy), drawn large so it stays sharp up
 close, with size, left/right, up/down and opacity sliders: "the book should have the title on the spine -
 id like it to be clear when you zoom in but I want an opacity and size/placement control. It should say
-"the complete book of composting" in my dw fairfield font". Its outline 1.4 times the room's line, wandering 2.5 mm as the
-room's lines do: "can we thicken the outlines a bit of hte book and give it ripple?" (Carl, 9 Nov 2026; THE BOOK'S LINES). The panel shows
+"the complete book of composting" in my dw fairfield font". Its outline 1.15 times the room's line, wandering 2.5 mm as the
+room's lines do: "can we thicken the outlines a bit of hte book and give it ripple?", then of 1.4 times: "the book lines looks
+little thick, and i think it may be clipping into the panel" (Carl, 9 Nov 2026; THE BOOK'S LINES), so it stands 2 mm
+clear of the panel too. The panel shows
 only these two for now ("Let's hide the current controls for the time being"): `ONLY` in studio.mjs. Since 6 Oct 2026
 it shows the room, light and wall shapes alone, every decoration's controls put away: "ok so let's remove the item
 controls for now and talk about how to define the camera limitations".
@@ -665,6 +667,8 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   half their alpha, which made a fading word appear in chunks; the controls' picture keeps its soft alpha (`soft`).
 - NOW PLAYING in a mini player's order, asked "what is a best practices order?", then "yes": the song, back, play/pause
   (a little bigger), next, and a small × apart at the end that stops the song and closes the card. No stop button.
+  Then the buttons ahead of the song, so they stay put as its name changes length: "can the buttons be before the song
+  info? then they won't bounce around when the song changes" (Carl, 9 Nov 2026): back, play/pause, next, the song, ×.
 - The clickable map ("Can you show me the clickable heat map?"): `node tests/clickmap.mjs [out.png]` colours every spot of
   the room as it opens by the page a click there opens, labelled. Drawing it found two things, fixed the same day: a click
   was aimed by the camera's turn alone, so with the edges leaning the view it landed beside what was under the pointer
