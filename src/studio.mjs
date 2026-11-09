@@ -1303,7 +1303,12 @@ function place() {
        rises square over his name, held at the view it has at the top (the close-up's own angle differed by a few
        degrees, and easing between the two stopped the turn at the top), and from the top turns to the room's on one
        smootherstep, from a standstill */
-    camera.position.set(...path(peakOf(path)[1]));
+    // his name square: the close-up's view and the high place's, each aimed from where it was before the curve (looking
+    // almost straight down, an aim from the curve's own top, off to one side, tipped his name 30 degrees)
+    camera.position.set(...A);
+    camera.lookAt(...close[1]);
+    const qA = camera.quaternion.clone();
+    camera.position.set(...hi);
     camera.lookAt(...hiLook);
     const qTop = camera.quaternion.clone();
     camera.position.set(...path(uAt(d)));
@@ -1315,7 +1320,10 @@ function place() {
     const u = uAt(d),
       j = Math.min(K, Math.floor(u * K)),
       gone = Math.min(1, (across[j] + (j < K ? (u * K - j) * (across[j + 1] - across[j]) : 0)) / Math.max(1e-9, across[K]));
-    camera.quaternion.slerpQuaternions(qTop, q1, gone);
+    // and on the way up an even turn from the close-up's view to the top's, a subtle one: "it doesn't show my wordmark
+    // properly now, it may need a subtle even rotation while rising?" (Carl, 9 Nov 2026)
+    camera.quaternion.slerpQuaternions(qA, qTop, rise);
+    camera.quaternion.slerp(q1, gone);
     fov = gone <= 0 ? close[2] + (hiFov - close[2]) * leanEase(rise) : hiFov + (fov - hiFov) * gone;
   } else if (OPENING.k > 0) {
     const e = leanEase(close ? 1 - (t - RISE) / (1 - RISE) : OPENING.k),
