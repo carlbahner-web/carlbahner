@@ -652,10 +652,11 @@ only after a real drag, and a finger the page loses track of lets go. In `tests/
 **The drum's legs pinned, 9 Nov 2026**: "The drum looks weird and rotates - the two legs should be pinned to a position"
 (Carl). Its `follow` is 0, so it keeps the turn it has from where the room opens. And the things that turn to the camera
 turn to where it stands in the room (`stands` in `src/studio.mjs`), never to the flyover high over the rug or the lean
-over the console, which had swung the drum, the chair and the lamp round as the room opened. **Then it slides in at the end of the
-flyover**: "The drum still looks so weird during the move, can it slide into place at the end instead?" (Carl, 9 Nov 2026).
-While B is overhead and dropping it is not drawn, and over the flyover's last fifth it slides in from 1.4 m to its right,
-easing onto its spot as the camera lands (THE DRUM SLIDES IN in `src/studio.mjs`).
+over the console, which had swung the drum, the chair and the lamp round as the room opened. **A slide-in at the end of the
+flyover was tried and taken out the same day**: "The drum still looks so weird during the move, can it slide into place
+at the end instead?", then, shown it hidden overhead and sliding in from the right as the camera dropped: "No I don't
+like that either it's weird to have it appear on its own" (Carl, 9 Nov 2026). So the drum is drawn all the way through
+the flyover again, legs pinned; how it should look from overhead is still his to say.
 
 **The student officers' 33 findings, merged into one quiz, 9 Nov 2026** (https://claude.ai/artifact/L3wsezeEBG1PJnkq35QotX;
 the findings from his words, clutter, simplicity, delight and Godzilla officers, 8 Nov, on

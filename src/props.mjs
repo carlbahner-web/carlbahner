@@ -3013,7 +3013,7 @@ export function placeProp(mesh) {
       fwd = p.fwd || 0,
       // `slide`: left (negative) or right as the camera opens on it, square to its line of sight: "I need
       // left right controls for the chair and pillow" (Carl, 6 Oct 2026)
-      slide = (p.slide || 0) + (p.enter || 0), // `enter`: the drum sliding in at the end of the flyover (studio.mjs THE DRUM SLIDES IN)
+      slide = p.slide || 0,
       rx = -(face.z - z) / toward,
       rz = (face.x - x) / toward;
     mesh.position.set(
