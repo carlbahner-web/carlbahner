@@ -537,6 +537,14 @@ export const PROPS = [
        be pinned to a position" (Carl). So it holds the turn it has from where the room opens, its legs where they stand. */
     follow: 0,
     spin: 0,
+    /* ON A PHONE, turned clockwise about its right foot, that foot kept where it stood: "Can we start with the left foot in
+       this other new spot? Like rotating it clockwise but keeping the right foot where it is" (Carl, 9 Nov 2026, the left
+       foot's new spot drawn on the flyover's first view on his phone). Tried everywhere and undone ("hmmmm no undo that"),
+       then: "it should be on the phone only. I was judging it on the laptop but the phone is the issue" (Carl, 9 Nov
+       2026). `pole` is the right foot, 81% across the picture; `slide` stands that foot where it stood when the drum
+       turned about its middle; `spin` turns it about the foot, so it stands 36 degrees clockwise of its laptop turn seen from above (a foot is a different
+       line of sight from the camera than its middle, which turns it 4.8 more; PHONE PROPS). */
+    phone: { pole: 0.81, slide: (0.81 - 0.5) * 0.98 + 0.004, fwd: 0.15 - 0.046, spin: -31.2 },
     colors: [
       { id: "wood", label: "shell", base: "#aa5225", color: null },
       { id: "head", label: "head", base: "#f9f0db", color: null },
@@ -3028,11 +3036,22 @@ export function placeProp(mesh) {
       mesh.userData.anchor = { x: mesh.position.x, z: mesh.position.z };
       mesh.position.x -= Math.cos(ry) * off;
       mesh.position.z += Math.sin(ry) * off;
-    }
+    } else delete mesh.userData.anchor; // a pole given up (PHONE PROPS): it turns about its middle again
   }
   for (const m of all) if (m.userData.prop.on === p.id) placeProp(m);
 }
 
+/* PHONE PROPS: a prop's `phone` numbers stand in for its own while the phone's layout is on (stage.mjs upright()), its own
+   coming back when the window is a laptop's again. The drum's turn about its right foot is the first. */
+export function phoneProps(on) {
+  for (const m of all) {
+    const p = m.userData.prop;
+    if (!p.phone || p.phoneOn === on) continue;
+    p.laptop ??= Object.fromEntries(Object.keys(p.phone).map((k) => [k, p[k]]));
+    p.phoneOn = on;
+    setProp(m, on ? p.phone : p.laptop);
+  }
+}
 // changes some of a prop's numbers and places it again
 export function setProp(mesh, changes) {
   Object.assign(mesh.userData.prop, changes);
