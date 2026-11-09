@@ -74,7 +74,7 @@ export const THINGS = [
 // six at first: "if i did 6" (Carl, 2 Nov 2026), each a placeholder tone and an empty sleeve until his song came
 /* FOUR, in his order: "ok so i think i want to do fake a happy face, good grief, the garden, night life. those 4" (Carl,
    2 Nov 2026). Lowborn's and High Shores' sleeves went with the placeholders. */
-const TRACKS = ["assets/tracks/small-pools-fake-a-happy-face.mp3", "assets/tracks/surname-good-grief.mp3", "assets/tracks/king-leer-the-garden.mp3", "assets/tracks/honestly-night-life.mp3"];
+const TRACKS = ["assets/tracks/small-pools-fake-a-happy-face.mp3", "assets/tracks/surname-good-grief.mp3", "assets/tracks/king-leer-the-garden.mp3", "assets/tracks/honestly-night-life.mp3", "assets/tracks/saint-slumber-crush.mp3", "assets/tracks/cheerleader-the-sunshine-of-your-youth.mp3"];
 /* HIS SONGS, as he sends them (2 Nov 2026): the first, Small Pools' "Fake A Happy Face!" (Great Good Fine OK remix),
    its cover squared from the one he sent (art/covers/), the mp3 at 256 kbps as his player kit asks */
 // Surname's "Good Grief", as his live site has it (sent 2 Nov 2026); it was "Rat Race" for an hour, whose files
@@ -82,6 +82,11 @@ const TRACKS = ["assets/tracks/small-pools-fake-a-happy-face.mp3", "assets/track
 // King Leer's "The Garden" (Tawnted version), sent 2 Nov 2026: his master at 256k, its cover his screenshot
 // with its edges trimmed off and squared
 // Honestly's "Night Life", sent 2 Nov 2026, the same way
+/* Then two more after Night Life: "I want to add two more songs to the player - Crush by Saint Slumber and Sunshine Of
+   Your Youth by Cheerleader", "Yeah after night life" (Carl, 9 Nov 2026), the titles as Spotify writes them. Both mp3s he sent
+   the same day, at 256k, the silence at their ends cut off ("You can remove the extra silence"); Cheerleader's cover cut
+   from his Spotify screenshot, Crush's from a bigger one ("Here's a better one to crop from"). His part on each: "Crush was co-production, mixing and mastering… sunshine was
+   drumming and additional engineering". */
 // NEXT, not on the player yet: mrnoname's "Futurism", its cover sent 2 Nov 2026 and made the same way
 // (assets/covers/mrnoname-futurism.webp); "i just need to find the mp3 so don't worry about adding it to the live player yet"
 // on the deck, the song's title over its artist (props.mjs drawControls); the card keeps the description line
@@ -93,8 +98,10 @@ const SONGS = [
   { song: "Good Grief", artist: "Surname" },
   { song: "The Garden", artist: "King Leer" },
   { song: "Night Life", artist: "Honestly" },
+  { song: "CRUSH!", artist: "Saint Slumber" },
+  { song: "The Sunshine of Your Youth", artist: "Cheerleader" },
 ];
-const COVERS = ["assets/covers/small-pools-fake-a-happy-face.webp", "assets/covers/surname-good-grief.webp", "assets/covers/king-leer-the-garden.webp", "assets/covers/honestly-night-life.webp"];
+const COVERS = ["assets/covers/small-pools-fake-a-happy-face.webp", "assets/covers/surname-good-grief.webp", "assets/covers/king-leer-the-garden.webp", "assets/covers/honestly-night-life.webp", "assets/covers/saint-slumber-crush.webp", "assets/covers/cheerleader-the-sunshine-of-your-youth.webp"];
 
 /* CARL'S WORDS, off his current site (carlbahner.com/for-artists, sent as a PDF, 1 Nov 2026), word for word. Asked
    whether he wrote it or it was drafted: "I wrote it all myself". *Stars* mark the words his site sets in colour.
@@ -115,7 +122,7 @@ export const WORDS = {
        words (SONGS). Until then: 'Great Good Fine OK remix // Smallpools "Fake A Happy Face!"', 'fun-yet-sad indie pop //
        Surname "Good Grief"', 'introspective indie // King Leer "The Garden"', 'ultra-catchy indie pop // Honestly "Night
        Life"'. */
-    tracks: ['Smallpools "Fake A Happy Face!" (GGFO remix) // Co-production, mixing, mastering', 'Surname "Good Grief" // Co-produced and mixed', 'King Leer "The Garden" // Mixed and mastered', 'Honestly "Night Life" // Mixed and mastered'],
+    tracks: ['Smallpools "Fake A Happy Face!" (GGFO remix) // Co-production, mixing, mastering', 'Surname "Good Grief" // Co-produced and mixed', 'King Leer "The Garden" // Mixed and mastered', 'Honestly "Night Life" // Mixed and mastered', 'Saint Slumber "CRUSH!" // Co-production, mixing and mastering', 'Cheerleader "The Sunshine of Your Youth" // Drumming and additional engineering'],
     more: "MORE SONGS ON SPOTIFY",
     // his playlist, sent 2 Nov 2026
     moreLink: "https://open.spotify.com/playlist/3Bt7j0jThvjdHSlVSRH6HK",
