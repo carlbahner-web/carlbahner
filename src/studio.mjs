@@ -1031,7 +1031,8 @@ function widenForAspect(aspect) {
     if (upright()) {
       const o = phoneOpening();
       Object.assign(cam, { yaw: o.yaw, tyaw: o.yaw, pitch: o.pitch, tpitch: o.pitch, fov: o.fov, tfov: o.fov });
-    }
+    } else Object.assign(cam, { yaw: START.yaw, tyaw: START.yaw }); // and a window dragged back from phone-narrow, his laptop turn
+
   }
 }
 function clamp() {
