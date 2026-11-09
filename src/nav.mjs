@@ -406,7 +406,9 @@ export function startNav(v) {
   const WORD_HOLD_MS = +(Q.get("hold") || 900),
     TURN_MS = 600; // the turn to bring a tapped thing's words into view
   // a soft flight (a stop's nudge, ONE THING AT A TIME ON A PHONE) never holds a finger off the room
-  const busy = () => !!(open || holding || (flight && !flight.soft));
+  // and the flight home from a closed card never holds one off either: "can we make it that things can still be clicked
+  // even if the camera isn't 100% still?" (Carl, 9 Nov 2026; studio.mjs NEARLY HOME IS HOME)
+  const busy = () => !!(open || holding || (flight && !flight.soft && !flight.home));
   // the focus ring shows when the keyboard is in use, not after a click or a tap
   addEventListener("keydown", (e) => e.key === "Tab" && (document.documentElement.dataset.kbd = "1"), true);
   addEventListener("pointerdown", () => delete document.documentElement.dataset.kbd, true);
@@ -1040,7 +1042,8 @@ export function startNav(v) {
     const leanTo = leanFor(t);
     v.lean?.(!!leanTo, leanTo);
     t.leaning = !!leanTo;
-    if (!open) away = jump ? { ...START } : { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov };
+    // clicked on the way home from a card: home is where the visitor was, not where the camera has got to
+    if (!open) away = jump ? { ...START } : flight?.home ? { ...flight.to } : { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov };
     returnTo = document.activeElement?.classList?.contains("thing") ? document.activeElement : null;
     hovered = null;
     setHoverWords(null);
@@ -1097,8 +1100,9 @@ export function startNav(v) {
     goToView("opening");
     stopAudio();
     fly(away || { ...START }, null);
+    if (flight) flight.home = true;
     notice(FLY_MS + 150);
-    const settle = () => (flight ? setTimeout(settle, 60) : (clamp(), v.dirty()));
+    const settle = () => (flight ? setTimeout(settle, 60) : open || coming ? null : (clamp(), v.dirty()));
     setTimeout(settle, 60);
   }
   function close({ fromHistory = false } = {}) {
@@ -1144,9 +1148,10 @@ export function startNav(v) {
     cue("window-close");
     cue("fly-back");
     fly(back, null);
+    if (flight) flight.home = true;
     notice(FLY_MS + 150);
     // the flight back ends inside the visitors' limits again
-    const settle = () => (flight ? setTimeout(settle, 60) : (clamp(), v.dirty()));
+    const settle = () => (flight ? setTimeout(settle, 60) : open || coming ? null : (clamp(), v.dirty()));
     setTimeout(settle, 60);
     returnTo?.focus({ preventScroll: true });
   }

@@ -648,6 +648,16 @@
          charcoal outline, while no card is open */
       .phone-row {
         display: none;
+        /* in out of a blur as the flyover lands, not there from load (src/studio.mjs NEARLY HOME IS HOME) */
+        opacity: 0;
+        filter: blur(8px);
+        transition:
+          opacity 1s ease-out,
+          filter 1s ease-out;
+      }
+      .home .phone-row {
+        opacity: 1;
+        filter: none;
       }
       .upright:not(.win-open):not(.going) .phone-row {
         position: absolute;

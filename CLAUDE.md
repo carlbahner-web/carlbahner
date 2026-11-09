@@ -743,7 +743,11 @@ chat". His answers, built the same day unless marked:
   landed low and half behind it, the camera held from tipping further (Sway walks it up through the ceiling), so on a
   phone the camera stays where it stands and only looks down at it: "we need to make sure we fix the landing framing so
   the item is in the right spot" (Carl, 9 Nov 2026; A THING LOW IN THE ROOM, ON A PHONE in `src/nav.mjs`). NOW PLAYING
-  goes to the bottom while a card is open, out of the X's way: "Move it out of the way".
+  goes to the bottom while a card is open, out of the X's way: "Move it out of the way". The row comes in out of a blur as the opening
+  flyover lands, not there from load, and the room takes taps from then on, not only once the camera is still; a click on
+  the way home from a card opens the next one too: "can you make the mobile menu words at the bottom blur/fade in as the
+  opening camera settles instead of being there right from load? And can we make it that things can still be clicked even
+  if the camera isn't 100% still?" (Carl, 9 Nov 2026; NEARLY HOME IS HOME in `src/studio.mjs`).
 - **The cards**: Spotify is small underlined words under HOLY MOLY on the songs' card ("Spotify as small words under
   HOLY MOLY"); the logos moved from under the bio to the top of the quotes card ("Move them to Quotes"); the email and
   Instagram icons left the contact form for the foot of the bio, under HOLY MOLY ("Drop em both, put them at the bottom
