@@ -683,10 +683,15 @@ chat". His answers, built the same day unless marked:
   one place two ways ("Keep both, it's on purpose"); the snow globe's three VISIT buttons ("3 visits, but we need a better
   description for homegrown"); no song playing when the console opens ("Keep it they pick", his brief's "nothing
   autoplays with audio" standing).
-- **Waiting on him**: what he did on each song ("Quiz me and I'll answer"); Homegrown's line on the snow globe's card
-  ("Suggest some better ones for homegrown"); a little floating hint on the songs' card, "like the glove from the
-  garden" (the drawing is in ss-frontend, which this repo's sessions can't reach); and his red X for the cards' close
-  button ("I have a red x close button icon"). Asked on a second quiz, below.
+- **The four that waited on him**, answered on a second quiz the same day (https://claude.ai/artifact/CCjRxZ6aLgEdvE7wEQCw9B)
+  and built: his part after each song on the songs' card, as the words officer's draft had it ("Co-production, mixing,
+  mastering" on the GGFO remix, "Co-produced and mixed", "Mixed and mastered", "Mixed and mastered"), the style words
+  going; Homegrown's line on the snow globe's card is the landing page's own sentence, his of 12 Oct, then his motto
+  ("Look at the homegrown landing page"); Homegrown's pointing glove floats over the first sleeve, bobbing as the garden's
+  does, until a sleeve is first tapped ("Connect to the Ss-frontend repo"; THE GARDEN'S GLOVE in `src/nav.mjs`); and
+  Homegrown's red X closes every card ("Every card, it's also on the frontend repo"; THE RED X). The glove and the X are
+  copied from ss-frontend (`garden/assets/fx/glove-down.webp`, `public/assets/icon-cancel.webp`), as the garden's other
+  pieces are.
 
 ## Laptop first. Phones wait.
 

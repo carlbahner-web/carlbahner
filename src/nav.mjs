@@ -109,7 +109,13 @@ export const WORDS = {
     button: { words: "HOLY MOLY I WANT TO TALK TO YOU ABOUT MY MUSIC", to: "contact" },
     // the full titles off his live site's player (screenshots, 2 Nov 2026); the first written the same way as the rest:
     // "fix it" (Carl, 2 Nov 2026), its remix credit where the others' describe the song
-    tracks: ['Great Good Fine OK remix // Smallpools "Fake A Happy Face!"', 'fun-yet-sad indie pop // Surname "Good Grief"', 'introspective indie // King Leer "The Garden"', 'ultra-catchy indie pop // Honestly "Night Life"'],
+    /* then what he did on each, after the song, as the words officer's draft had it: "Say what I did on each", then "Quiz
+       me and I'll answer", and his parts (Carl, 9 Nov 2026, the officers' fixes quiz): "Co-production, mixing, mastering",
+       "Co-produced and mixed", "Mixed and mastered" and "Mixed and mastered". The first keeps its remix in his deck's
+       words (SONGS). Until then: 'Great Good Fine OK remix // Smallpools "Fake A Happy Face!"', 'fun-yet-sad indie pop //
+       Surname "Good Grief"', 'introspective indie // King Leer "The Garden"', 'ultra-catchy indie pop // Honestly "Night
+       Life"'. */
+    tracks: ['Smallpools "Fake A Happy Face!" (GGFO remix) // Co-production, mixing, mastering', 'Surname "Good Grief" // Co-produced and mixed', 'King Leer "The Garden" // Mixed and mastered', 'Honestly "Night Life" // Mixed and mastered'],
     more: "MORE SONGS ON SPOTIFY",
     // his playlist, sent 2 Nov 2026
     moreLink: "https://open.spotify.com/playlist/3Bt7j0jThvjdHSlVSRH6HK",
@@ -183,7 +189,11 @@ export const WORDS = {
          Homegrown's motto, his: "Habits not hacks works great" (20 Oct 2026, in the marketing session) */
       {
         title: "Homegrown",
-        text: ["Habits not hacks."],
+        /* a better line for it: "we need a better description for homegrown", then "Look at the homegrown landing page"
+           (Carl, 9 Nov 2026, the officers' fixes quiz). The landing page's own sentence, his ("Yes use the longer one
+           except say outreach and project management instead of outreach and follow-ups", 12 Oct 2026; ss-frontend
+           src/lib/productName.ts LINK_DESCRIPTION), then his motto, which was here alone */
+        text: ["Homegrown is a CRM for music producers and mixing engineers that turns outreach and project management into a game, one artist at a time. Habits not hacks."],
         link: { words: "VISIT HOMEGROWN", href: "https://homegrownapp.io", calm: true },
       },
     ],
@@ -800,7 +810,10 @@ export function startNav(v) {
   win.classList.add("sheet");
   drawBox(document.querySelector("#stage"), { front: true }); // the room's card: its line drawn over the room's edge
   drawBox(win); // a Homegrown card: still, its line faded (index.html #win)
-  drawBox(win.querySelector(".close"), { round: true });
+  /* THE RED X: Homegrown's own (ss-frontend public/assets/icon-cancel.webp, ui.tsx CloseX, "Red X on every popup"),
+     on every card: "I have a red x close button icon", then "Every card, it's also on the frontend repo" (Carl, 9 Nov
+     2026, the officers' fixes quiz). It was a drawn mustard circle round a charcoal X until then. It is a drawing, so
+     it gets no drawn box. */
   win.querySelector(".close").addEventListener("click", () => close());
   /* A CLICK IN THE ROOM WITH A WINDOW OPEN CLOSES IT. For a while, 2 Nov 2026, a click on another thing glided straight
      to it ("can we try glide?"); tried, Carl took it out the same day: "i think we should disallow clicking on other
@@ -1583,6 +1596,16 @@ const SHELLS = {
       return b;
     });
     box.append(shelf);
+    /* THE GARDEN'S GLOVE, OVER THE FIRST SLEEVE: nothing plays until a song is picked ("Keep it they pick but maybe give a
+       little floating hint (like the glove from the garden?)", Carl, 9 Nov 2026, the officers' fixes quiz). Homegrown's
+       pointing glove (ss-frontend garden/assets/fx/glove-down.webp, copied as assets/glove-down.webp) floats over the
+       first sleeve, bobbing as the garden's does, 18px every 1.1s, until a sleeve is first tapped on this visit; held
+       still for a visitor who asks for less motion. A picture only: it says nothing to a screen reader. */
+    if (!gloveGone && rows[0]) {
+      const g = el("img", "sleeve-glove", { src: "assets/glove-down.webp", alt: "" });
+      g.setAttribute("aria-hidden", "true");
+      rows[0].querySelector(".sleeve-stack").append(g);
+    }
     /* A SONG THAT DIDN'T LOAD: the student Godzilla officer's third hole: a song tapped as the signal dropped stayed
        silent, a second tap did nothing, and nothing said why. "Fix it: "Ugh, that one didn't load. Tap it to try again.""
        (Carl, 9 Nov 2026, the officers' fixes quiz). The line shows under the sleeves while it can't load, and a tap on
@@ -1616,6 +1639,9 @@ const SHELLS = {
     let busy = false,
       next = null;
     async function pick(i) {
+      // the first tap on a sleeve, and the glove has done its job (THE GARDEN'S GLOVE)
+      gloveGone = true;
+      box.querySelector(".sleeve-glove")?.remove();
       if (busy) {
         if (i !== at) next = i;
         return;
@@ -2024,6 +2050,7 @@ function sentToast() {
   t.addEventListener("click", go);
   setTimeout(go, 6000); // long enough to read his line
 }
+let gloveGone = false; // a sleeve has been tapped this visit (THE GARDEN'S GLOVE, in the player)
 const DRAFT = {}; // what the visitor has typed, until it is sent (A HALF-WRITTEN MESSAGE IS KEPT)
 const EMAIL_SAYS = "Almost there! Just need your email so I can reply.";
 function contactForm() {

@@ -483,7 +483,6 @@
         padding: 0;
         border: none;
         background: none;
-        --fill: #f6cc60;
         cursor: pointer;
       }
       /* a finger's size on screen however small the card is drawn (src/stage.mjs NO SMALLER THAN THREE QUARTERS) */
@@ -491,13 +490,16 @@
         width: calc(44px * max(1, 1 / var(--k, 1)));
         height: calc(44px * max(1, 1 / var(--k, 1)));
       }
-      #win .close svg:not(.wob) {
-        width: 20px;
-        height: 20px;
-        stroke: var(--ink);
-        stroke-width: 2.6;
-        stroke-linecap: round;
-        fill: none;
+      /* THE RED X (src/nav.mjs): Homegrown's drawing, 30px in its 44px button */
+      #win .close img {
+        display: block;
+        width: 68%;
+        height: 68%;
+        margin: auto;
+        object-fit: contain;
+      }
+      #win .close:active img {
+        transform: scale(0.92);
       }
       [data-kbd] #win button:focus-visible,
       [data-kbd] #win input:focus-visible {
@@ -751,6 +753,27 @@
         color: var(--ink);
         text-decoration: underline;
         text-underline-offset: 3px;
+      }
+      /* THE GARDEN'S GLOVE over the first sleeve (src/nav.mjs), bobbing as the garden's does: 18px every 1.1s */
+      .sleeve-glove {
+        position: absolute;
+        z-index: 2;
+        left: 50%;
+        top: 12%;
+        width: 46px;
+        margin-left: -23px;
+        pointer-events: none;
+        animation: glove-bob 0.55s ease-in-out infinite alternate; /* down and back up, 1.1s */
+      }
+      @keyframes glove-bob {
+        to {
+          transform: translateY(18px);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .sleeve-glove {
+          animation: none;
+        }
       }
       /* a song that didn't load, said under the sleeves (src/nav.mjs A SONG THAT DIDN'T LOAD) */
       .song-note {
@@ -1480,7 +1503,7 @@
     <div id="winscroll">
     <div id="win" role="dialog" aria-modal="true" hidden>
       <button type="button" class="close" aria-label="Close">
-        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 4.8 L15.4 15.2 M15.2 4.6 L4.7 15.3" /></svg>
+        <img src="assets/icon-cancel.webp" alt="" aria-hidden="true" />
       </button>
       <div class="body"></div>
     </div>
