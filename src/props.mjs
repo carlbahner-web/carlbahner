@@ -528,7 +528,7 @@ export const PROPS = [
   /* BUZZ IN HIS COASTER CAR, an Easter egg: "How could we sneak a small icon in the top left corner of the room
      that we don't mention and it's like an Easter egg?", then, the spot marked on his phone, "And it should be the
      buzz coaster image from the wild-ride repo" (Carl, 9 Nov 2026). The wild-ride repo's games/src/assets/buzz-car.png,
-     kept as it came in art/buzz-car-source.png. Small and flat high on the teal wall, past the clock, by the ceiling.
+     kept as it came in art/buzz-car-source.png. Small and flat at the top of the teal wall, up and left of the clock, against the ceiling.
      It never boils, lights or says a word; a click or tap on it opens Buzz's Wild Ride (`egg`, THE EGG in nav.mjs). */
   {
     id: "buzz",
@@ -536,8 +536,9 @@ export const PROPS = [
     src: "assets/buzz-car.webp",
     w: 0.2,
     wall: "teal",
-    x: 2.86,
-    y: 2.02,
+    // where Carl marked it on his phone, tucked under the ceiling's edge left of the clock
+    x: 3.0,
+    y: 2.88,
     egg: "https://buzzs-wild-ride.netlify.app/",
   },
   /* THE BASS DRUM (Carl's drawing, sent 5 Oct 2026: "Can this go along the right wall?"). Cut by
