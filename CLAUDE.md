@@ -761,7 +761,7 @@ chat". His answers, built the same day unless marked:
   forgot were even there." ("Use the draft"); the bio ends on "...borderline sentient." ("End a sentence sooner");
   Jean-Philip's quote starts "...the approach that Carl took" ("Start it with ..."); the tab and a shared link's title
   say "Carl Bahner // mixing and co-production", replacing his launch quiz's "Carl Bahner". Then in capitals, as his cards' titles are:
-  "CARL BAHNER // MIXING AND CO-PRODUCTION" ("Capitals", 9 Nov 2026, the link preview quiz). The line under it is from his bio, "Mixes that feel tight, weird, and borderline
+  "CARL BAHNER // MIXING AND CO-PRODUCTION" ("Capitals", 9 Nov 2026, the link preview quiz). Then "CARL BAHNER // MIXER & CO-PRODUCER": "MIXER & CO-PRODUCER" (Carl, 9 Nov 2026). The line under it is from his bio, "Mixes that feel tight, weird, and borderline
   sentient.", for "Mixer, educator, and sonic chaos gremlin." ("Use this one", the same quiz).
 - **STUDIOLAND on the wall stays, a little smaller**: "Keep it since I run it, but maybe make it a little smaller like
   2-3px smaller" (0.205 for 0.22, about 2.5px of its 38 from the opening view).
