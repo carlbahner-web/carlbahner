@@ -403,10 +403,11 @@ export function startNav(v) {
     away = null, // where the visitor was before flying in
     flying = false,
     holding = false; // a phone's tap showing the words before the flight (THE WORD FIRST, ON A PHONE)
-  /* NO HOLD, THE WORD STAYS UP: "Ok we can remove the hold and keep the words up?" (Carl, 9 Nov 2026), told a phone's tap
-     held the thing lit with its word up for 0.9 s before the flight. So the flight sets off as soon as the word is in view,
-     and the tapped thing's word stays up on the wall while the camera flies in, the others going (`tapWord`), until its
-     card opens. `?hold=` still tries a hold. */
+  /* NO HOLD: "Ok we can remove the hold and keep the words up?" (Carl, 9 Nov 2026), told a phone's tap held the thing lit
+     with its word up for 0.9 s before the flight. So the flight sets off as soon as the word is in view, and the words fade
+     as it does, as they always have. Read first as the tapped word staying up through the flight, which he took back the
+     same day: "Wait why are the words not going transparent anymore? There may have been a miscommunication". `?hold=`
+     still tries a hold. */
   const WORD_HOLD_MS = +(Q.get("hold") || 0),
     TURN_MS = 600; // the turn to bring a tapped thing's words into view
   // a soft flight (a stop's nudge, ONE THING AT A TIME ON A PHONE) never holds a finger off the room
@@ -817,7 +818,7 @@ export function startNav(v) {
     // mouse until the first hover or INTRO_MS
     // the word editor keeps them all up, so each is placed among the rest (src/wordtune.mjs)
     const up = !open && (!flight || flight.soft || holding);
-    showAll(!up ? 0 : TOUCH || window.WORDS_EDITOR || (!introDone && now < introUntil) ? 1 : QUIET, up && hovered ? keyOfThing(hovered) : !up ? tapWord : null);
+    showAll(!up ? 0 : TOUCH || window.WORDS_EDITOR || (!introDone && now < introUntil) ? 1 : QUIET, up && hovered ? keyOfThing(hovered) : null);
     const pulsing = TOUCH && !open && !flight && !reduced;
     const breath = pulsing ? PULSE_PEAK * (0.5 - 0.5 * Math.cos((2 * Math.PI * Math.max(0, now - pulseFrom)) / PULSE_MS)) : 0;
     for (const t of things) {
@@ -980,14 +981,12 @@ export function startNav(v) {
   let pushed = false,
     returnTo = null,
     coming = null; // the thing the camera is flying in to, until its card opens
-  let tapWord = null; // the word kept up while a tap's flight comes in (NO HOLD, THE WORD STAYS UP)
   function show(t) {
     /* BACK PRESSED MID-FLIGHT: the chief hole-poker's first hole (docs/GODZILLA-2026-11-08.md; Carl, 8 Nov 2026, on its
        quiz: "Fix it"). Back during the console's long flight cleared the address, the card opened anyway on landing,
        and its close then pressed Back again, off the site. A flight Back has called off lands nothing. */
     if (coming !== t) return;
     coming = null;
-    tapWord = null;
     open = t;
     // in close now: it boils round its outline alone until it is closed, the rest still (props.mjs, ITS OWN BOIL)
     boiling(t);
@@ -1098,7 +1097,6 @@ export function startNav(v) {
   // Back pressed while the camera flies in: it turns round and goes home, and no card opens (BACK PRESSED MID-FLIGHT)
   function callOff() {
     coming = null;
-    tapWord = null;
     document.body.classList.remove("going");
     pushed = false;
     setLid(false);
@@ -1114,7 +1112,6 @@ export function startNav(v) {
   }
   function close({ fromHistory = false } = {}) {
     coming = null;
-    tapWord = null;
     if (!open) return;
     if (!fromHistory && pushed) {
       // the browser's Back does the closing, so Back and the button leave the same history
@@ -1473,7 +1470,6 @@ export function startNav(v) {
         }
         setTimeout(() => {
           holding = false;
-          tapWord = keyOfThing(t);
           openThing(t);
           away = was;
         }, turn + WORD_HOLD_MS);
