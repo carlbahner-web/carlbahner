@@ -1172,6 +1172,10 @@ function place() {
   const d = lookDir(cam.yaw, cam.pitch),
     p = camera.position;
   camera.lookAt(p.x + d[0], p.y + d[1], p.z + d[2]);
+  /* where the camera stands in the room, kept before the opening flyover or the lean moves it: the things that turn to
+     the camera turn to this, so nothing swings round to face the flyover high over the rug, and where the room opens is
+     where their home turn is taken from ("The drum looks weird and rotates", Carl, 9 Nov 2026) */
+  const stands = { x: p.x, y: p.y, z: p.z };
   // for tests/lamp.mjs: the camera stood where the turn puts it, looking at one spot instead
   const aim = window.__studio?.aim;
   if (aim) camera.lookAt(aim.x, aim.y, aim.z);
@@ -1219,7 +1223,7 @@ function place() {
     camera.fov = fov;
     camera.updateProjectionMatrix();
   }
-  faceProps(props, p);
+  faceProps(props, stands);
   setLights(shared, lampLights());
 }
 /* Turns the camera to look straight at a decoration and zooms the lens right in on it. The camera's place

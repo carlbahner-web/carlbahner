@@ -649,6 +649,10 @@ leaves an error in the console (`play`). `node tests/holes.mjs` recreates each o
 turned the room from its first pixel, so a fingertip's roll on a tap moved the view and, past 8px, stopped being a tap.
 Now a finger moves 12px (`SLOP` in `src/studio.mjs`) before it turns anything and is a tap until then, a flick carries on
 only after a real drag, and a finger the page loses track of lets go. In `tests/holes.mjs` too.
+**The drum's legs pinned, 9 Nov 2026**: "The drum looks weird and rotates - the two legs should be pinned to a position"
+(Carl). Its `follow` is 0, so it keeps the turn it has from where the room opens. And the things that turn to the camera
+turn to where it stands in the room (`stands` in `src/studio.mjs`), never to the flyover high over the rug or the lean
+over the console, which had swung the drum, the chair and the lamp round as the room opened.
 
 ## Laptop first. Phones wait.
 

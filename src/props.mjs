@@ -532,7 +532,10 @@ export const PROPS = [
     at: [1.9, 0.55],
     along: 2.26,
     fwd: 0.15,
-    follow: 0.8, // 0.2 until 2 Nov 2026: seen from the side it squashed, "The drum gets kinda skewed in a weird way" (Carl)
+    /* 0.2 until 2 Nov 2026: seen from the side it squashed, "The drum gets kinda skewed in a weird way" (Carl); then
+       0.8 until 9 Nov 2026, when it turned with every look round: "The drum looks weird and rotates - the two legs should
+       be pinned to a position" (Carl). So it holds the turn it has from where the room opens, its legs where they stand. */
+    follow: 0,
     spin: 0,
     colors: [
       { id: "wood", label: "shell", base: "#aa5225", color: null },
