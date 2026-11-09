@@ -1357,6 +1357,12 @@ cv.addEventListener("gestureend", (e) => e.preventDefault());
 // fingers and the mouse: one pointer down turns the view, two pinch it
 const down = new Map();
 const THUMB = 2;
+/* A TAP IS NOT A GRAB: "sometimes I try to tap and it latches to my finger and grabs" (Carl, 9 Nov 2026). A finger turned
+   the view from its first pixel of movement, at twice a mouse's rate, and a flick carried on when it lifted, so the small
+   roll every fingertip makes as it presses turned the room under it, and once it rolled 8px the tap stopped counting as
+   one. Now a finger has to move SLOP px before it turns anything, starting from there (no jump), and stays a tap until
+   then; a flick carries on only after a real drag. */
+const SLOP = 12;
 let fling = 0;
 let drag = null,
   pinch = null,
@@ -1391,6 +1397,11 @@ cv.addEventListener("pointermove", (e) => {
     return;
   }
   if (!drag) return;
+  if (e.pointerType === "touch" && !drag.live) {
+    if (!press || press.far < SLOP) return; // still a tap
+    drag = { x: e.clientX, y: e.clientY, live: true }; // a drag from here: the roll before it turns nothing
+    return;
+  }
   if (e.pointerType === "touch") {
     /* A THUMB, 2 Nov 2026: "Moving/dragging with my thumb is really slow and kinda glitchy" (Carl). So a finger turns
        the view THUMB times as far as the mouse, moves where the view is going rather than where it is (the frame eases
@@ -1402,7 +1413,7 @@ cv.addEventListener("pointermove", (e) => {
     cam.tpitch += (e.clientY - drag.y) * k;
     const dt = Math.max(8, now - (drag.t || now - 16));
     fling = fling * 0.6 + (dx / dt) * 0.4; // radians a millisecond, smoothed
-    drag = { x: e.clientX, y: e.clientY, t: now };
+    drag = { x: e.clientX, y: e.clientY, t: now, live: true };
     clamp();
     dirty = true;
     return;
@@ -1480,14 +1491,14 @@ function edgeTurn(dt) {
 }
 const end = (e) => {
   if (press && down.size === 1 && e.type === "pointerup") {
-    if (press.far < 8 && performance.now() - press.at < 700 && !window.WORDS_EDITOR) nav.tap(e.clientX - view().left, e.clientY - view().top);
+    if (press.far < (e.pointerType === "touch" ? SLOP : 8) && performance.now() - press.at < 700 && !window.WORDS_EDITOR) nav.tap(e.clientX - view().left, e.clientY - view().top);
     press = null;
   }
   down.delete(e.pointerId);
   if (down.size < 2) pinch = null;
   if (down.size === 0) {
     // a flick carries on: about a quarter second more of the speed it had
-    if (drag && e.pointerType === "touch" && e.type === "pointerup" && performance.now() - (drag.t || 0) < 80) {
+    if (drag?.live && e.pointerType === "touch" && e.type === "pointerup" && performance.now() - (drag.t || 0) < 80) {
       cam.tyaw += fling * 260;
       clamp();
       dirty = true;
@@ -1499,6 +1510,8 @@ const end = (e) => {
 };
 cv.addEventListener("pointerup", end);
 cv.addEventListener("pointercancel", end);
+// and a finger the page lost track of lets go, so the view never stays stuck to one that has lifted
+cv.addEventListener("lostpointercapture", (e) => down.has(e.pointerId) && end(e));
 let wheel = 0;
 cv.addEventListener(
   "wheel",

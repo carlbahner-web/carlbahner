@@ -109,6 +109,41 @@ const winOpen = (p) => p.evaluate(() => !document.querySelector("#win").hidden);
   await ctx.close();
 }
 
+// 4. a tap with the small roll a fingertip makes opens its page, and doesn't turn the room under the finger ("it latches
+//    to my finger and grabs", Carl, 9 Nov 2026); a real drag still turns it. A phone held upright, where a drag can turn.
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: "reduce" });
+  const p = await ctx.newPage();
+  await p.goto(url + "?open=none");
+  await loaded(p);
+  await p.waitForTimeout(2500);
+  const cdp = await ctx.newCDPSession(p);
+  const touch = (type, x, y) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: type === "touchEnd" ? [] : [{ x, y, id: 1 }] });
+  const at = await p.evaluate(() => {
+    const r = document.querySelector("#stage").getBoundingClientRect();
+    const q = window.__nav.where("map");
+    return { x: r.left + ((q[0] + 1) / 2) * r.width, y: r.top + ((1 - q[1]) / 2) * r.height };
+  });
+  const yaw = () => p.evaluate(() => window.__studio.cam.tyaw);
+  const y0 = await yaw();
+  await touch("touchStart", at.x, at.y);
+  for (const d of [3, 6, 10]) await touch("touchMove", at.x + d, at.y + d / 2);
+  expect(Math.abs((await yaw()) - y0) < 1e-6, "4. a fingertip's roll on a tap turned the room under it");
+  await touch("touchEnd");
+  await p.waitForTimeout(7000);
+  expect(await p.evaluate(() => location.hash === "#artists" && !document.querySelector("#win").hidden), "4. a tap with a fingertip's roll did not open the map's page");
+  await p.keyboard.press("Escape");
+  await p.waitForTimeout(4000);
+  const y1 = await yaw();
+  await touch("touchStart", 300, 600);
+  for (let i = 1; i <= 8; i++) await touch("touchMove", 300 - i * 15, 600);
+  expect(Math.abs((await yaw()) - y1) > 1e-3, "4. a real drag no longer turns the room");
+  await touch("touchEnd");
+  await p.waitForTimeout(800);
+  expect(await p.evaluate(() => document.querySelector("#win").hidden), "4. a drag opened a page");
+  await ctx.close();
+}
+
 await browser.close();
 server.close();
 if (problems.length) {

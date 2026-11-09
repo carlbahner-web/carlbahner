@@ -645,6 +645,10 @@ it round with no card opening, so closing never leaves the site (BACK PRESSED MI
 `src/nav.mjs`); a contact box of only spaces counts as empty and the browser's own "fill out this field" comes up (A BOX
 OF SPACES IS EMPTY); an address in capitals opens its page (`byHash`); and a song changed before it starts no longer
 leaves an error in the console (`play`). `node tests/holes.mjs` recreates each one and fails if it comes back.
+**A tap is not a grab, 9 Nov 2026**: "sometimes I try to tap and it latches to my finger and grabs" (Carl). A finger
+turned the room from its first pixel, so a fingertip's roll on a tap moved the view and, past 8px, stopped being a tap.
+Now a finger moves 12px (`SLOP` in `src/studio.mjs`) before it turns anything and is a tap until then, a flick carries on
+only after a real drag, and a finger the page loses track of lets go. In `tests/holes.mjs` too.
 
 ## Laptop first. Phones wait.
 
