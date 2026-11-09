@@ -1149,7 +1149,9 @@ function drumTurn(now) {
    back?" (Carl, 8 Nov 2026). For its first RISE of the time it rises straight up from CLOSE over the rug, still looking
    down, to the high place, then drops back into the room as before. */
 const RISE = 0.32,
-  CLOSE_H = 1.85;
+  CLOSE_H = 1.85,
+  UPRIGHT_TOP = +(new URLSearchParams(location.search).get("otop") || 0.08), // how far under the ceiling, on a phone
+  UPRIGHT_TOP_FOV = +(new URLSearchParams(location.search).get("ofov") || 1.3);
 function openingClose(fov1) {
   if (OPEN_KIND !== "above") return null;
   const rug = [1.89, 0, 1.79],
@@ -1163,6 +1165,11 @@ function openingFrom(p1, d1, fov1) {
   /* the same height, turned so his name on the rug reads left to right, not on a slant: "what if B started at a slightly
      different angle (same height, but rotated so that the wordmark is left to right instead of diagonal?" (Carl, 8 Nov
      2026). Facing the teal wall square, the rug's length across the screen */
+  /* and on a phone held upright, higher and a little wider, so his whole name on the rug fits the narrow screen at the
+     top: "Can we have the camera go just a bit higher at the top of the flyover in mobile? Just enough to get the whole
+     wordmark in it" (Carl, 9 Nov 2026). The ceiling stops the rise short (UPRIGHT_TOP), and the lens opens the rest
+     (UPRIGHT_TOP_FOV). */
+  if (OPEN_KIND === "above" && upright()) return [[rug[0], ROOM.h - UPRIGHT_TOP, rug[2] + 0.3], [rug[0], 0, rug[2] - 0.05], fov1 * 1.2 * UPRIGHT_TOP_FOV];
   if (OPEN_KIND === "above") return [[rug[0], ROOM.h - 0.35, rug[2] + 0.3], [rug[0], 0, rug[2] - 0.05], fov1 * 1.2];
 
   // far: back along its own line of sight and a little up, looking at the same corner
