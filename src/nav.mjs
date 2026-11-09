@@ -979,6 +979,7 @@ export function startNav(v) {
       Object.assign(document.createElement("a"), { href: t.link, target: "_blank", rel: "noopener" }).click();
       return;
     }
+    document.body.classList.add("going"); // the phone's row of words steps aside (A ROW OF WORDS ON A PHONE)
     // from another window: its card slides out as the camera leaves, and the new one comes in on landing
     if (open) {
       win.classList.remove("in");
@@ -1034,6 +1035,7 @@ export function startNav(v) {
   // Back pressed while the camera flies in: it turns round and goes home, and no card opens (BACK PRESSED MID-FLIGHT)
   function callOff() {
     coming = null;
+    document.body.classList.remove("going");
     pushed = false;
     setLid(false);
     setMapLights(false);
@@ -1071,7 +1073,7 @@ export function startNav(v) {
     v.lean?.(false);
     goToView("opening");
     win.classList.remove("in");
-    document.body.classList.remove("win-open");
+    document.body.classList.remove("win-open", "going");
     stopAudio();
     const back = away || { ...START };
     open = null;
@@ -1199,7 +1201,29 @@ export function startNav(v) {
     const t = byHash();
     setPhoneWords(upright()); // a phone held upright reads its own word spots (props.mjs WORD_AT_PHONE)
     introUntil = performance.now() + INTRO_MS;
+    phoneRow();
     if (t) openThing(t, { jump: true, push: false });
+  }
+  /* A ROW OF WORDS ON A PHONE: four officers found the phone's room opening with LISTEN cut to "EN", ABOUT, YOU + ME and
+     STUDIOLAND off the screen and nothing saying the room drags. "Open on the console and the row of words" (Carl, 9 Nov
+     2026, the officers' fixes quiz). So on a phone held upright the room opens on the console (studio.mjs PHONE.turn) and
+     every page's word sits in a row along the bottom of the room, in the room's order left to right, the walls' cream
+     and charcoal; a tap opens its page as a tap on its thing does. Gone while a card is open or the camera is flying.
+     This is the one label in the room: until then what opens showed only on the thing itself. */
+  function phoneRow() {
+    const row = el("nav", "phone-row");
+    row.setAttribute("aria-label", "Pages");
+    for (const t of ordered()) {
+      const w = wordsOf(t);
+      if (!w || t.link) continue;
+      const b = el("button", "", { type: "button", textContent: w, tabIndex: -1 }); // the keyboard has its own buttons
+      b.addEventListener("click", () => {
+        if (busy() || open) return;
+        openThing(t);
+      });
+      row.append(b);
+    }
+    document.querySelector("#stage").append(row);
   }
   // for the tests: where a thing's middle is on screen, -1..1
   window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, word: (x, y) => wordThingAt(x, y)?.hash ?? null, zone: (x, y) => zoneAt(x, y)?.hash ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room };
