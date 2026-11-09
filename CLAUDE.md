@@ -611,7 +611,9 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   diagonal"), close on it, pulls up and out, then drops into the room ("can b start zoomed in further into the carpet and
   pull out before droping back?"): RISE and CLOSE_H. On a phone its top is higher, near the ceiling, and a little wider, so
   his whole name fits the narrow screen: "Can we have the camera go just a bit higher at the top of the flyover in mobile?
-  Just enough to get the whole wordmark in it" (Carl, 9 Nov 2026; `UPRIGHT_TOP`, `UPRIGHT_TOP_FOV`, `?otop=`, `?ofov=`).
+  Just enough to get the whole wordmark in it" (Carl, 9 Nov 2026; `UPRIGHT_TOP`, `?otop=`). The lens is worked out for
+  each screen's shape, his name taking 94% of its width, after one size for every phone "goes out too far" on his (Carl,
+  9 Nov 2026; `UPRIGHT_TOP_FILL`, `?ofill=`, `?ofov=`).
 - The word editor (https://claude.ai/artifact/L5sZYGwWCpwAeN1sRASJxB, `build-words.sh`) is back up to date ("do you hvae
   the editor where i can put the words and resize them?"): every word stays up while one is moved, and it saves at
   `words/layout-nov8`, so the 3 Nov spots no longer pull the words back. Read that back with ArtifactData and write it
