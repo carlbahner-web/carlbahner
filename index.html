@@ -16,7 +16,7 @@
     <meta property="og:url" content="https://carlbahner.com/" />
     <meta property="og:title" content="Carl Bahner // mixing and co-production" />
     <meta property="og:description" content="Mixer, educator, and sonic chaos gremlin." />
-    <meta property="og:image" content="https://carlbahner.com/assets/share.jpg" />
+    <meta property="og:image" content="https://carlbahner.com/assets/share.jpg?v=2" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -27,12 +27,28 @@
         margin: 0;
         height: 100%;
         overflow: hidden;
-        /* the page round the room's card: Homegrown's quiet cream (tokens.css --paper) */
-        background: #fefdf9;
+        /* THE PAGE ROUND THE CARD, CHARCOAL WITH GRAIN: "Can we make the page background charcoal with grain? Like outside the
+           main card border. On the page and the preview" (Carl, 9 Nov 2026). The room's charcoal, the paper garden's grain
+           laid over it in soft light as on the room's walls (body::before). Homegrown's quiet cream (tokens.css --paper)
+           until then. */
+        background: #2c2c2a;
         /* NO TAP FLASH: a phone's browser lays a pale box over whatever is tapped, and on a sleeve it flashed white as the
            record came out: "there is a quick white flash/glitch when selecting a vinyl", on the phone, "On the sleeve"
            (Carl, 9 Nov 2026). What is pressed shows on the thing itself instead. */
         -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        background: transparent;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background: url("assets/paper-grain.webp") center / 1024px;
+        mix-blend-mode: soft-light;
+        opacity: 0.6;
       }
       /* THE ROOM'S CARD (src/stage.mjs): 16:9 whatever the window, centred, sized and placed by fitStage; its
          corner Homegrown's 12 and its line drawn over the room's edge (drawBox, front) */
