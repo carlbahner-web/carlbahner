@@ -571,7 +571,11 @@ words officers, the Homegrown skills, walked the site). His answers, built the s
   the console's front, CONTACT and QUOTES under the map, YOU+ME on the teal panel, ABOUT on the arch (`WORD_AT`).
 - **The song plays on** when its card closes, with a **NOW PLAYING** card in the room's corner (its name, pause, stop):
   "There needs to be some sort of song info/control hud thing so they can stop as needed". Opening the player again
-  starts it fresh.
+  started it fresh until 9 Nov 2026: "when i clicked back into the player, it stopped the audio and reset the player
+  instead of having the record still playing visually and sonically" (Carl). Now it takes the song back, its record on
+  the deck, turning (THE PLAYER TAKES ITS SONG BACK in `src/nav.mjs`). The song's audio lives in NOW PLAYING's card, so a
+  Back pressed mid-flight to another thing no longer stops it ("it was glitching when i left the player page while the
+  audio was still going and i was clicking into other pages"). `node tests/holes-player.mjs` recreates both.
 - The bio ends on HOLY MOLY; Spotify is the quiet button (a line, no fill) and the one action is the card's width; the
   form lost its "(required)" and its Name heading; Smallpools, one word; the keyboard's and screen reader's names are his
   wall words; the podcast is off the site ("We can remove it actually"), the mug a plain decoration; the book weighs as
