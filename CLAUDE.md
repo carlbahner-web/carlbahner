@@ -645,8 +645,14 @@ when the view is tilted up, as his screenshot was, never in the opening view. No
 hand, and a click or tap flies in to him and opens his card, BUZZ'S WILD RIDE, its line and LET'S RIDE out to
 https://buzzs-wild-ride.netlify.app/ (THE EGG in `src/nav.mjs`, `egg` on the prop; `#wild-ride` opens it): "should it go
 to a card about buzz's wild ride? If the cam zooms in it should show a higher res version as it gets closer", then, of
-drafts, "1, D, I" (Carl, 9 Nov 2026). His picture is the drawing's full size (827px), so he stays sharp up close. He answers anywhere in a box at least 48px across round him, a fingertip's size: "he
+drafts, "1, D, I" (Carl, 9 Nov 2026). His picture is the drawing's full size (827px), so he stays sharp up close, and the camera lands closer on him than the
+3 degree lens other things stop at (`minFov`): "coaster buzz needs to be way bigger in frame" (Carl, 9 Nov 2026). He answers anywhere in a box at least 48px across round him, a fingertip's size: "he
 needs a tappable hitbox" (Carl, 9 Nov 2026). Nothing on the site mentions him.
+
+**A laptop's card is as tall as its words, 9 Nov 2026**: "Ok can you look at the different cards that don't have much
+content in them?", then, shown Buzz's, Contact, StudioLand and Are you my people? as they were and shrunk: "That looks
+better" (Carl). It ends under its last button rather than at the room's foot; one with more than fits scrolls as before
+(A CARD AS TALL AS ITS WORDS in `index.html`). A phone keeps the bottom 65%.
 
 **Nothing takes a click under the loading screen, 8 Nov 2026**: "it accepts clicks during the loading screen, which makes
 it glitch out" (Carl). Until it lifts (`body.loaded`), every press, wheel, key and touch is stopped before the room hears
