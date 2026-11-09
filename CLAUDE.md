@@ -591,7 +591,8 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   wall words should all be top-to-bottom in the yellow column like the about currently is". LISTEN, QUOTES, CONTACT,
   HOMEGROWN and STUDIOLAND are one column in the teal under the map, one size from the opening view; ABOUT and YOU+ME run
   down the arch, one under the other (`WORD_AT`).
-- **The opening flyover, on trial behind `?open=rug|above|far`** ("can i see both? and also maybe one from zoomed far
+- **The opening flyover**, B for every visitor since 9 Nov 2026 ("I need to see the flyover it shouldn't be trial it was b I told
+  you that"; `?open=rug`, `far` or `none` for the others), none under a link straight to a page; first tried behind `?open=rug|above|far` ("can i see both? and also maybe one from zoomed far
   back? it could be cool"): THE OPENING FLYOVER in `src/studio.mjs`, filmed by `tests/film.mjs` (`open-`). The words'
   first showing counts from when it lands (`introFrom`).
 - Opening B starts square to the rug, his name straight across ("rotated so that the wordmark is left to right instead of

@@ -31,7 +31,7 @@ const winOpen = (p) => p.evaluate(() => !document.querySelector("#win").hidden);
 {
   const { p, ctx } = await page({ reduced: false });
   await p.goto("https://before.example/");
-  await p.goto(url);
+  await p.goto(url + "?open=none");
   await loaded(p);
   await p.waitForTimeout(2500);
   const at = await p.evaluate(() => {

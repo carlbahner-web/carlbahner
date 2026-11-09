@@ -34,7 +34,7 @@ await page.addInitScript(() => {
     for (const f of run) f(T);
   };
 });
-await page.goto(url + hash);
+await page.goto(url + "?open=none" + hash);
 for (let i = 0; i < 600 && !(await page.evaluate(() => document.body.classList.contains("ready"))); i++) await page.waitForTimeout(100);
 for (let i = 0; i < 6; i++) await page.evaluate(() => window.__advance(50));
 // the boil's drawings are 0,1,2,1 every 130 ms: step to the start of each, a hair past the dog's blink window

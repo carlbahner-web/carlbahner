@@ -1080,14 +1080,18 @@ function lean(on, target) {
   dirty = true;
 }
 const leanEase = (x) => x * x * x * (x * (6 * x - 15) + 10);
-/* THE OPENING FLYOVER, on trial behind `?open=`: "Could there be a moving opening kinda like how the garden has the
+/* THE OPENING FLYOVER: "Could there be a moving opening kinda like how the garden has the
    'flyover'?" (Carl, 7 Nov 2026, his officers' quiz), then, offered one from the rug and one from above: "can i see both?
    and also maybe one from zoomed far back? it could be cool" (8 Nov 2026). As the loading screen lifts the camera starts
    at one of three places and comes in to the room as it opens, over OPEN_MS (`?openms=`): `rug`, low over his name on
    the rug, looking down at it, rising and pulling back; `above`, high over the rug looking down, coming down; `far`, well
    back along its own line of sight, coming in. Nothing takes a click until it lands. None for a visitor who asks for
-   less motion. Without `?open=` the room opens as it always has. */
-const OPEN_KIND = REDUCED ? null : new URLSearchParams(location.search).get("open");
+   less motion. B, `above`, is every visitor's opening: "I need to see the flyover it shouldn't be trial it was b I told
+   you that" (Carl, 8 Nov 2026). `?open=rug` or `far` still shows the others, and `?open=none` opens on the room as it
+   used to (for the tests that click straight away). */
+const OPEN_ASKED = new URLSearchParams(location.search).get("open") || "above";
+// a link straight to a page (carlbahner.com/#contact) opens on its card, with no flyover behind it
+const OPEN_KIND = REDUCED || OPEN_ASKED === "none" || location.hash.length > 1 ? null : OPEN_ASKED;
 const OPEN_MS = +(new URLSearchParams(location.search).get("openms") || (OPEN_KIND === "above" ? 5600 : 4200));
 const OPENING = { k: OPEN_KIND ? 1 : 0, t0: 0 };
 /* THE LAMP WAITS FOR B: "b is cool except the lamp looks all sorts of fucked from that perspective haha" (Carl, 8 Nov
