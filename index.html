@@ -663,48 +663,6 @@
       .upright.win-open:has(.now-playing) #win .body {
         padding-bottom: 76px;
       }
-      /* A ROW OF WORDS ON A PHONE (src/nav.mjs): every page's word along the bottom of the room, the walls' cream with their
-         charcoal outline, while no card is open */
-      .phone-row {
-        display: none;
-        /* in out of a blur as the flyover lands, not there from load (src/studio.mjs NEARLY HOME IS HOME) */
-        opacity: 0;
-        filter: blur(8px);
-        transition:
-          opacity 1s ease-out,
-          filter 1s ease-out;
-      }
-      .home .phone-row {
-        opacity: 1;
-        filter: none;
-      }
-      .upright:not(.win-open):not(.going) .phone-row {
-        position: absolute;
-        left: 8px;
-        right: 8px;
-        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-        z-index: 3;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 4px 8px;
-      }
-      .phone-row button {
-        min-height: 44px;
-        padding: 6px 8px;
-        border: 0;
-        background: none;
-        color: #fdfaf0;
-        font: 400 22px/0.8 "DW Fairfield", system-ui, sans-serif;
-        text-transform: uppercase;
-        letter-spacing: 0.02em;
-        -webkit-text-stroke: 5px #2c2c2a;
-        paint-order: stroke fill;
-        cursor: pointer;
-      }
-      .phone-row button:active {
-        transform: scale(0.94);
-      }
       .np-words {
         position: relative;
         z-index: 1;
