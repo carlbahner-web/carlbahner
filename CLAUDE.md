@@ -643,7 +643,8 @@ but he is always vertical", then, hung by his wheels upside down: "he's upside d
 Move him up on the screen so he is above the line". Seen
 when the view is tilted up, as his screenshot was, never in the opening view. Not one of the things that open: no boil, no light, no word, no zone; a mouse over him turns to a
 hand, and a click or tap opens Buzz's Wild Ride (https://buzzs-wild-ride.netlify.app/) in a new tab (THE EGG in
-`src/nav.mjs`, `egg` on the prop). Nothing on the site mentions him.
+`src/nav.mjs`, `egg` on the prop). He answers anywhere in a box at least 48px across round him, a fingertip's size: "he
+needs a tappable hitbox" (Carl, 9 Nov 2026). Nothing on the site mentions him.
 
 **Nothing takes a click under the loading screen, 8 Nov 2026**: "it accepts clicks during the loading screen, which makes
 it glitch out" (Carl). Until it lifts (`body.loaded`), every press, wheel, key and touch is stopped before the room hears

@@ -501,9 +501,41 @@ export function startNav(v) {
     }
     return best ? things.find((t) => t.mesh === best.mesh) || (egg && { egg: best.mesh.userData.prop.egg }) || null : null;
   }
-  /* THE EGG: Buzz in his coaster car, high on the teal wall (props.mjs), opens Buzz's Wild Ride and nothing else. No
-     boil, no light, no word; only the pointer turns to a hand over him, so he is found by someone who looks. */
-  const eggAt = (x, y) => thingAt(x, y, true)?.egg || null;
+  /* THE EGG: Buzz in his coaster car, standing on the ceiling (props.mjs), opens Buzz's Wild Ride and nothing else. No
+     boil, no light, no word; only the pointer turns to a hand over him, so he is found by someone who looks. He is
+     small, so he answers anywhere in a box round him at least EGG_REACH across on screen, a fingertip's size, as well
+     as on his ink: "he needs a tappable hitbox" (Carl, 9 Nov 2026). Drawn in front of everything, he is also asked
+     before anything else. */
+  const EGG_REACH = 48; // screen pixels
+  const eggMesh = props.find((m) => m.userData.prop.egg);
+  function eggBox() {
+    const C = v.camera;
+    if (!C || !eggMesh?.visible) return null;
+    C.updateMatrixWorld();
+    eggMesh.updateMatrixWorld();
+    const M = eggMesh.matrixWorld.elements,
+      V = C.matrixWorldInverse.elements,
+      P = C.projectionMatrix.elements,
+      mul = (E, q) => [0, 1, 2, 3].map((i) => E[i] * q[0] + E[4 + i] * q[1] + E[8 + i] * q[2] + E[12 + i] * q[3]);
+    const xs = [],
+      ys = [];
+    for (const [a, b] of [[-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [-0.5, 0.5]]) {
+      const c = mul(P, mul(V, mul(M, [a, b, 0, 1])));
+      if (c[3] <= 0) return null; // behind the camera
+      xs.push(((c[0] / c[3] + 1) / 2) * view().width);
+      ys.push(((1 - c[1] / c[3]) / 2) * view().height);
+    }
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2,
+      cy = (Math.min(...ys) + Math.max(...ys)) / 2,
+      hw = Math.max(Math.max(...xs) - Math.min(...xs), EGG_REACH) / 2,
+      hh = Math.max(Math.max(...ys) - Math.min(...ys), EGG_REACH) / 2;
+    return [cx - hw, cy - hh, cx + hw, cy + hh];
+  }
+  const eggAt = (x, y) => {
+    const b = eggBox();
+    if (b && x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3]) return eggMesh.userData.prop.egg;
+    return thingAt(x, y, true)?.egg || null;
+  };
 
   /* THE BOOK'S FACES: a click on the book is a click on one of its faces, each a flat square in the room. It was a
      box round the faces lined up with the room's walls, and the book sits turned on the console, so the box was much
