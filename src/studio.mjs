@@ -33,7 +33,7 @@ import {
   setPaint,
 } from "./room.mjs";
 import { hashN, BOIL_ORDER, BOIL_MS } from "./garden-bits.mjs";
-import { buildProps, setProp, faceProps, tickProps, colorProp, follows, followers, lampLights, lidAt, picturesIn, buildHoverWords, buildAllWords, consoleFront, setWordsAnisotropy } from "./props.mjs";
+import { buildProps, setProp, faceProps, tickProps, colorProp, follows, followers, lampLights, lidAt, picturesIn, phoneProps, buildHoverWords, buildAllWords, consoleFront, setWordsAnisotropy } from "./props.mjs";
 import { LIGHTS, lightUniforms, setLights } from "./light.mjs";
 import { startNav, SAYS } from "./nav.mjs";
 import { startViews, stepViews, editViews, cameraFor } from "./viewtune.mjs";
@@ -1615,6 +1615,7 @@ function tick(now) {
     dirty = true;
   }
   if (!W || !H) return;
+  phoneProps(upright()); // the drum's phone turn on or off as the layout changes, once its props are in (props.mjs PHONE PROPS)
   const dt = Math.min(0.1, (now - last) / 1000 || 0);
   last = now;
   const navMoved = nav.step(now);
