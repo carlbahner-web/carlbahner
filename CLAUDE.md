@@ -632,7 +632,8 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   while B is overhead and dropping, it fades in as the camera comes home (THE LAMP WAITS FOR B in `src/studio.mjs`).
 - ABOUT and YOU+ME each in the middle of its column, the yellow left of the panel and the panel: "Both "about" and the
   "you + me" look just a few pixels off-center relative to their columns, don't you think?" (Carl, 9 Nov 2026); they
-  stood 3 and 2 cm right of the middles (`WORD_AT`).
+  stood 3 and 2 cm right of the middles. Moved all the way they read a touch left, so they are halfway: "You overcorrected
+  the word centering a bit. can you split the difference?" (Carl, 9 Nov 2026; `WORD_AT`).
 - YOU / + / ME on three centred rows down the arch ("you + me needs to be on 3 rows, center-aligned"): `dir: "rows"`,
   a Rows button on the word editor too.
 - No HOMEGROWN word and the book a plain decoration: "we don't need a homegrown link, i'd rather put that inside the
