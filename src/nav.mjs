@@ -1239,11 +1239,39 @@ export function startNav(v) {
       const b = el("button", "", { type: "button", textContent: w, tabIndex: -1 }); // the keyboard has its own buttons
       b.addEventListener("click", () => {
         if (busy() || open) return;
-        openThing(t);
+        panThenOpen(t);
       });
       row.append(b);
     }
     document.querySelector("#stage").append(row);
+  }
+  /* THE ROW PANS FIRST: "When clicking on a button to on mobile, can the camera pan over so that the item is in view
+     before starting the zoom in? If I'm on one side and click a button that takes me to the other side, it is a bit
+     disorienting" (Carl, 9 Nov 2026). So a word in the row whose thing is off the middle of the screen first turns the
+     view (the turn alone, its zoom and tilt kept) until the thing is in the middle, lit and its words up as a tap lights
+     it, the longer the turn the longer it takes, then a beat, then the flight in. Closing comes back to where the
+     visitor was. Already in the middle, or less motion asked for, it flies straight in. */
+  const ROW_BEAT_MS = 250;
+  function panThenOpen(t) {
+    const was = { yaw: cam.yaw, pitch: cam.pitch, fov: cam.fov },
+      at = onScreen(pose(was.yaw, was.pitch, was.fov), corners(t.mesh)[4]);
+    if (reduced || (at && Math.abs(at[0]) < 0.45)) return openThing(t);
+    const to = { ...was, yaw: fitAll(corners(t.mesh).slice(0, 4), was, SNAP_BOX).yaw },
+      deg = (Math.abs(to.yaw - was.yaw) * 180) / Math.PI,
+      dur = Math.max(TURN_MS, Math.min(1400, 350 + deg * 22));
+    holding = true;
+    hovered = t;
+    document.body.classList.add("going"); // the row steps aside while it turns
+    const up = allOn && allWordsCorners().find((w) => w.key === keyOfThing(t));
+    if (!up) sayFor(t);
+    cue("hover:" + t.id);
+    v.dirty();
+    fly(to, null, dur);
+    setTimeout(() => {
+      holding = false;
+      openThing(t);
+      away = was;
+    }, dur + ROW_BEAT_MS);
   }
   // for the tests: where a thing's middle is on screen, -1..1
   window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, word: (x, y) => wordThingAt(x, y)?.hash ?? null, zone: (x, y) => zoneAt(x, y)?.hash ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room, deck: () => deckState(), player: () => PLAYER };
