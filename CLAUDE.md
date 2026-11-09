@@ -760,7 +760,8 @@ chat". His answers, built the same day unless marked:
   tighten up the transitions, find those perfect moments for ear candy, and cut out those unnecessary layers you kinda
   forgot were even there." ("Use the draft"); the bio ends on "...borderline sentient." ("End a sentence sooner");
   Jean-Philip's quote starts "...the approach that Carl took" ("Start it with ..."); the tab and a shared link's title
-  say "Carl Bahner // mixing and co-production", replacing his launch quiz's "Carl Bahner".
+  say "Carl Bahner // mixing and co-production", replacing his launch quiz's "Carl Bahner". Then in capitals, as his cards' titles are:
+  "CARL BAHNER // MIXING AND CO-PRODUCTION" ("Capitals", 9 Nov 2026, the link preview quiz).
 - **STUDIOLAND on the wall stays, a little smaller**: "Keep it since I run it, but maybe make it a little smaller like
   2-3px smaller" (0.205 for 0.22, about 2.5px of its 38 from the opening view).
 - **Kept as they are, so not to be suggested again**: SUBMIT ("Keep SUBMIT"); the wall word and the card's title naming
