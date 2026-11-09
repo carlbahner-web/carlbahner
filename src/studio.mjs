@@ -1246,10 +1246,10 @@ function place() {
     /* EVEN ALL THE WAY: "It should be even from start to finish other than the ease in and out" (Carl, 9 Nov 2026), after
        the curve above slowed to a third over the top, and a single arc tried in its place, turning early, was "way weirder
        and the opposite of smooth". So the path is as it was, straight up over his name and then down into the room, its
-       corner at the top rounded over ROUND metres, and the camera goes along it at one speed, easing up to it over the
+       corner at the top rounded wide (ROUND), and the camera goes along it at one speed, easing up to it over the
        first EASE of the time and down from it over the last (PACE). It looks straight down at the rug, his name square,
        until the top, then turns to the room on a smootherstep over the rest of the way. */
-    const ROUND = 0.15,
+    const ROUND = 0.45, // the share of the shorter straight the corner takes: "You can round the turns too instead of elbows" (Carl, 9 Nov 2026)
       EASE = 0.2,
       p1 = camera.position.clone(),
       q1 = camera.quaternion.clone(),
@@ -1259,12 +1259,28 @@ function place() {
       sub = (x, y) => x.map((v, i) => v - y[i]),
       len = (x) => Math.hypot(...x),
       unit = (x) => x.map((v) => v / (len(x) || 1)),
-      dAB = unit(sub(hi, A)),
-      dBC = unit(sub(C, hi)),
-      r = Math.min(ROUND, len(sub(hi, A)) * 0.4, len(sub(C, hi)) * 0.4),
-      B1 = hi.map((v, i) => v - dAB[i] * r),
-      B2 = hi.map((v, i) => v + dBC[i] * r),
-      quad = (u) => B1.map((v, i) => (1 - u) ** 2 * v + 2 * u * (1 - u) * hi[i] + u * u * B2[i]),
+      r = ROUND * Math.min(len(sub(hi, A)), len(sub(C, hi))),
+      // the corner's own point raised until the rounded top's highest point is the high place's height, no higher (his
+      // name whole on a phone, and the ceiling just over it there)
+      shape = (lift) => {
+        const Bc = [hi[0], hi[1] + lift, hi[2]],
+          a = unit(sub(Bc, A)),
+          c = unit(sub(C, Bc)),
+          b1 = Bc.map((v, i) => v - a[i] * r),
+          b2 = Bc.map((v, i) => v + c[i] * r),
+          q = (u) => b1.map((v, i) => (1 - u) ** 2 * v + 2 * u * (1 - u) * Bc[i] + u * u * b2[i]);
+        let peak = -Infinity;
+        for (let i = 0; i <= 32; i++) peak = Math.max(peak, q(i / 32)[1]);
+        return { a, c, b1, b2, q, peak };
+      };
+    let lift = 0,
+      sh = shape(0);
+    for (let n = 0; n < 4; n++) (lift += hi[1] - sh.peak), (sh = shape(lift));
+    const dAB = sh.a,
+      dBC = sh.c,
+      B1 = sh.b1,
+      B2 = sh.b2,
+      quad = sh.q,
       // the rounded corner, measured, so going round it is the same speed as the straights
       K = 24,
       marks = [0];
@@ -1287,9 +1303,10 @@ function place() {
       }
       return B2.map((v, i) => v + dBC[i] * (d - L1 - Lf));
     };
-    /* up to the top it looks down at the rug, his name square; from the top it holds the view it has there and turns to
-       the room on a smootherstep, so the turn starts from nothing rather than swinging round as it moves off */
-    const top = L1 + Lf / 2,
+    /* up to the corner it looks down at the rug, his name square; from where the corner starts it holds the view it has
+       there and turns to the room on a smootherstep, so the turn starts from nothing rather than swinging round as it
+       moves off */
+    const top = L1,
       rise = Math.min(1, d / top);
     if (d <= top) {
       camera.position.set(...posAt(d));

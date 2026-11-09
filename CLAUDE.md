@@ -639,7 +639,11 @@ it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
   diagonal"), close on it, pulls up and out, then drops into the room ("can b start zoomed in further into the carpet and
   pull out before droping back?"): RISE and CLOSE_H. Then one smooth move through those three places, not a rise, a stop and a drop: "I think all
   the camera movements (including the flyover) need to be smooth motions not stop and pivots" (Carl, 9 Nov 2026; ONE
-  SMOOTH MOVE in `src/studio.mjs`). It eases only at its start and end and passes over the top still moving. On a phone its top is higher, near the ceiling, and a little wider, so
+  SMOOTH MOVE in `src/studio.mjs`). Then at one even speed the whole way along that path, easing only
+  at its start and end: "It should be even from start to finish other than the ease in and out", after a single arc that
+  turned early was "way weirder and the opposite of smooth"; and its corner rounded wide, its top still the high place's
+  height: "You can round the turns too instead of elbows" (Carl, 9 Nov 2026; EVEN ALL THE WAY in `src/studio.mjs`). His name
+  stays square until the corner, then the view turns to the room from a standstill. On a phone its top is higher, near the ceiling, and a little wider, so
   his whole name fits the narrow screen: "Can we have the camera go just a bit higher at the top of the flyover in mobile?
   Just enough to get the whole wordmark in it" (Carl, 9 Nov 2026; `UPRIGHT_TOP`, `?otop=`). The lens is worked out for
   each screen's shape, his name taking 94% of its width, after one size for every phone "goes out too far" on his (Carl,
