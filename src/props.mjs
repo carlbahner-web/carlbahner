@@ -88,7 +88,9 @@ export const PROPS = [
     depthOnly: [0.208, 0.792, 0.56, 0.985],
     depthRound: 0.08, // metres
     taper: 0, // his, as saved on his panel 6 Oct 2026, written in when the panel went (1 Nov 2026)
-    layers: 12,
+    // 12 until 9 Nov 2026, each 1.7 cm apart, which showed as steps along the top of its back from a phone's higher view:
+    // "the back of the chair looks blocky and not smooth?" (Carl, 9 Nov 2026); 64 are 3 mm apart, and its edge runs smooth
+    layers: 64,
     depth: 0.2, // his, as saved on his panel 6 Oct 2026, written in when the panel went (1 Nov 2026)
     slide: 0.06,
     fwd: 0.65,
