@@ -535,12 +535,12 @@ export const PROPS = [
     id: "buzz",
     label: "Buzz",
     src: "assets/buzz-car.webp",
-    w: 0.24,
+    w: 0.1,
     // on the ceiling by the teal wall, up and left of the clock, where Carl marked it on his phone: "It should be on the
     // ceiling not the wall" (9 Nov 2026), after it was placed on the wall under the ceiling's edge
     ceiling: true,
-    out: 0.2,
-    along: 2.95,
+    out: 0.03,
+    along: 3.0,
     egg: "https://buzzs-wild-ride.netlify.app/",
   },
   /* THE BASS DRUM (Carl's drawing, sent 5 Oct 2026: "Can this go along the right wall?"). Cut by
@@ -2947,14 +2947,16 @@ export function placeProp(mesh) {
       mesh.position.set(out, up, p.along + w / 2);
     } else mesh.position.set(p.along + w / 2, up, out);
   } else if (p.ceiling) {
-    /* hanging just under the ceiling, upright and turned to the
-       camera as the floor's cards are (the turn is set where they get theirs): "It should be on the ceiling not the
-       wall", then "can we make it look like he's vertical and staying in front of the ceiling? Like his wheels are
-       pinned but he is always vertical" (Carl, 9 Nov 2026, Buzz's egg). `out` metres from the teal wall, `along` it
-       from the corner. */
-    // right way up, his top to the ceiling: "he's upside down, flip him 180" (Carl, 9 Nov 2026)
+    /* standing on the ceiling: his wheels pinned to it, `out` metres from the teal wall and `along` it from the corner,
+       upright and turned to the camera as the floor's cards are (the turn is set where they get theirs), his body
+       rising up the screen above the wall's top line and drawn in front of the ceiling it would go through: "It should
+       be on the ceiling not the wall", then "can we make it look like he's vertical and staying in front of the
+       ceiling? Like his wheels are pinned but he is always vertical", then, hung under it, "Move him up on the screen
+       so he is above the line" (Carl, 9 Nov 2026, Buzz's egg). */
     mesh.rotation.set(0, mesh.rotation.y, 0);
-    mesh.position.set(p.out, CEILING_H - h / 2, p.along);
+    mesh.position.set(p.out, CEILING_H + h / 2, p.along);
+    mesh.material.depthTest = false;
+    mesh.renderOrder = 50;
   } else if (p.floor) {
     // flat on the floor, its face up `depth` above it, its edge down to the floor (frameBand)
     // (its order is YXZ: turned in its own picture, then laid down)
