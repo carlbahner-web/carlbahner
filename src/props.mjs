@@ -88,9 +88,7 @@ export const PROPS = [
     depthOnly: [0.208, 0.792, 0.56, 0.985],
     depthRound: 0.08, // metres
     taper: 0, // his, as saved on his panel 6 Oct 2026, written in when the panel went (1 Nov 2026)
-    // 12 until 9 Nov 2026, each 1.7 cm apart, which showed as steps along the top of its back from a phone's higher view:
-    // "the back of the chair looks blocky and not smooth?" (Carl, 9 Nov 2026); 64 are 3 mm apart, and its edge runs smooth
-    layers: 64,
+    layers: 12,
     depth: 0.2, // his, as saved on his panel 6 Oct 2026, written in when the panel went (1 Nov 2026)
     slide: 0.06,
     fwd: 0.65,
@@ -635,11 +633,16 @@ uniform float alphaCut; uniform vec2 texel; uniform float edgeOnly; uniform floa
 uniform sampler2D shape; uniform float hasShape;
 uniform sampler2D map; uniform sampler2D grain; uniform float grainM; uniform float grainK; uniform float dark; uniform vec2 size; uniform vec3 swBase[4]; uniform vec3 swTint[4]; uniform float swOn[4]; uniform float swPart[4]; uniform float swReach[4]; uniform int swN; uniform sampler2D partMap; uniform float hasParts; uniform float glass; uniform float ring; uniform vec4 keep; uniform float keepR; uniform float boil; uniform float boilK; uniform float below;
 // inside keep, its corners rounded keepR metres: "the corners need to be rounded a bit" (Carl, 6 Oct 2026)
-float inKeep(vec2 q) {
+// how far outside keep a point is, in metres (negative inside)
+float keepSd(vec2 q) {
   vec2 lo = keep.xz * size, hi = keep.yw * size, p = q * size, c = (lo + hi) * .5, h = (hi - lo) * .5 - keepR;
   vec2 d = abs(p - c) - h;
-  return step(length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - keepR, 0.0);
+  return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - keepR;
 }
+/* SMOOTH EDGES ON THE CHAIR'S DEPTH: its edge and its border were cut on or off, a pixel at a time, and on a phone's
+   screen they showed as a staircase: "the back of the chair looks blocky and not smooth?", then, shown more layers: "It
+   looks pixelated and stepped" (Carl, 9 Nov 2026). So they fade over the width of a screen pixel (w, from fwidth). */
+float inKeepS(vec2 q, float w) { return 1.0 - smoothstep(-w, w, keepSd(q)); }
 varying vec2 vUv; varying vec3 vW;
 /* THE BOIL, the garden's (garden/src/template.html boiledFrame) done on the graphics chip: each pixel
    reads the drawing a little to one side, by a smooth noise that changes with each of the three
@@ -715,20 +718,23 @@ void main() {
      behind every layer, so only the edge round the whole depth shows: "add a border on the depth part of the
      couch" (Carl, 6 Oct 2026) */
   if (ring > 0.0) {
-    float a = c.a * inKeep(vUv);
+    float kw = max(fwidth(keepSd(vUv)), 1e-5);
+    float a = c.a * inKeepS(vUv, kw);
     vec2 r = ring / size;
     for (int i = 0; i < 12; i++) {
       float t = float(i) * .5236;
       vec2 o = vec2(cos(t), sin(t)) * r;
-      a = max(a, texture2D(map, uv + o).a * inKeep(vUv + o));
+      a = max(a, texture2D(map, uv + o).a * inKeepS(vUv + o, kw));
     }
-    if (a < .5 || vUv.y < above) discard;
-    gl_FragColor = vec4(lit(vec3(.1, .1, .1) * (1.0 - dark * .5), vW, litK), 1.0); // the drawing's ink, #1b1b1b
+    float fa = max(fwidth(a), 1e-3), cov = smoothstep(.5 - fa, .5 + fa, a);
+    if (cov < .01 || vUv.y < above) discard;
+    gl_FragColor = vec4(lit(vec3(.1, .1, .1) * (1.0 - dark * .5), vW, litK), cov); // the drawing's ink, #1b1b1b
     return;
   }
+  float kw = max(fwidth(keepSd(vUv)), 1e-5), keepCov = inKeepS(vUv, kw), fwA = max(fwidth(c.a), 1e-3);
   if (c.a < .02 || vUv.y > below || vUv.y < above) discard;
   // only the picture inside keep (u from, u to, v from, v to) is drawn: the chair's depth, its backrest alone
-  if (inKeep(vUv) < .5) discard;
+  if (keepCov < .01) discard;
   /* SOFTEN: the picture read a little blurred, each pixel nudged by a fine noise as a rug's pile is, so
      its pattern loses its hard printed edges: "Maybe mute is not what I wanted, I'm thinking a blur or
      fuzz to soften it" (Carl, 5 Oct 2026). soft: 0 sharp to 1 about 2 cm of blur; its outline kept. */
@@ -795,7 +801,7 @@ void main() {
   float inGlass = step(0.0, glass) * hasParts * step(.5, texture2D(partMap, uv).g);
   /* a solid stack's filled layer is cut hard at its edge: soft, its edge let the border copies behind show
      through as streaks along the depth: "there are these streaks along the top" (Carl, 6 Oct 2026) */
-  float outA = fillK > .5 ? step(.5, c.a) : c.a;
+  float outA = (fillK > .5 ? smoothstep(.5 - fwA, .5 + fwA, c.a) : c.a) * keepCov;
   if (outA < max(alphaCut, .02)) discard; // alphaCut is unset (0) on every card but a lamp neck
   gl_FragColor = vec4(o, outA * mix(1.0, glass, inGlass));
 }`;

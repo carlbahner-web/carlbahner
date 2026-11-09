@@ -181,8 +181,10 @@ every layer, so a layer with its legs clipped is all fabric now; the sides come 
 dark as the drawing's own outline, 13 px of its 1084 ("the border just doesn't match yet"), and its top corners rounded (`depthRound`): "the corners need to
 be rounded a bit"; then its sides set on the cushion's own side lines, read off the drawing, its border lying on them
 ("sooooooo close", with the sides traced): "Can we make the added depth of the chair taper in? Can I
-control that? And can you make it the same mustard yellow?" (6 Oct 2026). Its depth is 64 layers, not 12, so the top of its
-back runs smooth from a phone's higher view: "the back of the chair looks blocky and not smooth?" (Carl, 9 Nov 2026). The pillow has its own ("I think we need to do the
+control that? And can you make it the same mustard yellow?" (6 Oct 2026). Its depth's edge and border fade over a screen pixel
+rather than cutting on or off, so the top of its back runs smooth on a phone: "the back of the chair looks blocky and not
+smooth?", then, shown 64 layers for 12 (tried and put back): "they all look the same / It looks pixelated and stepped"
+(Carl, 9 Nov 2026; SMOOTH EDGES ON THE CHAIR'S DEPTH in `src/props.mjs`). The pillow has its own ("I think we need to do the
 same thing for the pillow"): it sits where it sits on the chair, and turns by its own amount there.
 
 **The eye painting hangs flat on the cream wall under the lamp** ("this should be the easiest piece to
