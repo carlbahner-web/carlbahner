@@ -1151,7 +1151,8 @@ function drumTurn(now) {
 const RISE = 0.32,
   CLOSE_H = 1.85,
   UPRIGHT_TOP = +(new URLSearchParams(location.search).get("otop") || 0.08), // how far under the ceiling, on a phone
-  UPRIGHT_TOP_FOV = +(new URLSearchParams(location.search).get("ofov") || 1.3);
+  UPRIGHT_TOP_FOV = +(new URLSearchParams(location.search).get("ofov") || 1), // more or less than the fit, to try
+  UPRIGHT_TOP_FILL = +(new URLSearchParams(location.search).get("ofill") || 0.94); // how much of the screen's width his name takes
 function openingClose(fov1) {
   if (OPEN_KIND !== "above") return null;
   const rug = [1.89, 0, 1.79],
@@ -1167,9 +1168,18 @@ function openingFrom(p1, d1, fov1) {
      2026). Facing the teal wall square, the rug's length across the screen */
   /* and on a phone held upright, higher and a little wider, so his whole name on the rug fits the narrow screen at the
      top: "Can we have the camera go just a bit higher at the top of the flyover in mobile? Just enough to get the whole
-     wordmark in it" (Carl, 9 Nov 2026). The ceiling stops the rise short (UPRIGHT_TOP), and the lens opens the rest
-     (UPRIGHT_TOP_FOV). */
-  if (OPEN_KIND === "above" && upright()) return [[rug[0], ROOM.h - UPRIGHT_TOP, rug[2] + 0.3], [rug[0], 0, rug[2] - 0.05], fov1 * 1.2 * UPRIGHT_TOP_FOV];
+     wordmark in it" (Carl, 9 Nov 2026). The ceiling stops the rise short (UPRIGHT_TOP), and the lens opens the rest. */
+  if (OPEN_KIND === "above" && upright()) {
+    /* wide enough for his name and a little either side on this screen's shape, no wider: 1.3 times on every phone went
+       "out too far" on his (Carl, 9 Nov 2026, a screenshot from his phone), wider for its shape than the test's. The
+       across-the-screen reach that fit the name at 95% on a 390 by 844 screen at 1.3 times, made to fit it at
+       UPRIGHT_TOP_FILL, then the lens that gives that reach on this screen. */
+    const tanV0 = Math.tan(((fov1 * 1.2 * 1.3) * Math.PI) / 360),
+      reach = (tanV0 * (390 / 844) * 0.95) / UPRIGHT_TOP_FILL,
+      aspect = camera.aspect || 390 / 844,
+      fov = (2 * Math.atan(reach / aspect) * 180) / Math.PI;
+    return [[rug[0], ROOM.h - UPRIGHT_TOP, rug[2] + 0.3], [rug[0], 0, rug[2] - 0.05], Math.max(fov1 * 1.2, fov) * UPRIGHT_TOP_FOV];
+  }
   if (OPEN_KIND === "above") return [[rug[0], ROOM.h - 0.35, rug[2] + 0.3], [rug[0], 0, rug[2] - 0.05], fov1 * 1.2];
 
   // far: back along its own line of sight and a little up, looking at the same corner
