@@ -617,6 +617,18 @@ words officers, the Homegrown skills, walked the site). His answers, built the s
   now"), the co-producer words ending where they do. The officers' "camera bug" going card to card was their slow browser
   catching a flight mid-way, not a bug.
 
+**The speed sweep, 9 Nov 2026** ("Can you do a speed sweep to see if we can make this faster and smoother fps?", then
+"Yeah do 1, 3, and 4 now please", Carl). Every picture goes up to the graphics chip and every shader is built behind the
+loading screen, so none arrives mid-flyover (WARM UP BEHIND THE LOADING SCREEN in `src/studio.mjs`; 31 pictures and 3
+shaders had); the clock's pieces, the marching machine and the mug are saved at about twice the most the room shows of
+them, the rug with his name lossy and the grain lighter (`tools/shrink_pictures.py`, the boil still measured in each
+drawing's own size, DRAWN in `src/props.mjs`); and the cards' pictures load once the room shows. On a phone's 4G the room
+shows in about 6 s, not 8, after 4.3 MB, not 7.7. Still his to decide: drawing a laptop at 1.5 times its pixels rather
+than 2 (44% less work a frame), to be shown side by side; and merging the stacked layers that give things depth (about
+200 drawings a frame), left for if the rest is not enough. A phone's card slides down its own height on closing, so it
+leaves the screen whole: "the page cards do not slide all the way off screen, they slide mostly then stop and disappear
+suddenly" (Carl, 9 Nov 2026).
+
 **Nothing takes a click under the loading screen, 8 Nov 2026**: "it accepts clicks during the loading screen, which makes
 it glitch out" (Carl). Until it lifts (`body.loaded`), every press, wheel, key and touch is stopped before the room hears
 it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).

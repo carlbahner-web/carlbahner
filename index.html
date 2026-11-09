@@ -433,7 +433,10 @@
         width: auto;
         margin: 0;
         padding: 24px 16px 16px;
-        transform: translateY(calc(var(--half, 50vh) + 40px));
+        /* down by its own height, so it leaves the screen whole: it went down by the top half's height, which fell short
+           once the card became the bottom 65%, and it stopped part way and vanished: "the page cards do not slide all the way
+           off screen, they slide mostly then stop and disappear suddenly" (Carl, 9 Nov 2026) */
+        transform: translateY(calc(100% + 40px));
         transition:
           transform 0.62s cubic-bezier(0.2, 1, 0.4, 1),
           opacity 0.3s;

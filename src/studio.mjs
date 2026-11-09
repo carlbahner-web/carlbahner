@@ -101,6 +101,37 @@ for (const type of ["pointerdown", "pointerup", "pointermove", "click", "dblclic
     },
     { capture: true, passive: false },
   );
+/* WARM UP BEHIND THE LOADING SCREEN: the graphics chip was given each picture, and each shader was built, the first
+   time its thing came into view, so 31 pictures and 3 shaders arrived during the opening flyover, each a hitch, a
+   shader's long enough to feel on a phone (the speed sweep, 9 Nov 2026: "do 1, 3, and 4 now please", Carl). So just
+   before the loading screen lifts, every picture in the room goes up and every shader is built, the hidden things' too. */
+function warmUp() {
+  const sent = new Set(),
+    send = (t) => {
+      if (!t?.isTexture || sent.has(t)) return;
+      const im = t.image;
+      if (!im || (im instanceof HTMLImageElement && !(im.complete && im.naturalWidth))) return;
+      sent.add(t);
+      try {
+        renderer.initTexture(t);
+      } catch {
+        /* one picture that can't go up yet goes up when it is first drawn, as before */
+      }
+    };
+  const hidden = [];
+  scene.traverse((o) => {
+    if (!o.visible) hidden.push(o), (o.visible = true);
+    for (const m of [].concat(o.material || [])) {
+      send(m.map);
+      for (const u of Object.values(m.uniforms || {})) [].concat(u?.value ?? []).forEach(send);
+    }
+  });
+  try {
+    renderer.compile(scene, camera);
+  } finally {
+    for (const o of hidden) o.visible = false;
+  }
+}
 // the page is ready once the grain and every decoration have arrived (or failed to)
 let waiting = 1;
 function loaded() {
@@ -113,7 +144,7 @@ function loaded() {
     // THE LOADING SCREEN), or after 8 s whatever has not come
     const rest = [document.fonts?.ready, picturesIn(), ...[...document.querySelectorAll("img")].filter((i) => !i.complete).map((i) => new Promise((r) => (i.onload = i.onerror = r)))];
     Promise.race([Promise.all(rest), new Promise((r) => setTimeout(r, 8000))]).then(() =>
-      requestAnimationFrame(() => requestAnimationFrame(() => (document.body.classList.add("loaded"), startOpening()))),
+      requestAnimationFrame(() => (warmUp(), requestAnimationFrame(() => (document.body.classList.add("loaded"), startOpening())))),
     );
   }
 }

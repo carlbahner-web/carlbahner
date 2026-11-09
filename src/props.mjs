@@ -38,6 +38,9 @@ const PICTURES = new Map();
 /* Not behind the loading screen any more: "Show the room sooner" (Carl, 7 Nov 2026, his officers' quiz; about 8 MB of
    card pictures had to come in before the room showed). They load as the room opens; a card opened in its first moments
    may see one come in. */
+/* DRAWN: pictures saved smaller than they were drawn, for speed (tools/shrink_pictures.py), with the width they were
+   drawn at, so the boil, measured in a drawing's own pixels, boils them as it did */
+const DRAWN = { "assets/clock-face.webp": 1054, "assets/blocks.webp": 596, "assets/mug.webp": 1075 };
 export function preloadPictures(urls) {
   for (const u of urls) {
     if (!u || PICTURES.has(u)) continue;
@@ -2745,7 +2748,9 @@ export function buildProps(shared, face, onLoad) {
       // a lamp's necks and shades are seen nearly edge-on from far round: without it their lines crumbled
       if (p.neck != null || p.hang) t.anisotropy = 8;
       uniforms.map.value = t;
-      uniforms.texel.value = [img.naturalWidth, img.naturalHeight];
+      // the drawing's own size, not the size it is saved at (DRAWN), so the boil measured in it is as it was
+      const k = (DRAWN[p.src] || img.naturalWidth) / img.naturalWidth;
+      uniforms.texel.value = [img.naturalWidth * k, img.naturalHeight * k];
       if (p.ringOutside) {
         uniforms.shape.value = silhouette(img);
         uniforms.hasShape.value = 1;
@@ -2753,7 +2758,7 @@ export function buildProps(shared, face, onLoad) {
       // a disc's rim: how many of its wobble's waves go round it, about 40 of the drawing's pixels each (EDGE_VERT)
       const ru = mesh.userData.band?.material?.uniforms; // (a picture frame's band is a group, and has none)
       if (ru && p.disc)
-        ru.around.value = Math.max(8, Math.round((Math.PI * (p.disc[2] * img.naturalWidth + p.disc[3] * img.naturalHeight)) / 40));
+        ru.around.value = Math.max(8, Math.round((Math.PI * (p.disc[2] * img.naturalWidth * k + p.disc[3] * img.naturalHeight * k)) / 40));
       mesh.userData.aspect = img.naturalHeight / img.naturalWidth;
       shapeProp(mesh);
       placeProp(mesh);
