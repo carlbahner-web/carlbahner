@@ -578,7 +578,8 @@ moves and frames come slower than 22 ms, it draws at fewer pixels, down to one a
 **The word first, on a phone, 4 Nov 2026**: "On phone when I'm moving around in free camera mode, I would love to see the
 text show up for a second before it zooms into place" (Carl). A finger has no hover, so on a touch screen (not the stops) a
 tap lights the thing and puts its words up, the view first turning over 0.6 s to take in the thing and its words if they
-are off screen (no more than a third wider), holds 0.9 s (`?hold=`), then flies in; closing comes back to where the
+are off screen (no more than a third wider), held 0.9 s (`?hold=`), then flew in; since 9 Nov 2026 with no hold, its word staying up on the wall alone as the
+camera flies in ("Ok we can remove the hold and keep the words up?", NO HOLD, THE WORD STAYS UP in `src/nav.mjs`); closing comes back to where the
 visitor was. A link (the book, the mug) opens at once, since a new tab opened later is blocked as a popup (THE WORD
 FIRST, ON A PHONE in `src/nav.mjs`).
 **The phone's layout is for touch screens alone, 5 Nov 2026**: "man it gets real weird when resizing" (Carl). A laptop window
