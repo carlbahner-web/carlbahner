@@ -818,6 +818,9 @@
       /* the logos under the bio, running past (src/nav.mjs THE LOGOS under the bio): smaller than their page had them,
          faded at both ends as the cards' scrolling edges are */
       .logo-strip {
+        /* never squashed: on the quotes card it sits in a column that shrinks its children to fit, and with its overflow
+           hidden it shrank to nothing, the logos gone (9 Nov 2026, the day they moved there) */
+        flex: none;
         clear: both;
         overflow: hidden;
         margin-top: 24px;
@@ -1102,11 +1105,19 @@
         /* with room round them, so they come out smaller: "they should have more padding between them so they can be a
            bit smaller" (Carl, 8 Nov 2026). 14px and 12px apart, and nothing at the sides, until then */
         gap: 24px 40px;
-        padding: 4px 40px; /* and room for each sleeve's drawn line, which the scrolling card would clip */
+        /* room for the record sliding out of the right-hand sleeve, which the scrolling card clips: "the vinyl record gets
+           cropped by the padding?" (Carl, 9 Nov 2026). It slides out a third of a sleeve's width; 40 (44 until that day)
+           left it cut off. Not a gap between things, so not on Homegrown's scale: 64, both sides so the sleeves stay
+           centred */
+        padding: 4px 64px;
       }
       @container (max-width: 440px) {
         .sleeves {
           grid-template-columns: repeat(2, minmax(0, 1fr));
+          /* a narrow card (a phone) keeps its sleeves wide enough to read under: the record slides out a third of a
+             narrower sleeve, which 32 each side still leaves room for */
+          gap: 24px;
+          padding: 4px 32px;
         }
       }
       /* each sleeve as tall as its own name, so a longer name beside it never stretches it out of square */
