@@ -217,8 +217,15 @@
         --fs-heading: 1.7rem;
         --fs-body: 1.17rem;
         --fs-small: 0.985rem;
+        /* MATCHED TO HOMEGROWN, 9 Nov 2026: the consistency officer found 12 gaps, 5 line spacings, 3 faded inks, two
+           yellows, two line weights, two capital spacings and a third font on the cards; asked about each, Carl answered
+           "match homegrown" to all eight. So the cards take Homegrown's own numbers (ss-frontend src/styles/tokens.css):
+           gaps from 4, 8, 12, 16, 24, 40; DM Sans at 1.2 and DW Fairfield at 0.8; faded ink at 38% and 55%; one yellow
+           (#f6cc60); every line 2px; small capitals 0.06em apart, capitals at reading size 0.02em; DW Fairfield and DM
+           Sans only. Corners were already Homegrown's (an eighth of the height up to 12), and its two creams already its
+           paper and card. The 10px each side that makes room for a button's drawn line is not a gap and stays. */
         --paper: #ede6da;
-        --mustard: #f0af1b;
+        --mustard: #f6cc60; /* Homegrown's one yellow (tokens.css --mustard): "match homegrown" (Carl, 9 Nov 2026); #f0af1b, a deeper one, until then */
         --teal: #1f5a5e;
         --rust: #bf7538;
       }
@@ -261,7 +268,7 @@
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        padding: 30px 28px 28px;
+        padding: 24px; /* Homegrown's --s-5 all round: "match homegrown" (Carl, 9 Nov 2026); 30 28 28 until then */
         /* A HOMEGROWN CARD (app.css .card, tokens.css): cream, its line 2px at the faded ink (--ink-clearly, 38%),
            drawn and still by drawBox in src/nav.mjs; no grain and no shadow, as Homegrown's cards have none.
            "you need to look at the css of homegrown to do the card design and boiling" (Carl, 1 Nov 2026) */
@@ -269,7 +276,7 @@
         --fill: #fcf7e8;
         --line: rgba(44, 44, 42, 0.38);
         color: var(--ink);
-        font: 18px/1.2 "DW Fairfield", Georgia, serif;
+        font: 18px/0.8 "DW Fairfield", system-ui, sans-serif;
         transition:
           transform 0.42s cubic-bezier(0.2, 0.8, 0.2, 1),
           opacity 0.3s;
@@ -332,10 +339,10 @@
          "CONTACT (and then use the hey carl line as a subheadline)" (Carl, 3 Nov 2026) */
       .words h3.sub {
         margin: -4px 56px 4px 0;
-        font: 400 var(--fs-body)/1.2 "DW Fairfield", Georgia, serif;
+        font: 400 var(--fs-body)/0.8 "DW Fairfield", system-ui, sans-serif;
       }
       .words h2.next {
-        margin-top: 22px;
+        margin-top: 24px;
       }
       /* SHEET: down the right side of the window, the thing framed in the room left of it */
       #win.sheet {
@@ -402,7 +409,7 @@
         inset: var(--half, 50vh) 8px 8px;
         width: auto;
         margin: 0;
-        padding: 24px 18px 20px;
+        padding: 24px 16px 16px;
         transform: translateY(calc(100% + 40px)); /* from below the screen, now the card is the whole of it */
         transition:
           transform 0.62s cubic-bezier(0.2, 1, 0.4, 1),
@@ -485,7 +492,7 @@
         background: none;
         cursor: pointer;
       }
-      /* a finger's size on screen however small the card is drawn (src/stage.mjs NO SMALLER THAN THREE QUARTERS) */
+      /* a finger's size on screen however small the card is drawn (src/stage.mjs NO SMALLER THAN FULL SIZE) */
       body:not(.upright) #win .close {
         width: calc(44px * max(1, 1 / var(--k, 1)));
         height: calc(44px * max(1, 1 / var(--k, 1)));
@@ -501,6 +508,11 @@
       #win .close:active img {
         transform: scale(0.92);
       }
+      /* no browser frame round the X when a card opens and gives it the focus: the yellow circle hid it until the red X
+         came (9 Nov 2026). The keyboard still gets the room's rust ring ([data-kbd] #win button:focus-visible). */
+      #win .close:focus {
+        outline: none;
+      }
       [data-kbd] #win button:focus-visible,
       [data-kbd] #win input:focus-visible {
         outline: 3px solid var(--rust);
@@ -511,13 +523,13 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 14px;
+        gap: 12px;
         min-width: 0;
       }
       .slot {
         position: relative;
-        border: 2px dashed rgb(44 44 42 / 0.4);
-        border-radius: 10px;
+        border: 2px dashed rgb(44 44 42 / 0.38);
+        border-radius: 12px; /* Homegrown's --radius (10 until 9 Nov 2026) */
       }
       .slot-names .slot::after {
         content: attr(data-slot);
@@ -557,14 +569,14 @@
         /* Homegrown's body: DM Sans at --fs-body (1.05rem); its headings DW Fairfield at --fs-heading (1.7rem) */
         /* up from Homegrown's 1.05rem to read easier on a laptop: "is the text size too small?", then "yeah" (Carl, 2 Nov
            2026). Every card's words, not the bio alone. */
-        font: var(--fs-body)/1.4 "DM Sans", system-ui, sans-serif;
+        font: var(--fs-body)/1.2 "DM Sans", system-ui, sans-serif;
       }
       .words::-webkit-scrollbar {
         display: none;
       }
       .words h2 {
         margin: 0 56px 4px 0;
-        font: 400 var(--fs-heading)/0.95 "DW Fairfield", Georgia, serif;
+        font: 400 var(--fs-heading)/0.8 "DW Fairfield", system-ui, sans-serif;
       }
       .words p {
         margin: 0;
@@ -577,7 +589,7 @@
         margin: 0;
         padding-left: 1.2em;
         display: grid;
-        gap: 6px;
+        gap: 8px;
       }
       /* HOMEGROWN'S BUTTON (app.css .btn): DM Sans bold capitals at --fs-body, 0.02em apart, mustard with a charcoal
          line, at least 30px tall and 7rem wide, 16px each side; the window's one action boils (drawBox `live`) */
@@ -608,7 +620,7 @@
         z-index: 4;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         max-width: min(440px, calc(100% - 32px));
         padding: 8px 10px 8px 14px;
         --fill: #fcf7e8;
@@ -644,7 +656,7 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 2px 6px;
+        gap: 4px 8px;
       }
       .phone-row button {
         min-height: 44px;
@@ -652,7 +664,7 @@
         border: 0;
         background: none;
         color: #fdfaf0;
-        font: 400 22px/1 "DW Fairfield", Georgia, serif;
+        font: 400 22px/0.8 "DW Fairfield", system-ui, sans-serif;
         text-transform: uppercase;
         letter-spacing: 0.02em;
         -webkit-text-stroke: 5px #2c2c2a;
@@ -746,10 +758,10 @@
       /* Spotify, small underlined words under HOLY MOLY ("Spotify as small words under HOLY MOLY", Carl, 9 Nov 2026) */
       .spotify-words {
         align-self: center;
-        margin-top: -2px;
+        margin-top: 0;
         padding: 4px 8px;
         font: 700 var(--fs-small)/1.2 "DM Sans", system-ui, sans-serif;
-        letter-spacing: 0.02em;
+        letter-spacing: 0.06em; /* small capitals: Homegrown's --ls-caps */
         color: var(--ink);
         text-decoration: underline;
         text-underline-offset: 3px;
@@ -778,12 +790,12 @@
       /* a song that didn't load, said under the sleeves (src/nav.mjs A SONG THAT DIDN'T LOAD) */
       .song-note {
         margin: 0;
-        font: 400 var(--fs-small)/1.35 "DM Sans", system-ui, sans-serif;
+        font: 400 var(--fs-small)/1.2 "DM Sans", system-ui, sans-serif;
         color: var(--rust);
       }
       /* the logos on the quotes card, under its title and above the first quote (src/nav.mjs THE LOGOS on the quotes card) */
       .logo-strip + .quote {
-        margin-top: 30px;
+        margin-top: 24px;
       }
       /* THE QUOTES, given room: "can we make the quotes card look better? It's all kinda 'jammed together as a placeholder'
          looking" (Carl, 2 Nov 2026). Each its own block well apart from the next, its photo the card's width, a big mustard
@@ -793,7 +805,7 @@
          THEY SAID) */
       .quote + .quote,
       .quote + .words-button {
-        margin-top: 38px;
+        margin-top: 40px;
       }
       .quote {
         margin: 0;
@@ -808,7 +820,7 @@
       .logo-strip {
         clear: both;
         overflow: hidden;
-        margin-top: 22px;
+        margin-top: 24px;
         mask-image: linear-gradient(to right, transparent, #000 36px, #000 calc(100% - 36px), transparent);
       }
       .logo-run {
@@ -822,7 +834,7 @@
       }
       .logo-run img {
         height: 34px;
-        margin-right: 30px;
+        margin-right: 24px;
         object-fit: contain;
       }
       @keyframes logos-run {
@@ -866,7 +878,7 @@
         display: block;
       }
       .shell.bio > p {
-        margin: 0 0 14px;
+        margin: 0 0 12px;
       }
       /* his contact button after the logos (7 Nov 2026), on a line of its own in the bio's flowing words */
       .shell.bio > .words-button {
@@ -880,7 +892,7 @@
         clear: both;
       }
       .shell.bio > h2 {
-        margin-bottom: 14px;
+        margin-bottom: 12px;
       }
       /* floated left, the bio's words wrapping round it: "for the bio, can the text wrap?" (Carl, 2 Nov 2026) */
       /* his photo on the bio, its line drawn and boiling as the quote photos' are: "oh i meant the biography photo, the one
@@ -911,7 +923,7 @@
         position: relative;
         width: 100%;
         aspect-ratio: 16 / 10;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         --line: var(--ink);
       }
       .quote-photo-box > .wob {
@@ -929,32 +941,32 @@
       }
       .quote blockquote {
         margin: 0;
-        font: italic var(--fs-body)/1.42 "DM Sans", system-ui, sans-serif;
+        font: italic var(--fs-body)/1.2 "DM Sans", system-ui, sans-serif;
       }
       .quote blockquote::before {
         content: "\201C";
         display: block;
         height: 0.5em;
-        margin: 4px 0 2px -0.05em;
+        margin: 4px 0 4px -0.05em;
         /* Georgia's: DW Fairfield has no curly quote, and the fallback drew it tiny. Its size is the mark's own, a drawing
            more than a word, as Homegrown's wordmark and knob are (THREE TEXT SIZES) */
-        font: 700 5rem/1 Georgia, "Times New Roman", serif;
+        font: 700 5rem/1 "DM Sans", system-ui, sans-serif; /* DM Sans's own mark, no third font: "match homegrown" (Carl, 9 Nov 2026); Georgia until then */
         color: var(--mustard);
       }
       .quote figcaption {
         display: grid;
-        gap: 3px;
+        gap: 4px;
         margin-top: 16px;
-        padding-left: 14px;
-        border-left: 3px solid var(--mustard);
+        padding-left: 12px;
+        border-left: 2px solid var(--mustard);
       }
       .quote figcaption b {
         font-size: var(--fs-small);
-        letter-spacing: 0.08em;
+        letter-spacing: 0.06em;
       }
       .quote figcaption span {
         font-size: var(--fs-small);
-        opacity: 0.62;
+        opacity: 0.55; /* Homegrown's --ink-nearly (0.62 until 9 Nov 2026) */
       }
       .track-name {
         flex: 1;
@@ -974,8 +986,8 @@
       .socials {
         display: flex;
         justify-content: center; /* "center the email and instagram icons" (Carl, 3 Nov 2026) */
-        gap: 14px;
-        margin-top: 6px;
+        gap: 12px;
+        margin-top: 8px;
       }
       .socials a {
         display: block;
@@ -993,7 +1005,7 @@
       }
       .form {
         display: grid;
-        gap: 10px;
+        gap: 12px;
       }
       .form label {
         display: grid;
@@ -1003,7 +1015,7 @@
       .form .two {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
+        gap: 12px;
       }
       .form .group {
         font-weight: 700;
@@ -1025,7 +1037,7 @@
         border: none;
         background: none;
         color: var(--ink);
-        font: var(--fs-body)/1.3 "DM Sans", system-ui, sans-serif;
+        font: var(--fs-body)/1.2 "DM Sans", system-ui, sans-serif;
         resize: vertical;
       }
       /* the toast a sent message raises over the top of its card (src/nav.mjs SENT, SAID WHERE IT IS SEEN) */
@@ -1034,7 +1046,7 @@
         z-index: 4;
         top: 42%;
         left: 50%;
-        padding: 16px 34px;
+        padding: 16px 24px;
         width: max-content;
         max-width: 80%;
         text-align: center;
@@ -1089,8 +1101,8 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         /* with room round them, so they come out smaller: "they should have more padding between them so they can be a
            bit smaller" (Carl, 8 Nov 2026). 14px and 12px apart, and nothing at the sides, until then */
-        gap: 26px 48px;
-        padding: 4px 44px; /* and room for each sleeve's drawn line, which the scrolling card would clip */
+        gap: 24px 40px;
+        padding: 4px 40px; /* and room for each sleeve's drawn line, which the scrolling card would clip */
       }
       @container (max-width: 440px) {
         .sleeves {
