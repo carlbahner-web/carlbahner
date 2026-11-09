@@ -27,7 +27,7 @@
      them" (Carl, 6 Oct 2026). So the press is a real squash and spring back, the dog blinks twice, and
      the paper lands with more give. studio/NAVIGATION.md has the rest. */
 import { view, upright, CARD_REF, UPRIGHT_CARD } from "./stage.mjs";
-import { setLid, setMapLights, setDeck, FADE_MS, preloadPictures, setHoverWords, hoverWordsCorners, setAllWords, allWordsCorners, setPhoneWords, deckPoints, ARM_SWING_MS, drawControls, deckControls, DECK_HIT, pressKey, releaseKeys, DECK_LIFT, DROP_MS } from "./props.mjs";
+import { setLid, setMapLights, setDeck, FADE_MS, preloadPictures, setHoverWords, hoverWordsCorners, setAllWords, allWordsCorners, setPhoneWords, deckPoints, ARM_SWING_MS, drawControls, deckControls, DECK_HIT, pressKey, releaseKeys, DECK_LIFT, DROP_MS, deckState } from "./props.mjs";
 import { goToView, cameraFor } from "./viewtune.mjs";
 import { cue } from "./cues.mjs";
 import { inkMask, MASK_N, wobbleLine, wobblePath, BOIL_ORDER, BOIL_MS } from "./garden-bits.mjs";
@@ -1239,7 +1239,7 @@ export function startNav(v) {
     document.querySelector("#stage").append(row);
   }
   // for the tests: where a thing's middle is on screen, -1..1
-  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, word: (x, y) => wordThingAt(x, y)?.hash ?? null, zone: (x, y) => zoneAt(x, y)?.hash ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room };
+  window.__nav = { glow: () => things.filter((t) => t.hot > 0.05).map((t) => t.id + " " + t.hot.toFixed(2)), busy: () => busy(), ids: Object.fromEntries(things.map((t) => [t.id, t.hash ?? t.id])), at: (x, y) => thingAt(x, y)?.hash ?? thingAt(x, y)?.id ?? null, word: (x, y) => wordThingAt(x, y)?.hash ?? null, zone: (x, y) => zoneAt(x, y)?.hash ?? null, where: (id) => onScreen(pose(cam.yaw, cam.pitch, cam.fov), corners(things.find((t) => t.id === id).mesh)[4]), frame: (id, box) => frame(things.find((t) => t.id === id), box || room()), room, deck: () => deckState(), player: () => PLAYER };
   /* THE WINDOW RESIZED with a page open: the thing is framed again for the new shape, at once. It kept the camera it
      flew to, so the thing drifted off the middle of the room beside the card, and half off a tall window: "if i resize
      the then the focus point of the room is no longer in teh center of the viewing area" (Carl, 2 Nov 2026). */
@@ -1459,7 +1459,10 @@ function stopFlights() {
 /* NOW PLAYING: "There needs to be some sort of song info/control hud thing so they can stop as needed" (Carl, 7 Nov 2026,
    his officers' quiz, on the song stopping as the player closed). A song playing when its card closes, or when its
    HOLY MOLY button opens the contact card, plays on, and a small card in the room's corner says what it is, with a
-   pause and a stop. It goes when the song ends or is stopped, and when the player opens again (which starts fresh). */
+   pause and a stop. It goes when the song ends or is stopped, and when the player opens again, which takes the song back
+   (THE PLAYER TAKES ITS SONG BACK, below). The song's audio is kept in this card, never left in the closed window, where
+   the next close or a Back mid-flight paused it as "anything else" (stopAudio): "it was glitching when i left the
+   player page while the audio was still going and i was clicking into other pages" (Carl, 9 Nov 2026). */
 let NOW = null;
 /* a song asked to play and then paused or changed before it starts says so in the browser's console ("The play()
    request was interrupted"), which is the next song taking over, not a fault (docs/GODZILLA-2026-11-08.md, "Fix it") */
@@ -1522,11 +1525,20 @@ function nowPlaying({ audio, at = 0, title, artist }) {
   });
   stop.addEventListener("click", () => (cue("key:stop"), endNowPlaying()));
   audio.addEventListener("ended", endNowPlaying, { once: true });
-  box.append(words, back, toggle, next, stop);
+  box.append(words, back, toggle, next, stop, audio);
   document.querySelector("#stage").append(box);
   drawBox(box);
   for (const b of [back, toggle, next]) drawBox(b, { round: true });
-  NOW = { audio, box };
+  NOW = { audio, box, at: () => at };
+}
+// the song NOW PLAYING has, taken off its card without stopping it, for the player opening again
+function takeNowPlaying() {
+  if (!NOW || NOW.audio.ended) return endNowPlaying(), null;
+  const kept = { audio: NOW.audio, at: NOW.at() };
+  kept.audio.removeEventListener("ended", endNowPlaying);
+  NOW.box.remove();
+  NOW = null;
+  return kept;
 }
 function recordEl(cover, cls) {
   const r = el("div", "vinyl " + cls);
@@ -1574,10 +1586,14 @@ const SHELLS = {
      another, the arm goes home first, then the old record goes back to its sleeve as the new one comes out. */
   player(t, go) {
     const W = WORDS.portfolio;
-    endNowPlaying(); // the player open again starts fresh: the song left playing in the room stops (NOW PLAYING)
+    /* THE PLAYER TAKES ITS SONG BACK: "when i clicked back into the player, it stopped the audio and reset the player
+       instead of having the record still playing visually and sonically" (Carl, 9 Nov 2026). The song NOW PLAYING has
+       carries on as the player opens, its record already on the deck, turning, its sleeve empty. It started fresh
+       until then, from his officers' quiz of 7 Nov ("Opening the player again starts it fresh"). */
+    const kept = takeNowPlaying();
     const box = el("div", "shell player words");
     box.append(said(W.title, "h2"));
-    const audio = el("audio", "", { preload: "metadata" });
+    const audio = kept?.audio || el("audio", "", { preload: "metadata" });
     let at = -1, // the song whose record is on, or on its way
       loaded = false, // its record is on the platter
       gen = 0;
@@ -1828,6 +1844,15 @@ const SHELLS = {
     // the deck's own buttons (nav's click on the deck, DECK_HIT)
     // a new card: the deck starts empty, whatever the last one left on it
     setDeck({ on: false, playing: false, armTo: "rest", drop: 0, dropTo: 0, k: 0 });
+    if (kept) {
+      // its song back: on the deck as it was left, the arm on the record, turning unless it was paused
+      at = kept.at;
+      loaded = true;
+      gloveGone = true;
+      box.querySelector(".sleeve-glove")?.remove();
+      setDeck({ on: true, label: COVERS[at] || null, playing: !audio.paused, armTo: "play", drop: 0, dropTo: 0, k: audio.duration ? audio.currentTime / audio.duration : 0 });
+      mark();
+    }
     PLAYER = {
       // the window closing on a song that is playing: it is handed on to play in the room (NOW PLAYING), the card's own
       // steps let go of it, so its end no longer reaches for the next record on a deck that has closed
