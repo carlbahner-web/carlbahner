@@ -8,11 +8,13 @@
     <!-- THE SITE'S NAME AND ITS LINK PREVIEW, Carl's answers on the launch quiz (3 Nov 2026,
          https://claude.ai/artifact/5LWQs73jHMp7yRByiUZgP1): the tab "Carl Bahner"; a shared link shows the room as it
          opens, his name and his own line, "Mixer, educator, and sonic chaos gremlin." -->
-    <title>Carl Bahner</title>
+    <!-- then the tab and the shared link's title say what he does: ""Carl Bahner // mixing and co-production"" (Carl, 9 Nov
+         2026, the officers' fixes quiz; asked knowing it is also what a shared link shows) -->
+    <title>Carl Bahner // mixing and co-production</title>
     <meta name="description" content="Mixer, educator, and sonic chaos gremlin." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://carlbahner.com/" />
-    <meta property="og:title" content="Carl Bahner" />
+    <meta property="og:title" content="Carl Bahner // mixing and co-production" />
     <meta property="og:description" content="Mixer, educator, and sonic chaos gremlin." />
     <meta property="og:image" content="https://carlbahner.com/assets/share.jpg" />
     <meta property="og:image:width" content="1200" />
@@ -478,6 +480,11 @@
         --fill: #f6cc60;
         cursor: pointer;
       }
+      /* a finger's size on screen however small the card is drawn (src/stage.mjs NO SMALLER THAN THREE QUARTERS) */
+      body:not(.upright) #win .close {
+        width: calc(44px * max(1, 1 / var(--k, 1)));
+        height: calc(44px * max(1, 1 / var(--k, 1)));
+      }
       #win .close svg:not(.wob) {
         width: 20px;
         height: 20px;
@@ -685,6 +692,27 @@
       }
       .words-button:active {
         transform: scale(0.97);
+      }
+      /* Spotify, small underlined words under HOLY MOLY ("Spotify as small words under HOLY MOLY", Carl, 9 Nov 2026) */
+      .spotify-words {
+        align-self: center;
+        margin-top: -2px;
+        padding: 4px 8px;
+        font: 700 var(--fs-small)/1.2 "DM Sans", system-ui, sans-serif;
+        letter-spacing: 0.02em;
+        color: var(--ink);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      /* a song that didn't load, said under the sleeves (src/nav.mjs A SONG THAT DIDN'T LOAD) */
+      .song-note {
+        margin: 0;
+        font: 400 var(--fs-small)/1.35 "DM Sans", system-ui, sans-serif;
+        color: var(--rust);
+      }
+      /* the logos on the quotes card, under its title and above the first quote (src/nav.mjs THE LOGOS on the quotes card) */
+      .logo-strip + .quote {
+        margin-top: 30px;
       }
       /* THE QUOTES, given room: "can we make the quotes card look better? It's all kinda 'jammed together as a placeholder'
          looking" (Carl, 2 Nov 2026). Each its own block well apart from the next, its photo the card's width, a big mustard

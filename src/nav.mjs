@@ -121,15 +121,19 @@ export const WORDS = {
       "If you put the Backstreet Boys and Aphex Twin in a blender with a 1960 Ludwig kit, you\u2019d land somewhere close to Carl\u2019s sonic instincts: pop sensibilities wrapped in glitchy ear candy, anchored by massive rhythm sections and tiny buried details that only reveal themselves on the 10th listen.",
       "Before mixing full-time, he toured internationally as a drummer, opening for artists like Charli XCX, Walk The Moon, The Wombats, and more\u2026 which left him with an unusually tuned ear for what actually moves a room full of humans.",
       "Now, he helps artists and producers turn their \u201calmost done\u201d songs into unignorable records - by making the catchy parts catchier and the weird parts weirder.",
-      "With a drummer\u2019s sense of motion and a remixer\u2019s ear for surprise, he shapes mixes that feel tight, weird, and borderline sentient. The kind of songs people don\u2019t just hear. They obsess over.",
+      // ending a sentence sooner: "End a sentence sooner" (Carl, 9 Nov 2026, the officers' fixes quiz), without "The kind of
+      // songs people don't just hear. They obsess over."
+      "With a drummer\u2019s sense of motion and a remixer\u2019s ear for surprise, he shapes mixes that feel tight, weird, and borderline sentient.",
     ],
   },
   artists: {
     // "world map: WHAT THEY SAID (add a contact button at the bottom)" (Carl, 3 Nov 2026)
     title: "What they said",
+    logos: true, // the logos above the quotes (THE LOGOS on the quotes card)
     button: { words: "HOLY MOLY I WANT TO TALK TO YOU ABOUT MY MUSIC", to: "contact" },
     quotes: [
-      { words: "I also really love the approach that Carl took on his \"The Winds Of Change\" remix\u2026 literally had me grinning from ear to ear the first time I heard it.", name: "JEAN-PHILIP GROBLER", photo: "assets/people/jean-philip-grobler.webp", role: "// Artist, Producer - St Lucia //" },
+      // starting on "...", not "I also really love": "Start it with ..." (Carl, 9 Nov 2026, the officers' fixes quiz)
+      { words: "\u2026the approach that Carl took on his \"The Winds Of Change\" remix\u2026 literally had me grinning from ear to ear the first time I heard it.", name: "JEAN-PHILIP GROBLER", photo: "assets/people/jean-philip-grobler.webp", role: "// Artist, Producer - St Lucia //" },
       { words: "Carl is a reliable guy to have in the room. He’s always eagerly exploring the possibilities and naturally keeps the collective mood in a fun place. Among his many talents, you should know he is an exceedingly skilled and flexible drummer. It’s true.", name: "ANDREW MAURY", photo: "assets/people/andrew-maury.webp", role: "// Producer, Mixer - Shawn Mendes, Lizzo, Post Malone //" },
       { words: "Having toured with Carl over the years, we knew what an amazing musician he was - but having him work on remixes for Sunship Balloon and totally reimagine them was so cool... Highly recommend!", name: "DANIEL HAGGIS", photo: "assets/people/daniel-haggis.webp", role: "// Artist, Drummer - The Wombats, Sunship Balloon //" },
     ],
@@ -139,8 +143,11 @@ export const WORDS = {
   "co-producer": {
     title: "Why do I call myself a *co-producer?*",
     text: [
-      "I could just mix what you send me. I’m pretty damn good at that\u2026 but it\u2019s *way more fun* when I can help with that maddening final stretch of production where you’re too close to your own music to be objective.",
-      "Tightening up the *transitions*, finding those perfect moments for *ear candy*, cutting out those *unnecessary layers* you kinda forgot they\u2019re even there.",
+      "I could just mix what you send me. I’m pretty damn good at that\u2026 but it\u2019s way more fun when I can help with that maddening final stretch of production where you’re too close to your own music to be objective.",
+      // "Use the draft" (Carl, 9 Nov 2026, the officers' fixes quiz): his words with "I'll" at the front and the end mended;
+      // until then "Tightening up the transitions, finding those perfect moments for ear candy, cutting out those unnecessary
+      // layers you kinda forgot they're even there."
+      "I\u2019ll tighten up the transitions, find those perfect moments for ear candy, and cut out those unnecessary layers you kinda forgot were even there.",
     ],
   },
   "my-people": {
@@ -150,7 +157,10 @@ export const WORDS = {
     title: "Are *YOU* my people?",
     text: ["I love love LOVE working with artists and producers who geek out over:"],
     list: ["Vocals that get *STUCK IN YOUR HEAD*", "Drums that make you *PHYSICALLY UNABLE TO SIT STILL*", "Those little nerdy *SONIC EASTER EGGS* that only your superfans notice"],
-    after: ["If you’re nodding along right now, we should probably *talk\u2026 and I promise I won’t make you sound like everyone else.*"],
+    /* the orange on the three lines of his list alone: "Only the three lines" (Carl, 9 Nov 2026, the officers' fixes quiz,
+       of the clutter officer's "When that many are lit up, none of them stands out"). Here and in the co-producer's words it
+       was where his site has it: *talk... everyone else.*, *way more fun*, *transitions*, *ear candy*, *unnecessary layers* */
+    after: ["If you’re nodding along right now, we should probably talk\u2026 and I promise I won’t make you sound like everyone else."],
     // his site's button, which goes to the form: the dog here
     button: { words: "HOLY MOLY I WANT TO TALK TO YOU ABOUT MY MUSIC", to: "contact" },
   },
@@ -1549,15 +1559,27 @@ const SHELLS = {
       return b;
     });
     box.append(shelf);
+    /* A SONG THAT DIDN'T LOAD: the student Godzilla officer's third hole: a song tapped as the signal dropped stayed
+       silent, a second tap did nothing, and nothing said why. "Fix it: "Ugh, that one didn't load. Tap it to try again.""
+       (Carl, 9 Nov 2026, the officers' fixes quiz). The line shows under the sleeves while it can't load, and a tap on
+       its sleeve loads it again from the start. */
+    const songNote = el("p", "song-note", { hidden: true, textContent: "Ugh, that one didn\u2019t load. Tap it to try again.", role: "status" });
+    box.append(songNote);
+    const failed = () => !!audio.error || audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE;
+    audio.addEventListener("error", () => (songNote.hidden = false));
+    audio.addEventListener("playing", () => (songNote.hidden = true));
     // the play, stop, what is on and the progress line are on the deck, as on Greg's player (props.mjs drawControls):
     // "Actually now I miss the controls from Greg's", then "1", on the turntable (Carl, 2 Nov 2026)
     // his site's button to Spotify, out to his playlist in a new tab
     // the quiet one beside his contact button, a line and no fill: "Make Spotify the quiet one" (Carl, 7 Nov 2026)
-    const more = el("a", "words-button more quiet", { href: W.moreLink, target: "_blank", rel: "noopener", textContent: W.more });
+    /* then small underlined words under his contact button, so HOLY MOLY is in view as a song ends: "Spotify as small
+       words under HOLY MOLY" (Carl, 9 Nov 2026, the officers' fixes quiz; the delight officer's "the only next step is a
+       thin sliver of the yellow button, cut off at the bottom"). It was the full-width button above HOLY MOLY. */
+    const more = el("a", "spotify-words", { href: W.moreLink, target: "_blank", rel: "noopener", textContent: W.more });
     more.addEventListener("click", () => cue("click:spotify"));
-    box.append(more, audio);
-    // his contact button under the Spotify one (WORDS.portfolio.button)
+    // his contact button (WORDS.portfolio.button), then the Spotify words under it
     if (W.button) box.append(actionButton(W.button, go));
+    box.append(more, audio);
     const sleeveOf = (i) => rows[i]?.querySelector(".slot.sleeve");
     // a sleeve whose record is on its way home reads as empty until it is in (no record peeking out while it flies)
     const returning = new Set();
@@ -1573,6 +1595,13 @@ const SHELLS = {
       if (busy) {
         if (i !== at) next = i;
         return;
+      }
+      if (i === at && loaded && failed()) {
+        // loaded again from the start (A SONG THAT DIDN'T LOAD)
+        songNote.hidden = true;
+        audio.src = TRACKS[i];
+        audio.load();
+        return resume();
       }
       if (i === at && loaded) return audio.paused ? resume() : pause();
       busy = true;
@@ -1818,34 +1847,11 @@ const SHELLS = {
     const photo = el("div", "bio-photo-box");
     photo.append(el("img", "bio-photo", { src: "assets/people/carl.webp", alt: "Carl Bahner", width: 900, height: 1200 }));
     box.append(said(W.title, "h2"), photo, ...W.text.map((t) => said(t)));
-    /* THE LOGOS under the bio, smaller, running past as a carousel: "intead of a separate sync page, i think you're
-       right... make them smaller to fit under the bio, maybe as a carousel?" (Carl, 3 Nov 2026). Their own page (the
-       drum's, then nothing's once the bio took the drum) is gone. The row is drawn twice
-       so it runs on without a seam; held still and wrapped for a visitor who asks for less motion. */
-    // with no title of their own: "I don't need the cool sync things text, that's unnecessary now" (Carl, 3 Nov 2026)
-    const strip = el("div", "logo-strip"),
-      run = el("div", "logo-run");
-    for (const round of [0, 1])
-      for (const n of LOGOS) {
-        const img = el("img", "", { src: "assets/logos/" + n + ".webp", alt: round ? "" : LOGO_NAMES[n] || n.replace(/-/g, " ") });
-        /* each the same weight to the eye, not the same height: "some look awkwardly small compared to others" (Carl, 3
-           Nov 2026). Their pictures are cut to the logo itself, and each gets the same area, so a tall mark is narrow and a
-           long wordmark low, the longest held to 200px */
-        img.addEventListener("load", () => {
-          const ar = img.naturalWidth / img.naturalHeight;
-          // and a nudge by eye for the ones whose lines are thin or whose ink is solid
-          const h = Math.min(46, 50 / Math.sqrt(ar), 200 / ar) * ({ umg: 1.25, "sony-music": 1.15, discovery: 1.2, fox: 0.85, cbs: 0.9 }[n] || 1);
-          img.style.height = h.toFixed(1) + "px";
-          img.style.width = (h * ar).toFixed(1) + "px";
-        });
-        if (round) img.setAttribute("aria-hidden", "true");
-        run.append(img);
-      }
-    strip.append(run);
-    box.append(strip);
-    // and his contact button after the logos, as the player, the quotes and Are YOU my people? end: "Add HOLY MOLY to the
-    // bio" (Carl, 7 Nov 2026, his officers' quiz)
+    // and his contact button, as the player, the quotes and Are YOU my people? end: "Add HOLY MOLY to the bio" (Carl, 7 Nov
+    // 2026, his officers' quiz)
     if (W.button) box.append(actionButton(W.button, go));
+    // then his email and Instagram: "Drop em both, put them at the bottom of the about page" (Carl, 9 Nov 2026)
+    box.append(socials());
     return box;
   },
   // THE DRUM'S PAGE: it was to be tour photos, then "maybe the logos are all I need tbh?" (Carl, 2 Nov 2026), so it is
@@ -1872,6 +1878,7 @@ const SHELLS = {
     const box = el("div", "shell page words");
     if (W.title) box.append(said(W.title, "h2"));
     if (W.sub) box.append(said(W.sub, "h3", "sub"));
+    if (W.logos) box.append(logoStrip());
     for (const x of W.text || []) box.append(said(x));
     if (W.list) {
       const ul = el("ul", "stars");
@@ -1912,11 +1919,42 @@ const SHELLS = {
       box.append(said(M.title, "h2", "next"), ...(M.text || []).map((t) => said(t)));
       if (M.link) box.append(out(M.link));
     }
-    if (t.hash === "contact") box.append(contactForm(), socials());
+    /* the email and Instagram icons off the form: "Drop em both, put them at the bottom of the about page" (Carl, 9 Nov
+       2026, the officers' fixes quiz, of the clutter officer's "the email icon gives them a way around it") */
+    if (t.hash === "contact") box.append(contactForm());
     return box;
   },
 };
 
+function logoStrip() {
+  /* THE LOGOS on the quotes card, above what people said: "Move them to Quotes" (Carl, 9 Nov 2026, the officers' fixes
+   quiz: "someone checking who you've worked with opens one window instead of two"). Until then they ran under the bio,
+   smaller, as a carousel: "intead of a separate sync page, i think you're
+     right... make them smaller to fit under the bio, maybe as a carousel?" (Carl, 3 Nov 2026). Their own page (the
+     drum's, then nothing's once the bio took the drum) is gone. The row is drawn twice
+     so it runs on without a seam; held still and wrapped for a visitor who asks for less motion. */
+  // with no title of their own: "I don't need the cool sync things text, that's unnecessary now" (Carl, 3 Nov 2026)
+  const strip = el("div", "logo-strip"),
+    run = el("div", "logo-run");
+  for (const round of [0, 1])
+    for (const n of LOGOS) {
+      const img = el("img", "", { src: "assets/logos/" + n + ".webp", alt: round ? "" : LOGO_NAMES[n] || n.replace(/-/g, " ") });
+      /* each the same weight to the eye, not the same height: "some look awkwardly small compared to others" (Carl, 3
+         Nov 2026). Their pictures are cut to the logo itself, and each gets the same area, so a tall mark is narrow and a
+         long wordmark low, the longest held to 200px */
+      img.addEventListener("load", () => {
+        const ar = img.naturalWidth / img.naturalHeight;
+        // and a nudge by eye for the ones whose lines are thin or whose ink is solid
+        const h = Math.min(46, 50 / Math.sqrt(ar), 200 / ar) * ({ umg: 1.25, "sony-music": 1.15, discovery: 1.2, fox: 0.85, cbs: 0.9 }[n] || 1);
+        img.style.height = h.toFixed(1) + "px";
+        img.style.width = (h * ar).toFixed(1) + "px";
+      });
+      if (round) img.setAttribute("aria-hidden", "true");
+      run.append(img);
+    }
+  strip.append(run);
+  return strip;
+}
 // a card's one action: a mustard button to another card (drawn and boiling in openThing)
 function actionButton(B, go) {
   const b = el("button", "words-button act", { type: "button", textContent: B.words });
@@ -1962,6 +2000,8 @@ function sentToast() {
   t.addEventListener("click", go);
   setTimeout(go, 6000); // long enough to read his line
 }
+const DRAFT = {}; // what the visitor has typed, until it is sent (A HALF-WRITTEN MESSAGE IS KEPT)
+const EMAIL_SAYS = "Almost there! Just need your email so I can reply.";
 function contactForm() {
   const f = el("form", "form");
   const field = (label, input) => {
@@ -1980,11 +2020,25 @@ function contactForm() {
   f.append(
     row,
     field("Email", el("input", "", { type: "email", name: "email", required: true, autocomplete: "email" })),
-    field("Subject", el("input", "", { name: "subject", required: true, defaultValue: "I need the right mix engineer!" })), // a default, so the form's reset puts it back
+    field("Subject", el("input", "", { name: "subject", required: true, defaultValue: "I want to talk to you about my song" })), // a default, so the form's reset puts it back; his pick of the drafts: "\"I want to talk to you about my song\"" (Carl, 9 Nov 2026, the officers' fixes quiz), for his site's "I need the right mix engineer!"
     field("Message", el("textarea", "", { name: "message", required: true, rows: 5 })),
     el("button", "words-button act", { type: "submit" }),
   );
   const button = f.querySelector("button[type=submit]");
+  /* A HALF-WRITTEN MESSAGE IS KEPT: the student Godzilla officer's first hole, found by the delight officer too: closed
+     (the X, Escape, Back, a click on the room) and opened again, every box was empty. "Keep it until it's sent" (Carl, 9
+     Nov 2026, the officers' fixes quiz). What is typed is kept here, for this visit, and the form opens with it until it
+     has gone. */
+  for (const [n, v] of Object.entries(DRAFT)) if (f.elements[n]) f.elements[n].value = v;
+  f.addEventListener("input", (e) => e.target.name && (DRAFT[e.target.name] = e.target.value));
+  /* AN EMAIL YOU CAN'T REPLY TO IS CAUGHT: the officer's second hole: "maya@gmail" and "maya@gmail.con" went straight
+     through, and the reply would bounce. "Catch it", in his words for a missed email box: ""Almost there! Just need your
+     email so I can reply."" (Carl, 9 Nov 2026). The box asks again when nothing follows the @'s dot, or it ends in one
+     of the commonest slips of .com. The other boxes keep the browser's own words. */
+  const email = f.elements.email;
+  const emailOk = (v) => /^[^@\s]+@[^@\s.]+(\.[^@\s.]+)*\.[a-z]{2,}$/i.test(v) && !/\.(con|cmo|ocm|vom|xom|cm|comm|om)$/i.test(v);
+  email.addEventListener("input", () => email.setCustomValidity(""));
+  email.addEventListener("invalid", () => email.setCustomValidity(EMAIL_SAYS));
   // its words in their own span, so changing them leaves its drawn line and fill (drawBox's picture inside it) alone:
   // setting the button's own text wiped them, which is the "button just went flat" (Carl, 3 Nov 2026)
   const label = el("span", "", { textContent: "SUBMIT" });
@@ -2016,6 +2070,11 @@ function contactForm() {
       f.reportValidity();
       return;
     }
+    if (!emailOk(email.value.trim())) {
+      email.setCustomValidity(EMAIL_SAYS);
+      email.reportValidity();
+      return;
+    }
     const v = Object.fromEntries(new FormData(f));
     const name = `${v.first} ${v.last}`.trim();
     const body = { name, email: v.email, _replyto: v.email, _subject: v.subject, message: v.message, _template: "box", _captcha: "false" };
@@ -2045,6 +2104,7 @@ function contactForm() {
       }
       label.textContent = "SENT!";
       f.reset();
+      for (const n of Object.keys(DRAFT)) delete DRAFT[n]; // gone, so the next opening starts clean
       /* SENT, SAID WHERE IT IS SEEN: "can we make the "sent" notification a popup or toast? it stays at the bottom of the
          page and actually gets automatically scrolled below the fold" (Carl, 3 Nov 2026). A toast at the top of the card,
          over whatever is scrolled there, for a few seconds; the button keeps saying SENT! below */
