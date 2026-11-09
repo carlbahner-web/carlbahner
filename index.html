@@ -410,7 +410,7 @@
         width: auto;
         margin: 0;
         padding: 24px 16px 16px;
-        transform: translateY(calc(100% + 40px)); /* from below the screen, now the card is the whole of it */
+        transform: translateY(calc(var(--half, 50vh) + 40px));
         transition:
           transform 0.62s cubic-bezier(0.2, 1, 0.4, 1),
           opacity 0.3s;
@@ -424,12 +424,10 @@
       .upright #win.sheet.full {
         top: 8px;
       }
-      /* THE WHOLE SCREEN: then every card on a phone, from the moment it opens: "Whole screen" (Carl, 9 Nov 2026, the
-         officers' fixes quiz, of the simplicity officer's "Quotes from 4 scrolls to 2"; asked knowing the player above is
-         then out of sight). It replaces the bottom 65% (UPRIGHT_CARD) and the pinned card of 3 Nov. */
-      .upright #win.sheet {
-        top: 8px;
-      }
+      /* THE BOTTOM 65% AGAIN: every card on a phone filled the screen for a day ("Whole screen", Carl, 9 Nov 2026, the
+         officers' fixes quiz), then: "Can we make the mobile version card sixes back to the 2/3 or whatever we had instead
+         of full? Now I can't see the record player deck" (Carl, 9 Nov 2026). So the card is the bottom 65% (UPRIGHT_CARD)
+         again, the thing framed above it; the home stretch above still takes the whole screen. */
       .upright #win.sheet {
         transition-property: transform, opacity, top;
       }

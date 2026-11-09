@@ -116,7 +116,8 @@ its styles.
   and lasted under 0.7 s; anything else is a drag.
 - **A phone upright, since 9 Nov 2026** (the officers' fixes quiz): the room opens on the console and a row of every
   page's word runs along its bottom, a tap opening that page ("Open on the console and the row of words"); each card
-  fills the screen ("Whole screen"), and NOW PLAYING drops to the bottom while one is open ("Move it out of the way").
+  filled the screen for a day ("Whole screen"), then went back to the bottom 65% so the player's deck shows above it ("Now
+  I can't see the record player deck", 9 Nov 2026), and NOW PLAYING drops to the bottom while one is open ("Move it out of the way").
   The row is the room's one label, on his word. `node tests/holes-nov9.mjs` recreates that round's four holes.
 - **Carl's editing panel** is unchanged and still shown to him alone. The windows' empty spaces show
   their names faintly to him too (`slot-names`), and to anyone with `?slots=1`; visitors see bare dashed

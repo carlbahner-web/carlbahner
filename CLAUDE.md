@@ -697,7 +697,9 @@ chat". His answers, built the same day unless marked:
   the room, a tap opening its page: "Open on the console and the row of words" (`PHONE.turn` in `src/studio.mjs`, A ROW
   OF WORDS ON A PHONE in `src/nav.mjs`). It is the one label in the room, against the rule above that what opens shows
   only on the thing itself, on his word. Every card fills the screen from the moment it opens, "Whole screen", asked
-  knowing the player above is then out of sight; it replaces the bottom 65% and the pinned card of 3 Nov. NOW PLAYING
+  knowing the player above is then out of sight. Then back to the bottom 65% the same day: "Can we make the mobile version
+  card sixes back to the 2/3 or whatever we had instead of full? Now I can't see the record player deck" (Carl, 9 Nov
+  2026; THE BOTTOM 65% AGAIN in `index.html`). NOW PLAYING
   goes to the bottom while a card is open, out of the X's way: "Move it out of the way".
 - **The cards**: Spotify is small underlined words under HOLY MOLY on the songs' card ("Spotify as small words under
   HOLY MOLY"); the logos moved from under the bio to the top of the quotes card ("Move them to Quotes"); the email and

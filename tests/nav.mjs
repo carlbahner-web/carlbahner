@@ -142,9 +142,11 @@ await walk("phone-upright", { width: 390, height: 844, phone: true }, async ({ p
   await settle();
   expect((await state()).kind === "bio", "phone upright: a link to #bio did not open the bio");
   const top = await page.evaluate(() => document.querySelector("#win").getBoundingClientRect().top);
-  // the whole screen since 9 Nov 2026 ("Whole screen", Carl, the officers' fixes quiz); the bottom 65% until then
-  expect(top < 30, "phone upright: the card does not fill the screen (index.html THE WHOLE SCREEN): its top is at " + Math.round(top));
-  await shot("the bio, the whole screen");
+  // the bottom 65% (UPRIGHT_CARD): the whole screen for a day on 9 Nov 2026, then back ("Now I can't see the record
+  // player deck", Carl)
+  const half = await page.evaluate(() => innerHeight * 0.35);
+  expect(Math.abs(top - half) < 30, "phone upright: the card's top is not at 35% of the screen (index.html THE BOTTOM 65% AGAIN): " + Math.round(top) + " for " + Math.round(half));
+  await shot("the bio, the bottom 65%");
   // pinned since 3 Nov 2026: the card stays where it is and its words scroll inside it
   const r0 = await page.evaluate(() => document.querySelector("#win").getBoundingClientRect());
   await page.mouse.move(195, 700);
