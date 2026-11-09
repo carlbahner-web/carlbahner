@@ -1132,6 +1132,19 @@ function stepOpening(now) {
   if (!OPENING.k) nav.introFrom();
   return true;
 }
+/* THE DRUM TURNS BACK: on a phone the drum starts the flyover turned about its right foot (props.mjs PHONE PROPS) and, 4 s
+   in, eases back to where it stands, there as the camera lands: "it looks good during flyover but then once the main page
+   is in use it looks wrong. Is it possible to start there and then at the 4s mark it starts moving back to the original
+   position?" (Carl, 9 Nov 2026). No flyover (a link straight to a page, less motion asked for), no turn. */
+const DRUM_BACK_MS = Math.min(4000, OPEN_MS * 0.7);
+function drumTurn(now) {
+  if (!OPEN_KIND || !upright() || !OPENING.k) return 0;
+  if (!OPENING.t0) return 1;
+  const t = (now - OPENING.t0 - DRUM_BACK_MS) / (OPEN_MS - DRUM_BACK_MS);
+  if (t <= 0) return 1;
+  if (t >= 1) return 0;
+  return 1 - t * t * t * (t * (t * 6 - 15) + 10); // smootherstep
+}
 /* B starts closer still and pulls out first: "can b start zoomed in further into the carpet and pull out before droping
    back?" (Carl, 8 Nov 2026). For its first RISE of the time it rises straight up from CLOSE over the rug, still looking
    down, to the high place, then drops back into the room as before. */
@@ -1615,7 +1628,7 @@ function tick(now) {
     dirty = true;
   }
   if (!W || !H) return;
-  phoneProps(upright()); // the drum's phone turn on or off as the layout changes, once its props are in (props.mjs PHONE PROPS)
+  phoneProps(drumTurn(now)); // THE DRUM TURNS BACK
   const dt = Math.min(0.1, (now - last) / 1000 || 0);
   last = now;
   const navMoved = nav.step(now);
