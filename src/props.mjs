@@ -19,7 +19,8 @@ import {
   NoColorSpace,
   LinearMipmapLinearFilter,
 } from "../vendor/three-garden.js";
-import { LINE, GRAIN_M } from "./room.mjs";
+import { LINE, GRAIN_M, ROOM } from "./room.mjs";
+const CEILING_H = ROOM.h;
 import { LIGHT_GLSL, pickLight, LIGHTS } from "./light.mjs";
 import { cue } from "./cues.mjs";
 
@@ -528,17 +529,18 @@ export const PROPS = [
   /* BUZZ IN HIS COASTER CAR, an Easter egg: "How could we sneak a small icon in the top left corner of the room
      that we don't mention and it's like an Easter egg?", then, the spot marked on his phone, "And it should be the
      buzz coaster image from the wild-ride repo" (Carl, 9 Nov 2026). The wild-ride repo's games/src/assets/buzz-car.png,
-     kept as it came in art/buzz-car-source.png. Small and flat at the top of the teal wall, up and left of the clock, against the ceiling.
+     kept as it came in art/buzz-car-source.png. Small and flat on the ceiling by the teal wall, up and left of the clock.
      It never boils, lights or says a word; a click or tap on it opens Buzz's Wild Ride (`egg`, THE EGG in nav.mjs). */
   {
     id: "buzz",
     label: "Buzz",
     src: "assets/buzz-car.webp",
-    w: 0.2,
-    wall: "teal",
-    // where Carl marked it on his phone, tucked under the ceiling's edge left of the clock
-    x: 2.9,
-    y: 2.78,
+    w: 0.1,
+    // on the ceiling by the teal wall, up and left of the clock, where Carl marked it on his phone: "It should be on the
+    // ceiling not the wall" (9 Nov 2026), after it was placed on the wall under the ceiling's edge
+    ceiling: true,
+    out: 0.03,
+    along: 3.0,
     egg: "https://buzzs-wild-ride.netlify.app/",
   },
   /* THE BASS DRUM (Carl's drawing, sent 5 Oct 2026: "Can this go along the right wall?"). Cut by
@@ -2944,6 +2946,17 @@ export function placeProp(mesh) {
       mesh.rotation.set(-a, Math.PI / 2, 0);
       mesh.position.set(out, up, p.along + w / 2);
     } else mesh.position.set(p.along + w / 2, up, out);
+  } else if (p.ceiling) {
+    /* standing on the ceiling: his wheels pinned to it, `out` metres from the teal wall and `along` it from the corner,
+       upright and turned to the camera as the floor's cards are (the turn is set where they get theirs), his body
+       rising up the screen above the wall's top line and drawn in front of the ceiling it would go through: "It should
+       be on the ceiling not the wall", then "can we make it look like he's vertical and staying in front of the
+       ceiling? Like his wheels are pinned but he is always vertical", then, hung under it, "Move him up on the screen
+       so he is above the line" (Carl, 9 Nov 2026, Buzz's egg). */
+    mesh.rotation.set(0, mesh.rotation.y, 0);
+    mesh.position.set(p.out, CEILING_H + h / 2, p.along);
+    mesh.material.depthTest = false;
+    mesh.renderOrder = 50;
   } else if (p.floor) {
     // flat on the floor, its face up `depth` above it, its edge down to the floor (frameBand)
     // (its order is YXZ: turned in its own picture, then laid down)
