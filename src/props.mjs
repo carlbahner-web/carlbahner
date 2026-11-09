@@ -68,6 +68,9 @@ export async function picturesIn() {
    the drawing's own colour, `color` what it is painted now (null: as drawn). A pixel takes the
    swatch nearest its own hue and saturation, so its shade of that colour carries over; its outline
    and anything not near a swatch (the chair's wooden legs) stay as drawn. */
+// the few cm that put the drum's right foot back on the very spot it stood before it turned about it (the drum's `pole`):
+// its slide and forward are measured from the opening view's eye, its old turn from where the camera stands
+const PIVOT_FIX = [0.004, -0.046];
 export const PROPS = [
   {
     id: "chair",
@@ -531,12 +534,19 @@ export const PROPS = [
     w: 0.98,
     at: [1.9, 0.55],
     along: 2.26,
-    fwd: 0.15,
     /* 0.2 until 2 Nov 2026: seen from the side it squashed, "The drum gets kinda skewed in a weird way" (Carl); then
        0.8 until 9 Nov 2026, when it turned with every look round: "The drum looks weird and rotates - the two legs should
        be pinned to a position" (Carl). So it holds the turn it has from where the room opens, its legs where they stand. */
     follow: 0,
-    spin: 0,
+    /* turned clockwise about its right foot, that foot kept where it stood: "Can we start with the left foot in this other
+       new spot? Like rotating it clockwise but keeping the right foot where it is" (Carl, 9 Nov 2026, the left foot's new
+       spot drawn on the flyover's first view on his phone). `pole` is the right foot, 81% across the picture; `slide`
+       stands that foot where it stood when the drum turned about its middle; `spin` turns it about the foot, 36 degrees
+       clockwise seen from above (read off his drawing on the floor). Spin 0, no pole and no slide until then. */
+    pole: 0.81,
+    slide: (0.81 - 0.5) * 0.98 + PIVOT_FIX[0],
+    fwd: 0.15 + PIVOT_FIX[1],
+    spin: -36,
     colors: [
       { id: "wood", label: "shell", base: "#aa5225", color: null },
       { id: "head", label: "head", base: "#f9f0db", color: null },
