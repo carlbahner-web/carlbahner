@@ -470,7 +470,9 @@ Saint Slumber and Sunshine Of Your Youth by Cheerleader", "Yeah after night life
 the extra silence"), his parts "co-production, mixing and mastering" and "drumming and additional engineering". Then every part an -ing word: "Can we make my roles consistently verbs?", "Active verbs like drumming"
 (Carl, 9 Nov 2026). No white flash on a sleeve when a record is tapped on a phone: the browser's tap highlight is off and the sleeve's
 hover slide is for a mouse only ("there is a quick white flash/glitch when selecting a vinyl", "On the sleeve", "Phone",
-Carl, 9 Nov 2026; NO TAP FLASH in `index.html`). Changing songs, the old record fades away on the deck over a second while the new one comes out of its
+Carl, 9 Nov 2026; NO TAP FLASH in `index.html`). Then "there's still a white bar that appears and changes size": the record's slide out of its sleeve and the cut that
+hides it behind the sleeve were two animations, which an iPhone ran apart; now both are set together each frame (ITS
+SLIDE AND ITS CUT IN ONE STEP in `src/nav.mjs`). Changing songs, the old record fades away on the deck over a second while the new one comes out of its
 sleeve (A RECORD FADES AWAY in `src/props.mjs`): flying it home glitched. His name on the wall is gone: "no need for the wall I like the rug better".
 
 **The room's sounds, 2 Nov 2026** (Carl, asked where they are put to the room's moments: "Personal site's room"; his

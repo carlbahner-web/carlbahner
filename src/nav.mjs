@@ -1515,6 +1515,20 @@ let DECKCAM = null,
   PLAYER = null; // the portfolio window's play, stop and seek, for the deck's own buttons
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const flights = new Set();
+// a CSS cubic-bezier(x1, y1, x2, y2) as a function of time 0..1, for a move stepped by hand
+function bezier(x1, y1, x2, y2) {
+  const B = (a, b, t) => 3 * a * t * (1 - t) * (1 - t) + 3 * b * t * t * (1 - t) + t * t * t;
+  return (x) => {
+    let lo = 0,
+      hi = 1;
+    for (let i = 0; i < 24; i++) {
+      const m = (lo + hi) / 2;
+      if (B(x1, x2, m) < x) lo = m;
+      else hi = m;
+    }
+    return B(y1, y2, (lo + hi) / 2);
+  };
+}
 function fly(elm, frames, opts) {
   const a = elm.animate(frames, { fill: "forwards", ...opts });
   flights.add(a);
@@ -1825,10 +1839,26 @@ const SHELLS = {
          never shows in front of the sleeve: "when i click, it immediately teleports in front of the sleeve" (Carl, 3 Nov
          2026). The flier is drawn over the card, so the sleeve could not hide it on its own. */
       const hid = (x) => Math.max(0, Math.min(size, from.width - inset - x));
-      await fly(f, [{ transform: `translate(${startX}px,0)`, clipPath: `inset(0 0 0 ${hid(startX)}px)` }, { transform: `translate(${outX}px,0)`, clipPath: `inset(0 0 0 ${hid(outX)}px)` }], { duration: 1000 * Math.max(0.2, (outX - startX) / outX), easing: "cubic-bezier(.22,.75,.28,1)" });
+      /* ITS SLIDE AND ITS CUT IN ONE STEP: they were two animations, the slide drawn by the graphics chip and the cut by the
+         page, and on an iPhone they drifted apart, a strip of card opening between the sleeve and the record: "there's still
+         a white bar that appears and changes size" (Carl, 9 Nov 2026, on his phone). Now both are set together each frame. */
+      const at = (x) => Object.assign(f.style, { transform: `translate(${x}px,0)`, clipPath: `inset(0 0 0 ${hid(x)}px)`, webkitClipPath: `inset(0 0 0 ${hid(x)}px)` });
+      at(startX);
+      const OUT_MS = 1000 * Math.max(0.2, (outX - startX) / outX),
+        slide = bezier(0.22, 0.75, 0.28, 1);
+      await new Promise((done) => {
+        const t0 = performance.now();
+        const step = (now) => {
+          if (!f.isConnected) return done();
+          const t = Math.min(1, (now - t0) / OUT_MS);
+          at(startX + (outX - startX) * slide(t));
+          if (t < 1) requestAnimationFrame(step);
+          else done();
+        };
+        requestAnimationFrame(step);
+      });
       if (!f.isConnected) return null;
-      for (const a of f.getAnimations()) a.cancel();
-      Object.assign(f.style, { clipPath: "none", transform: `translate(${outX}px,0)` });
+      Object.assign(f.style, { clipPath: "none", webkitClipPath: "none", transform: `translate(${outX}px,0)` });
       // then over to the deck, an arc up and down, on the ease the flight had
       const DUR = 1150,
         ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
