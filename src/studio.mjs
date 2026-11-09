@@ -1278,8 +1278,14 @@ function place() {
     for (let n = 0; n < 5; n++) (H += hi[1] - peakOf(path)[0]), (path = curve(H));
     // measured, so it goes along at one speed
     const K = 96,
-      marks = [0];
-    for (let i = 1; i <= K; i++) marks.push(marks[i - 1] + len(sub(path(i / K), path((i - 1) / K))));
+      marks = [0],
+      across = [0]; // how far across the floor it has gone, at each mark
+    for (let i = 1; i <= K; i++) {
+      const a = path(i / K),
+        b = path((i - 1) / K);
+      marks.push(marks[i - 1] + len(sub(a, b)));
+      across.push(across[i - 1] + Math.hypot(a[0] - b[0], a[2] - b[2]));
+    }
     const S = marks[K],
       // PACE: the share of the way gone at t, its speed rising on a half wave over EASE, even, then falling over EASE
       area = (x) => (x <= 0 ? 0 : x >= EASE ? EASE / 2 + (x - EASE) : (x - (EASE / Math.PI) * Math.sin((Math.PI * x) / EASE)) / 2),
@@ -1301,8 +1307,16 @@ function place() {
     camera.lookAt(...hiLook);
     const qTop = camera.quaternion.clone();
     camera.position.set(...path(uAt(d)));
-    camera.quaternion.slerpQuaternions(qTop, q1, d <= top ? 0 : leanEase(Math.min(1, (d - top) / (S - top))));
-    fov = d <= top ? close[2] + (hiFov - close[2]) * leanEase(rise) : hiFov + (fov - hiFov) * leanEase(Math.min(1, (d - top) / (S - top)));
+    /* TURNING AS IT GOES ACROSS: "why does it rise up and then at the top it like, moves sideways before continuing?
+       That's the dogleg I meant" (Carl, 9 Nov 2026). Held looking down until the top while the camera had already begun
+       to move across, the view slid sideways over the rug first and turned after. So it turns by how far across the floor
+       it has gone, a share for a share: none on the way up, his name square, then turning as it moves across, so the
+       slide and the turn are one move, slowing together as it lands. */
+    const u = uAt(d),
+      j = Math.min(K, Math.floor(u * K)),
+      gone = Math.min(1, (across[j] + (j < K ? (u * K - j) * (across[j + 1] - across[j]) : 0)) / Math.max(1e-9, across[K]));
+    camera.quaternion.slerpQuaternions(qTop, q1, gone);
+    fov = gone <= 0 ? close[2] + (hiFov - close[2]) * leanEase(rise) : hiFov + (fov - hiFov) * gone;
   } else if (OPENING.k > 0) {
     const e = leanEase(close ? 1 - (t - RISE) / (1 - RISE) : OPENING.k),
       mix = (a, b) => a + (b - a) * e,
