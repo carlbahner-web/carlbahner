@@ -1118,24 +1118,9 @@ function lampWaits() {
         mat.needsUpdate = true;
       });
 }
-/* THE DRUM SLIDES IN: "The drum still looks so weird during the move, can it slide into place at the end instead?" (Carl,
-   9 Nov 2026). It is a flat drawing stood on the floor, and from B's high, close places it reads as a cut-out. So while B
-   is overhead and dropping it is not drawn, and over DRUM_IN of the time it slides in from DRUM_FROM metres to the right
-   of where it stands (as the room opens on it), easing to a stop on its spot as the camera lands. */
-const DRUM_IN = [0.8, 0.98],
-  DRUM_FROM = 1.4;
-let drumMesh = null;
-function drumAt(k) {
-  drumMesh ||= props.find((m) => m.userData.prop.id === "drum");
-  if (!drumMesh) return;
-  const t = Math.min(1, Math.max(0, (k - DRUM_IN[0]) / (DRUM_IN[1] - DRUM_IN[0]))),
-    e = 1 - Math.pow(1 - t, 3); // quick at first, settling onto its spot
-  drumMesh.visible = k >= DRUM_IN[0];
-  setProp(drumMesh, { enter: DRUM_FROM * (1 - e) });
-}
 function startOpening() {
   if (!OPENING.k) return nav.introFrom();
-  if (OPEN_KIND === "above") lampWaits(), (LAMP_FADE.value = 0), drumAt(0);
+  if (OPEN_KIND === "above") lampWaits(), (LAMP_FADE.value = 0);
   OPENING.t0 = performance.now();
   dirty = true;
 }
@@ -1143,7 +1128,6 @@ function stepOpening(now) {
   if (!OPENING.k || !OPENING.t0) return !!OPENING.k;
   OPENING.k = Math.max(0, 1 - (now - OPENING.t0) / OPEN_MS);
   if (OPEN_KIND === "above") LAMP_FADE.value = Math.min(1, Math.max(0, (1 - OPENING.k - LAMP_IN[0]) / (LAMP_IN[1] - LAMP_IN[0])));
-  if (OPEN_KIND === "above") drumAt(1 - OPENING.k);
   if (!OPENING.k) nav.introFrom();
   return true;
 }
