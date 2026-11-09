@@ -659,7 +659,9 @@ like that either it's weird to have it appear on its own" (Carl, 9 Nov 2026). So
 the flyover again, legs pinned; how it should look from overhead is still his to say. **Turning it about its right foot was
 tried and undone the same day**: "Can we start with the left foot in this other new spot? Like rotating it clockwise but
 keeping the right foot where it is", then, shown it 36 degrees clockwise, narrower from the laptop's opening view: "hmmmm
-no undo that" (Carl, 9 Nov 2026). It stands as before.
+no undo that" (Carl, 9 Nov 2026). It stands as before. A real round body (its head cut from the drawing, a built
+cylinder behind it, as the gong's rim and the clock's body are) was offered for how it looks from overhead: "nah it's too
+complex of an image to try that tbh" (Carl, 9 Nov 2026).
 
 **The student officers' 33 findings, merged into one quiz, 9 Nov 2026** (https://claude.ai/artifact/L3wsezeEBG1PJnkq35QotX;
 the findings from his words, clutter, simplicity, delight and Godzilla officers, 8 Nov, on
