@@ -670,7 +670,10 @@ keeping the right foot where it is", then, shown it 36 degrees clockwise, narrow
 no undo that" (Carl, 9 Nov 2026). It stands as before on a laptop. **Then on the phone only**: "it should be on the phone only.
 I was judging it on the laptop but the phone is the issue" (Carl, 9 Nov 2026). So with the phone's layout on, the drum
 stands 36 degrees clockwise about its right foot, that foot where it stood (`phone` on the drum, PHONE PROPS in
-`src/props.mjs`), and goes back as the laptop's layout returns. A real round body (its head cut from the drawing, a built
+`src/props.mjs`). Then only while the flyover is over the rug: "it looks good during flyover but then once the main page
+is in use it looks wrong. Is it possible to start there and then at the 4s mark it starts moving back to the original
+position?" (Carl, 9 Nov 2026). So 4 s in it eases back to where it stands, there as the camera lands (THE DRUM TURNS BACK
+in `src/studio.mjs`); with no flyover it is never turned. A real round body (its head cut from the drawing, a built
 cylinder behind it, as the gong's rim and the clock's body are) was offered for how it looks from overhead: "nah it's too
 complex of an image to try that tbh" (Carl, 9 Nov 2026).
 
