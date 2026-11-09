@@ -399,4 +399,3 @@ export function buildRoom(shared) {
 }
 
 export const inkColor = () => hex(CHARCOAL);
-
