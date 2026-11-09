@@ -2198,7 +2198,9 @@ export const WORD_AT = {
   contact: at("teal", 0.954, 1.165, 0.22),
   "my-people": at("cream", 1.688, 1.144, 0.22, "rows"),
   portfolio: at("console", 2.297, 0.536, 0.22),
-  studioland: at("teal", 2.45, 1.337, 0.22),
+  // a little smaller than the rest, about 2.5px of its 38 from the opening view: "Keep it since I run it, but maybe make
+  // it a little smaller like 2-3px smaller" (Carl, 9 Nov 2026, the officers' fixes quiz)
+  studioland: at("teal", 2.45, 1.337, 0.205),
   tour: at("cream", 1.25, 1.066, 0.215, "down"),
 };
 /* A PHONE'S OWN SPOTS: "i need an artifa5 that allows me to control the per-swipe-camera and the placement of the words.
