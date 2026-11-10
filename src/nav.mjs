@@ -532,6 +532,8 @@ export function startNav(v) {
       xs.push(((c[0] / c[3] + 1) / 2) * view().width);
       ys.push(((1 - c[1] / c[3]) / 2) * view().height);
     }
+    // none while he is off the screen, or the box round him reached in from past its edge and a tap there opened him
+    if (Math.max(...xs) < 0 || Math.min(...xs) > view().width || Math.max(...ys) < 0 || Math.min(...ys) > view().height) return null;
     const cx = (Math.min(...xs) + Math.max(...xs)) / 2,
       cy = (Math.min(...ys) + Math.max(...ys)) / 2,
       hw = Math.max(Math.max(...xs) - Math.min(...xs), EGG_REACH) / 2,
@@ -549,7 +551,9 @@ export function startNav(v) {
      (#wild-ride) still opens his card. */
   /* Small and far off on the ceiling, he came out a speck beside his card at the closest lens a thing lands at (3
      degrees), so his lens may go further: "coaster buzz needs to be way bigger in frame" (Carl, 9 Nov 2026) */
-  const EGG = eggMesh && { id: "buzz", hash: "wild-ride", kind: "page", name: "Buzz", mesh: eggMesh, hot: 0, minFov: 0.8 };
+  const EGG = eggMesh && { id: "buzz", hash: "wild-ride", kind: "page", name: "Buzz", mesh: eggMesh, hot: 0, minFov: 0.8, give: [1, 1, -1] };
+  // the press a tap gives on a touch screen squashes him about his wheels, as a standing thing; with none, a tap on a phone
+  // threw on every frame after it: "It glitched out when I clicked buzz on my phone" (Carl, 10 Nov 2026)
 
   /* THE BOOK'S FACES: a click on the book is a click on one of its faces, each a flat square in the room. It was a
      box round the faces lined up with the room's walls, and the book sits turned on the console, so the box was much
