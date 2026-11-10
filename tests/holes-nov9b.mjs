@@ -21,12 +21,19 @@ const server = createServer(async (req, res) => {
     let p = decodeURIComponent(new URL(req.url, "http://x").pathname);
     if (p.endsWith("/")) p += "index.html";
     p = join(root, p);
-    const b = await readFile(p);
+    const whole = await readFile(p);
+    const track = p.includes("/assets/tracks/");
+    // a part of a file asked for (a song skipped into), as Netlify serves one
+    const range = track && /bytes=(\d+)-(\d*)/.exec(req.headers.range || "");
+    const from = range ? +range[1] : 0,
+      to = range && range[2] ? +range[2] + 1 : whole.length;
+    const b = whole.subarray(from, to);
     const head = { "content-type": TYPES[extname(p)] || "application/octet-stream", "content-length": b.length };
-    if (p.includes("/assets/tracks/")) head["cache-control"] = "no-store";
-    res.writeHead(200, head);
-    if (stall && p.includes("/assets/tracks/")) {
-      res.write(b.subarray(0, STALL_BYTES));
+    if (track) Object.assign(head, { "cache-control": "no-store", "accept-ranges": "bytes" });
+    if (range) head["content-range"] = `bytes ${from}-${to - 1}/${whole.length}`;
+    res.writeHead(range ? 206 : 200, head);
+    if (stall && track) {
+      res.write(b.subarray(0, Math.max(0, STALL_BYTES - from)));
       hung.add(res);
       res.on("close", () => hung.delete(res));
       return;
@@ -181,7 +188,8 @@ if (!only || only === "next") {
   expect(failed?.label === "Play", "H12. NOW PLAYING shows Pause on a song that didn't load: " + failed?.label);
   await ctx.unroute(/assets\/tracks\//, drop);
   await p.evaluate(() => document.querySelector(".now-playing .np-main").click());
-  await p.waitForTimeout(6000);
+  await p.waitForFunction(() => document.querySelector(".now-playing audio")?.currentTime > 0.5, null, { timeout: 30000 }).catch(() => {});
+  await p.waitForTimeout(500);
   const again = await npState(p);
   expect(again && !again.paused && again.t > 0 && !again.err, "H12. a tap on NOW PLAYING's play once back online did not play it: " + JSON.stringify(again));
   expect(again && !again.text.includes(LINE) && again.label === "Pause", "H12. NOW PLAYING still says it didn't load once it plays: " + JSON.stringify(again));
@@ -210,7 +218,8 @@ if (!only || only === "stall") {
   stall = false;
   for (const r of hung) r.destroy();
   await p.evaluate(() => document.querySelectorAll(".sleeve-pick")[0].click());
-  await p.waitForTimeout(6000);
+  await p.waitForFunction((t) => document.querySelector("#win audio").currentTime > t + 0.5, card.t, { timeout: 30000 }).catch(() => {});
+  await p.waitForTimeout(500);
   const on = await p.evaluate(() => {
     const a = document.querySelector("#win audio");
     return { paused: a.paused, t: a.currentTime, deck: window.__nav.deck().playing, note: [...document.querySelectorAll("#win .song-note")].some((n) => !n.hidden) };
@@ -228,7 +237,8 @@ if (!only || only === "stall") {
   stall = false;
   for (const r of hung) r.destroy();
   await p.evaluate(() => document.querySelector(".now-playing .np-main").click());
-  await p.waitForTimeout(6000);
+  await p.waitForFunction((t) => document.querySelector(".now-playing audio")?.currentTime > t + 0.5, np.t, { timeout: 30000 }).catch(() => {});
+  await p.waitForTimeout(500);
   const np2 = await npState(p);
   expect(np2 && !np2.paused && np2.t > np.t && !np2.text.includes(LINE), "H12. a tap on NOW PLAYING's play did not carry the stopped song on: " + JSON.stringify({ np, np2 }));
   expect(!errors.length, "H12. page errors: " + errors.join(" | "));
@@ -238,7 +248,7 @@ if (!only || only === "stall") {
 // H13. Back from CONTACT, opened by a card's HOLY MOLY button, shows that card again: from a link to the card (never leaving
 //      the site), and from the room. The X still closes to the room, as it did.
 if (!only || only === "back") {
-  const where = (p) => p.evaluate(() => ({ href: location.href, hash: location.hash, open: !document.querySelector("#win")?.hidden, title: document.querySelector("#win h2")?.textContent || "" }));
+  const where = (p) => p.evaluate(() => ({ href: location.href, hash: location.hash, open: !!document.querySelector("#win") && !document.querySelector("#win").hidden, title: document.querySelector("#win h2")?.textContent || "" }));
   const holyMoly = async (p) => {
     await p.evaluate(() => document.querySelector("#win .words-button.act").click());
     await p.waitForFunction(() => location.hash === "#contact" && !!document.querySelector("#win [name=email]"), null, { timeout: 30000 });

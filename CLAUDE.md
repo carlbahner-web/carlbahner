@@ -857,11 +857,11 @@ recreated by `node tests/holes-nov9b.mjs [side|turn|next|stall|back]`, seen fail
   box being typed in brought back into sight (BUT A TURN OF THE PHONE IS NOT THE KEYBOARD in `src/stage.mjs`).
 - **H12, a song that didn't load from NOW PLAYING, or stopped part way**: NOW PLAYING says the player's line ("Ugh, that
   one didn't load. Tap it to try again.") under the song's name, shows Play, and its play button tries again; a song
-  waiting on its file for 6 s (`STALL_MS`) counts as not loaded too, in the card (the deck stops turning) and on NOW
+  waiting on its file for 6 s (`STALL_MS`; "6 seconds", Carl, 10 Nov 2026) counts as not loaded too, in the card (the deck stops turning) and on NOW
   PLAYING, and a tap carries it on from where it stopped (A SONG THAT DIDN'T LOAD, OR STOPPED PART WAY in `src/nav.mjs`).
 - **H13, Back from Contact**: a card's HOLY MOLY button makes Contact a step of its own, so Back shows the card it came
-  from, never off the site after a link to that card; the X and Escape still close straight to the room (A CARD'S BUTTON
-  IS A STEP in `src/nav.mjs`).
+  from, never off the site after a link to that card; the X and Escape still close straight to the room ("Straight to the
+  room", Carl, 10 Nov 2026; A CARD'S BUTTON IS A STEP in `src/nav.mjs`).
 
 ## Laptop first. Phones wait.
 
