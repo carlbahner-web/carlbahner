@@ -83,11 +83,19 @@ const npState = (p) =>
     const np = document.querySelector(".now-playing");
     if (!np) return null;
     const a = np.querySelector("audio");
-    return { text: np.querySelector(".np-words").textContent, label: np.querySelector(".np-main").getAttribute("aria-label"), paused: a.paused, t: a.currentTime, err: !!a.error };
+    return { text: np.querySelector(".np-words").innerText, label: np.querySelector(".np-main").getAttribute("aria-label"), paused: a.paused, t: a.currentTime, err: a.error ? a.error.code + " " + a.error.message : false };
   });
 
 // H8. a phone on its side (and a narrow laptop) with a song playing: NOW PLAYING never covers the contact card's boxes or SUBMIT
-if (!only || only === "side") {
+const section = async (name, run) => {
+  if (only && only !== name) return;
+  try {
+    await run();
+  } catch (e) {
+    problems.push(`${name}: the test could not go on: ${e.message.split("\n")[0]}`);
+  }
+};
+await section("side", async () => {
   for (const [name, opts] of [
     ["a phone on its side", { viewport: PHONE_SIDE, phone: true }],
     ["a laptop window 900 wide", { viewport: { width: 900, height: 560 } }],
@@ -129,11 +137,11 @@ if (!only || only === "side") {
     expect(!errors.length, "H8. page errors: " + errors.join(" | "));
     await ctx.close();
   }
-}
+});
 
 // H9. turning the phone while typing the message refits the room, and the box being typed in is on screen; the keyboard
 //     alone (the window shorter, as wide) still holds the room still (TYPING ON A PHONE HOLDS THE ROOM STILL)
-if (!only || only === "turn") {
+await section("turn", async () => {
   const { p, ctx, errors } = await page({ viewport: PHONE_UP, phone: true });
   await p.goto(url);
   await loaded(p);
@@ -170,10 +178,10 @@ if (!only || only === "turn") {
   expect(back.upright && back.w < 400, "H9. turned upright again while typing, the room did not refit: " + JSON.stringify(back));
   expect(!errors.length, "H9. page errors: " + errors.join(" | "));
   await ctx.close();
-}
+});
 
 // H12a. a song that won't load from NOW PLAYING's Next says so on NOW PLAYING, shows Play, and a tap tries it again
-if (!only || only === "next") {
+await section("next", async () => {
   const { p, ctx, errors } = await page();
   await p.goto(url);
   await loaded(p);
@@ -195,11 +203,11 @@ if (!only || only === "next") {
   expect(again && !again.text.includes(LINE) && again.label === "Pause", "H12. NOW PLAYING still says it didn't load once it plays: " + JSON.stringify(again));
   expect(!errors.length, "H12. page errors: " + errors.join(" | "));
   await ctx.close();
-}
+});
 
 // H12b. a song that stops part way (the signal gone mid-song, no error) says so, in the card and on NOW PLAYING, and a
 //       tap carries on from where it stopped
-if (!only || only === "stall") {
+await section("stall", async () => {
   const { p, ctx, errors } = await page();
   await p.goto(url);
   await loaded(p);
@@ -243,11 +251,11 @@ if (!only || only === "stall") {
   expect(np2 && !np2.paused && np2.t > np.t && !np2.text.includes(LINE), "H12. a tap on NOW PLAYING's play did not carry the stopped song on: " + JSON.stringify({ np, np2 }));
   expect(!errors.length, "H12. page errors: " + errors.join(" | "));
   await ctx.close();
-}
+});
 
 // H13. Back from CONTACT, opened by a card's HOLY MOLY button, shows that card again: from a link to the card (never leaving
 //      the site), and from the room. The X still closes to the room, as it did.
-if (!only || only === "back") {
+await section("back", async () => {
   const where = (p) => p.evaluate(() => ({ href: location.href, hash: location.hash, open: !!document.querySelector("#win") && !document.querySelector("#win").hidden, title: document.querySelector("#win h2")?.textContent || "" }));
   const holyMoly = async (p) => {
     await p.evaluate(() => document.querySelector("#win .words-button.act").click());
@@ -321,7 +329,7 @@ if (!only || only === "back") {
       await ctx.close();
     }
   }
-}
+});
 
 await browser.close();
 for (const r of hung) r.destroy();

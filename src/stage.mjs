@@ -51,7 +51,6 @@ export function fitStage() {
   if (!el) return box;
   if (holding() && box.width) return box; // the keyboard is up: the room as it was (TYPING ON A PHONE)
   const turned = typing() && fitWas !== null && fitWas !== turnedTo();
-  fitWas = turnedTo();
   const m = Math.min(innerWidth, innerHeight) < 500 ? 6 : 16; // the margin: smaller on a phone on its side
   // the view editor's own copy keeps a column on the left for its panel, so the panel never covers the room: "the
   // panel covers the page dude so i can't see" (Carl, 2 Nov 2026)
@@ -59,6 +58,7 @@ export function fitStage() {
   const W = Math.max(0, innerWidth - side - 2 * m),
     H = Math.max(0, innerHeight - 2 * m);
   const tall = upright();
+  fitWas = turnedTo(); // after upright(), which holds its answer only while the window is as wide as this
   document.body.classList.toggle("upright", tall);
   const w = window.PHONE_PREVIEW ? H * PHONE_SHAPE : tall ? W : Math.min(W, H * RATIO),
     h = tall ? H : w / RATIO,
