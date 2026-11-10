@@ -676,6 +676,11 @@
       .upright.win-open:has(.now-playing) #win .body {
         padding-bottom: 76px;
       }
+      /* and wherever else a card open meets it (a phone on its side, a laptop window under about 1000 wide), the card's
+         foot makes room for it, by as much as it covers (src/nav.mjs NOW PLAYING OUT OF THE CARD'S WAY) */
+      body:not(.upright).np-under #win .body {
+        padding-bottom: var(--np-pad, 0px);
+      }
       .np-words {
         position: relative;
         z-index: 1;
@@ -692,6 +697,12 @@
       .np-words span {
         font-size: 12px;
         opacity: 0.7;
+      }
+      /* a song that didn't load: the player card's line under its name, in place of the artist, whole (src/nav.mjs A SONG
+         THAT DIDN'T LOAD, OR STOPPED PART WAY) */
+      .np-words .np-note {
+        white-space: normal;
+        opacity: 1;
       }
       .np-button {
         position: relative;

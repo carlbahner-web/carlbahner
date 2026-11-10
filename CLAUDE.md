@@ -846,6 +846,23 @@ chat". His answers, built the same day unless marked:
   were Homegrown's; the covers' fixed corner went 10 to 12. MATCHED TO HOMEGROWN in `index.html`. The ninth, the card on a
   phone held sideways: "Full size" (`K_MIN` 1 in `src/stage.mjs`), the card at its normal size, scrolling inside.
 
+**The 9 Nov 2026 Godzilla round's four for this repo** (its notes are ss-frontend `docs/godzilla-2026-11-09/H.md`; Carl's
+"Fix it" on each, https://claude.ai/artifact/V2xFo5xiRmMP921aiQJ9GP, and "Yes, a test with every fix", 8 Nov). Each is
+recreated by `node tests/holes-nov9b.mjs [side|turn|next|stall|back]`, seen failing before and passing after:
+- **H8, NOW PLAYING over SUBMIT** on a phone on its side and a laptop window under about 1000 wide: wherever an open card
+  meets NOW PLAYING, the card's foot makes room for it, as a phone upright's already did (NOW PLAYING OUT OF THE CARD'S
+  WAY in `src/nav.mjs`, `np-under` in `index.html`).
+- **H9, a turn while typing**: the room held its upright shape when the phone turned with the message box taken. The hold
+  for the keyboard stays; a change of the window's width or the screen's orientation is a turn and refits the room, the
+  box being typed in brought back into sight (BUT A TURN OF THE PHONE IS NOT THE KEYBOARD in `src/stage.mjs`).
+- **H12, a song that didn't load from NOW PLAYING, or stopped part way**: NOW PLAYING says the player's line ("Ugh, that
+  one didn't load. Tap it to try again.") under the song's name, shows Play, and its play button tries again; a song
+  waiting on its file for 6 s (`STALL_MS`; "6 seconds", Carl, 10 Nov 2026) counts as not loaded too, in the card (the deck stops turning) and on NOW
+  PLAYING, and a tap carries it on from where it stopped (A SONG THAT DIDN'T LOAD, OR STOPPED PART WAY in `src/nav.mjs`).
+- **H13, Back from Contact**: a card's HOLY MOLY button makes Contact a step of its own, so Back shows the card it came
+  from, never off the site after a link to that card; the X and Escape still close straight to the room ("Straight to the
+  room", Carl, 10 Nov 2026; A CARD'S BUTTON IS A STEP in `src/nav.mjs`).
+
 ## Laptop first. Phones wait.
 
 **Carl, 5 Oct 2026: "dont do phone yet i'll make them turn it sideways anyway. let's jsut get

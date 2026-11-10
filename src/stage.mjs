@@ -17,10 +17,18 @@ export const view = () => box;
    So while a field on a card has the keyboard, the room keeps the size and shape it had (`fitStage` returns its last
    box), and it fits itself again once the field lets go. */
 export const typing = () => matchMedia("(pointer: coarse)").matches && !!document.activeElement?.matches?.("#win input, #win textarea, #win select");
+/* BUT A TURN OF THE PHONE IS NOT THE KEYBOARD: the 9 Nov 2026 Godzilla round's H9 (Carl: "Fix it"). Turned on its side
+   while the message box had the cursor, the room kept the upright phone's shape, a strip down the left of the sideways
+   screen, the box being typed in off its bottom. The keyboard changes the window's height alone; a turn changes its width
+   (and the screen's orientation). So the room holds still while typing only as long as the window is as wide as when it
+   was last fitted, and the screen turned the same way. */
+const turnedTo = () => innerWidth + " " + (screen.orientation?.type || "");
+let fitWas = null;
+const holding = () => typing() && fitWas === turnedTo();
 let wasUpright = null;
 const PHONE_W = 520; // a laptop window narrower than this, and taller than wide, takes the phone's layout
 export const upright = () => {
-  if (typing() && wasUpright !== null) return wasUpright;
+  if (holding() && wasUpright !== null) return wasUpright;
   /* a touch screen only: "man it gets real weird when resizing" (Carl, 5 Nov 2026). A laptop's window dragged taller than
      it was wide switched to the phone's layout and back as it crossed square, the room jumping between the two; a laptop
      keeps its 16:9 card at any shape, letterboxed. */
@@ -41,7 +49,8 @@ export const UPRIGHT_CARD = +(new URLSearchParams(location.search).get("ch") || 
 export function fitStage() {
   const el = document.querySelector("#stage");
   if (!el) return box;
-  if (typing() && box.width) return box; // the keyboard is up: the room as it was (TYPING ON A PHONE)
+  if (holding() && box.width) return box; // the keyboard is up: the room as it was (TYPING ON A PHONE)
+  const turned = typing() && fitWas !== null && fitWas !== turnedTo();
   const m = Math.min(innerWidth, innerHeight) < 500 ? 6 : 16; // the margin: smaller on a phone on its side
   // the view editor's own copy keeps a column on the left for its panel, so the panel never covers the room: "the
   // panel covers the page dude so i can't see" (Carl, 2 Nov 2026)
@@ -49,6 +58,7 @@ export function fitStage() {
   const W = Math.max(0, innerWidth - side - 2 * m),
     H = Math.max(0, innerHeight - 2 * m);
   const tall = upright();
+  fitWas = turnedTo(); // after upright(), which holds its answer only while the window is as wide as this
   document.body.classList.toggle("upright", tall);
   const w = window.PHONE_PREVIEW ? H * PHONE_SHAPE : tall ? W : Math.min(W, H * RATIO),
     h = tall ? H : w / RATIO,
@@ -68,5 +78,7 @@ export function fitStage() {
   const K_MIN = 1;
   el.style.setProperty("--k", String(tall ? (window.PHONE_PREVIEW ? w : innerWidth) / 390 : Math.min(Math.max(w / CARD_REF, K_MIN), Math.max(w / CARD_REF, (w - 32) / 620))));
   box = { left: x, top: (innerHeight - h) / 2, width: w, height: h };
+  // turned while typing: the box with the cursor brought back into sight once the card has its new shape
+  if (turned) setTimeout(() => document.activeElement?.scrollIntoView?.({ block: "center" }), 120);
   return box;
 }
