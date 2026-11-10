@@ -2318,9 +2318,16 @@ export function drawBox(host, { live = false, round = false, front = false, corn
     host.style.borderRadius = r + "px";
     ds = [0, 1, 2].map((i) => wobblePath(w, h, r, seed + i * 131, 0.7));
     svg.setAttribute("viewBox", `-6 -6 ${w + 12} ${h + 12}`);
+    /* ITS SIZE IN PIXELS, FROM THE SAME MEASURE AS ITS LINE: on an iPhone SE the StudioLand card's line came out 0.88 of
+       the card, its words running past it (Carl's screenshot, 10 Nov 2026). Safari kept the svg's CSS height
+       (calc(100% + 12px)) from an older, shorter card while the viewBox had the new one, and shrank the drawing to fit.
+       So the svg is sized here, with the viewBox, and stretches rather than shrinks if the two ever differ. */
+    svg.setAttribute("preserveAspectRatio", "none");
+    svg.style.width = w + 12 + "px";
+    svg.style.height = h + 12 + "px";
     paint();
   };
-  new ResizeObserver(fit).observe(host);
+  new ResizeObserver(fit).observe(host, { box: "border-box" }); // its padding too, which offsetWidth counts
   if (live) boilers.add(paint);
 }
 
