@@ -645,7 +645,10 @@ when the view is tilted up, as his screenshot was, never in the opening view. No
 hand, and a click or tap flies in to him and opens his card, BUZZ'S WILD RIDE, its line and LET'S RIDE out to
 https://buzzs-wild-ride.netlify.app/ (THE EGG in `src/nav.mjs`, `egg` on the prop; `#wild-ride` opens it): "should it go
 to a card about buzz's wild ride? If the cam zooms in it should show a higher res version as it gets closer", then, of
-drafts, "1, D, I" (Carl, 9 Nov 2026). His picture is the drawing's full size (827px), so he stays sharp up close, and the camera lands closer on him than the
+drafts, "1, D, I" (Carl, 9 Nov 2026). His picture is the drawing's full size (827px), so he stays sharp up close, its layer from behind the rails
+(`buzz-car-behind.png`, kept in `art/buzz-car-behind-source.png`) laid under it so his rear wheel shows: "in wild ride,
+there's a second image that is layered behind the main cart so that the rails render in between his audience-facing wheels
+and his rear wheel" (Carl, 10 Nov 2026), the room having no rails to put between them; and the camera lands closer on him than the
 3 degree lens other things stop at (`minFov`): "coaster buzz needs to be way bigger in frame" (Carl, 9 Nov 2026). He answers anywhere in a box at least 48px across round him, a fingertip's size: "he
 needs a tappable hitbox" (Carl, 9 Nov 2026). Nothing on the site mentions him. A tap on a phone squashes him about his wheels as it does any standing thing (`give`):
 with none, every frame after the tap threw and the room froze, "It glitched out when I clicked buzz on my phone" (Carl, 10

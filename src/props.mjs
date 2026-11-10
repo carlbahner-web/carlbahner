@@ -529,7 +529,8 @@ export const PROPS = [
   /* BUZZ IN HIS COASTER CAR, an Easter egg: "How could we sneak a small icon in the top left corner of the room
      that we don't mention and it's like an Easter egg?", then, the spot marked on his phone, "And it should be the
      buzz coaster image from the wild-ride repo" (Carl, 9 Nov 2026). The wild-ride repo's games/src/assets/buzz-car.png,
-     kept as it came in art/buzz-car-source.png. Small and flat on the ceiling by the teal wall, up and left of the clock.
+     kept as it came in art/buzz-car-source.png, with the layer the game draws behind its rails (art/buzz-car-behind-source.png,
+     his rear wheel) laid under it, the room having no rails between them (Carl, 10 Nov 2026). Small and flat on the ceiling by the teal wall, up and left of the clock.
      It never boils, lights or says a word; a click or tap flies in to him and opens his card (`egg`, THE EGG in nav.mjs).
      His picture is the drawing's full size, so he stays sharp with the camera on him. */
   {
