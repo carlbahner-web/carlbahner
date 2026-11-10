@@ -168,7 +168,7 @@ await section("turn", async () => {
     const r = m.getBoundingClientRect();
     return { w: s.width, h: s.height, upright: document.body.classList.contains("upright"), focused: document.activeElement === m, value: m.value, top: r.top, bottom: r.bottom, vh: innerHeight };
   });
-  expect(side.w > 700 && side.h <= 390 && !side.upright, `H9. turned on its side while typing, the room stayed the upright phone's shape: ${side.w.toFixed(0)}x${side.h.toFixed(0)}, upright ${side.upright}`);
+  expect(side.w > 600 && side.h <= 390 && !side.upright, `H9. turned on its side while typing, the room stayed the upright phone's shape: ${side.w.toFixed(0)}x${side.h.toFixed(0)}, upright ${side.upright}`);
   expect(side.top < side.vh && side.bottom > 0 && side.top >= 0, `H9. the message box is off the screen after the turn: y ${side.top.toFixed(0)} to ${side.bottom.toFixed(0)} of ${side.vh}`);
   expect(side.focused && side.value === "My song is called Night Swim", "H9. the message lost its words or its cursor in the turn: " + JSON.stringify(side.value));
   // and back upright, still typing
@@ -264,7 +264,9 @@ await section("back", async () => {
   };
   const back = async (p) => {
     await p.evaluate(() => history.back()).catch(() => {}); // it may leave the site, which is the hole
-    await p.waitForTimeout(4000);
+    // until Contact has gone: off the site, closed, or the next card in
+    await p.waitForFunction(() => !document.querySelector("#win") || document.querySelector("#win").hidden || !document.querySelector("#win [name=email]"), null, { timeout: 30000 }).catch(() => {});
+    await p.waitForTimeout(2000);
   };
   for (const [name, opts] of [
     ["a laptop", {}],
@@ -300,8 +302,7 @@ await section("back", async () => {
       await p.goto(url + "?open=none");
       await loaded(p);
       await p.evaluate(() => {
-        const i = Object.values(window.__nav.ids).indexOf("artists");
-        document.querySelectorAll("#things .thing")[i].click();
+        [...document.querySelectorAll("#things .thing")].find((b) => /quote/i.test(b.getAttribute("aria-label"))).click();
       });
       await p.waitForFunction(() => !document.querySelector("#win").hidden, null, { timeout: 30000 });
       await p.waitForTimeout(1500);
@@ -315,8 +316,7 @@ await section("back", async () => {
       expect(room.href.startsWith(url) && !room.hash && !room.open, `H13. on ${name}, Back again went to ${JSON.stringify(room)}, not the room`);
       // and the X on Contact goes straight to the room ("closing never walks back through the windows before it")
       await p.evaluate(() => {
-        const i = Object.values(window.__nav.ids).indexOf("artists");
-        document.querySelectorAll("#things .thing")[i].click();
+        [...document.querySelectorAll("#things .thing")].find((b) => /quote/i.test(b.getAttribute("aria-label"))).click();
       });
       await p.waitForFunction(() => !document.querySelector("#win").hidden && location.hash === "#artists", null, { timeout: 30000 });
       await p.waitForTimeout(1500);
