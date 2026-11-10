@@ -1167,16 +1167,16 @@ export function startNav(v) {
     coming = null;
     if (!open) return;
     if (!fromHistory && pushed) {
-      // the browser's Back does the closing, so Back and the button leave the same history: back past every card of ours
+      /* back past every card of ours, so the button and Back leave the same history; the card closes now, and the
+         address catches up as the history walks back (`toRoom`, in popstate) */
       const n = pushed;
       pushed = 0;
       try {
         toRoom = true;
         history.go(-n);
-        return;
+        fromHistory = true;
       } catch {
         toRoom = false;
-        /* fall through */
       }
     }
     if (!fromHistory)
@@ -1225,16 +1225,16 @@ export function startNav(v) {
   };
   addEventListener("popstate", () => {
     if (toRoom) {
-      // closed: back at where the visitor came in, which after a link to a card is that card's address, taken off it
+      // closed already: back at where the visitor came in, which after a link to a card is that card's address, taken off it
       toRoom = false;
       pushed = 0;
-      if (location.hash)
+      if (location.hash && !open && !coming)
         try {
           history.replaceState(null, "", location.pathname + location.search);
         } catch {
           /* fine */
         }
-      return open ? close({ fromHistory: true }) : coming ? callOff() : undefined;
+      return;
     }
     pushed = history.state?.depth || 0;
     const t = byHash();
