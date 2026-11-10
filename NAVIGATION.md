@@ -105,7 +105,9 @@ its styles.
 - **Reduced motion**: no flight. The room fades out for 0.14 s, the camera cuts, and it fades back in.
 - **Addresses.** Opening a window pushes its address, so the browser's Back closes it and Forward opens it
   again; closing with the button, Esc or a tap outside goes Back too, so the history stays the same
-  whichever way. A reload or a link with the address lands straight on the open window. In the artifact
+  whichever way. A card's button to another card (HOLY MOLY to Contact) is a step of its own, so Back shows the card
+  it came from, never off the site after a link to that card; closing still goes straight to the room (the 9 Nov 2026
+  round's H13, `node tests/holes-nov9b.mjs back`). A reload or a link with the address lands straight on the open window. In the artifact
   viewer only a bare `#word` reaches the page, which these are.
 - **The windows** are one shared component: the room's cream paper with its grain, a boiled charcoal
   edge (the apps' own `wobbleLine`, three drawings shown 0,1,2,1 every 130 ms, corners an eighth of the

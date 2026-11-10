@@ -1032,7 +1032,11 @@ export function startNav(v) {
   new ResizeObserver(edges).observe(body);
   // and once its pictures are in, which makes it longer
   body.addEventListener("load", edges, true);
-  let pushed = false,
+  /* how many steps of ours are in the browser's history above where the visitor came in (the room, or a link straight to
+     a card): one for a card opened in the room, one more for each card a card's button opened (A CARD'S BUTTON IS A
+     STEP), kept on each step (history.state.depth) so Back and Forward know where they are */
+  let pushed = 0,
+    toRoom = false, // closing: the steps are being walked back to the room, whatever card that passes
     returnTo = null,
     coming = null; // the thing the camera is flying in to, until its card opens
   function show(t) {
@@ -1074,7 +1078,7 @@ export function startNav(v) {
     document.body.classList.add("win-open");
     win.hidden = veil.hidden = false;
     cue("window-open");
-    requestAnimationFrame(() => win.classList.add("in"));
+    requestAnimationFrame(() => (win.classList.add("in"), roomForNow()));
     // the keyboard lands in the window; the focus ring shows only if it came by the keyboard
     win.querySelector(".close").focus({ preventScroll: true });
   }
@@ -1108,17 +1112,14 @@ export function startNav(v) {
     canvas.style.cursor = "";
     if (push)
       try {
-        // from one window to the next it is the same Back: closing never walks back through the windows before it
-        if (open && pushed) history.replaceState({ studio: t.hash }, "", "#" + t.hash);
-        else if (open) {
-          /* A WINDOW OPENED BY A LINK: a visitor who landed on carlbahner.com/#portfolio has no step of ours behind it to
-             go back to, so the next window takes that address's place and closing it goes to the room, never back to the
-             player (Carl, 9 Nov 2026, "Fix it", of HOLY MOLY's contact card closing onto the player) */
-          history.replaceState({ studio: t.hash }, "", "#" + t.hash);
-        } else {
-          history.pushState({ studio: t.hash }, "", "#" + t.hash);
-          pushed = true;
-        }
+        /* A CARD'S BUTTON IS A STEP: the 9 Nov 2026 Godzilla round's H13 (Carl: "Fix it"). HOLY MOLY took the card's
+           address over for Contact's, so Back from Contact skipped the card it came from: to the room, or, for a visitor
+           who came by a link to the card, off the site altogether. Now the next card is a step of its own, and Back
+           shows the card they were reading. Closing (the X, Escape) still goes straight to the room, never walking back
+           through the cards before it (2 Nov 2026), and after a link to a card the room is where it lands too (A WINDOW
+           OPENED BY A LINK, Carl, 9 Nov 2026, "Fix it", of HOLY MOLY's contact card closing onto the player). */
+        pushed = open ? pushed + 1 : 1;
+        history.pushState({ studio: t.hash, depth: pushed }, "", "#" + t.hash);
       } catch {
         /* no history here (a sandboxed frame): the window still opens */
       }
@@ -1150,7 +1151,7 @@ export function startNav(v) {
   // Back pressed while the camera flies in: it turns round and goes home, and no card opens (BACK PRESSED MID-FLIGHT)
   function callOff() {
     coming = null;
-    pushed = false;
+    pushed = 0;
     setLid(false);
     setMapLights(false);
     v.lean?.(false);
@@ -1166,12 +1167,15 @@ export function startNav(v) {
     coming = null;
     if (!open) return;
     if (!fromHistory && pushed) {
-      // the browser's Back does the closing, so Back and the button leave the same history
-      pushed = false;
+      // the browser's Back does the closing, so Back and the button leave the same history: back past every card of ours
+      const n = pushed;
+      pushed = 0;
       try {
-        history.back();
+        toRoom = true;
+        history.go(-n);
         return;
       } catch {
+        toRoom = false;
         /* fall through */
       }
     }
@@ -1181,7 +1185,7 @@ export function startNav(v) {
       } catch {
         /* fine */
       }
-    pushed = false;
+    pushed = 0;
     boiling(null);
     setLid(false);
     setMapLights(false);
@@ -1192,6 +1196,7 @@ export function startNav(v) {
     stopAudio();
     const back = away || { ...START };
     open = null;
+    roomForNow();
     /* hidden once its slide out has finished, not before: "Card slides in but just disappears on the way out" (Carl,
        2 Nov 2026). It was hidden at 260 ms while the paper's slide takes 620 (.touches #win.sheet in index.html). */
     veil.hidden = true;
@@ -1219,6 +1224,19 @@ export function startNav(v) {
     return things.find((t) => "#" + t.hash === k) || (EGG && "#" + EGG.hash === k ? EGG : null);
   };
   addEventListener("popstate", () => {
+    if (toRoom) {
+      // closed: back at where the visitor came in, which after a link to a card is that card's address, taken off it
+      toRoom = false;
+      pushed = 0;
+      if (location.hash)
+        try {
+          history.replaceState(null, "", location.pathname + location.search);
+        } catch {
+          /* fine */
+        }
+      return open ? close({ fromHistory: true }) : coming ? callOff() : undefined;
+    }
+    pushed = history.state?.depth || 0;
     const t = byHash();
     if (t) openThing(t, { push: false });
     else if (!open && coming) callOff();
@@ -1462,6 +1480,28 @@ export function startNav(v) {
   };
 
   /* ---------- the shells: Carl's empty spaces, no words of anyone else's ---------- */
+  /* NOW PLAYING OUT OF THE CARD'S WAY: the 9 Nov 2026 Godzilla round's H8 (Carl: "Fix it"). On a phone on its side, and in
+     a laptop window under about 1000 wide, the card spans the room NOW PLAYING sits in, and NOW PLAYING lay over the
+     contact card's SUBMIT and whichever box was at its foot. On a phone upright the card's words already scroll clear of
+     it ("Move it out of the way", Carl, 9 Nov 2026; index.html); now wherever a card open meets it, the card's foot makes
+     room for it the same way, so its last box and button scroll up clear of NOW PLAYING. */
+  function roomForNow() {
+    const np = NOW?.box;
+    let pad = 0;
+    if (np && open && !upright() && win.classList.contains("in")) {
+      const n = np.getBoundingClientRect(),
+        w = win.getBoundingClientRect(),
+        k = parseFloat(getComputedStyle(win).getPropertyValue("--k")) || 1; // the card is drawn at --k (index.html)
+      // by how far it reaches up from the card's lowest foot (16px off the room's), so a card grown by it pads no further
+      const foot = document.querySelector("#stage").getBoundingClientRect().bottom - 16;
+      if (n.right > w.left && n.left < w.right && n.bottom > w.top && n.top < w.bottom) pad = (foot - n.top + 12) / k;
+    }
+    document.body.classList.toggle("np-under", pad > 0);
+    win.style.setProperty("--np-pad", pad.toFixed(1) + "px");
+  }
+  NOW_CHANGED = () => requestAnimationFrame(roomForNow);
+  win.addEventListener("transitionend", (e) => e.target === win && roomForNow());
+  addEventListener("resize", () => requestAnimationFrame(roomForNow));
   function stopAudio() {
     // a song playing goes on in the room as the card closes or another opens (NOW PLAYING, below); anything else stops
     const kept = PLAYER?.release?.();
@@ -1537,15 +1577,53 @@ function stopFlights() {
    (THE PLAYER TAKES ITS SONG BACK, below). The song's audio is kept in this card, never left in the closed window, where
    the next close or a Back mid-flight paused it as "anything else" (stopAudio): "it was glitching when i left the
    player page while the audio was still going and i was clicking into other pages" (Carl, 9 Nov 2026). */
-let NOW = null;
+let NOW = null,
+  NOW_CHANGED = () => {}; // the room's card makes room for it (roomForNow)
 /* a song asked to play and then paused or changed before it starts says so in the browser's console ("The play()
    request was interrupted"), which is the next song taking over, not a fault (docs/GODZILLA-2026-11-08.md, "Fix it") */
 const play = (a) => a.play()?.catch(() => {});
+/* A SONG THAT DIDN'T LOAD, OR STOPPED PART WAY: the 9 Nov 2026 Godzilla round's H12 (Carl: "Fix it"). A song NOW PLAYING's
+   Next could not fetch sat silent with Pause showing, its play button never fetched it again, and the line the player's
+   card has for it ("Ugh, that one didn't load. Tap it to try again.", Carl, 9 Nov 2026) showed only inside the card,
+   which was shut. And a song whose file stopped coming part way (a phone's signal dipping) raised no error at all: it
+   stopped where its file ran out and the deck turned on as if it played. So a song waiting for its file longer than
+   STALL_MS counts as not loaded too (`songstuck`), the card and NOW PLAYING both say the line, and a tap tries it again,
+   from where it stopped. */
+const SONG_FAILED = "Ugh, that one didn\u2019t load. Tap it to try again.";
+const STALL_MS = 6000;
+function watchSong(audio) {
+  if (audio.watched) return;
+  audio.watched = true;
+  let timer = 0;
+  const clear = () => clearTimeout(timer);
+  audio.addEventListener("waiting", () => {
+    clear();
+    timer = setTimeout(() => {
+      if (audio.paused || audio.ended || audio.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) return;
+      audio.stuck = true;
+      audio.dispatchEvent(new Event("songstuck"));
+    }, STALL_MS);
+  });
+  audio.addEventListener("playing", () => (clear(), (audio.stuck = false)));
+  audio.addEventListener("pause", clear);
+}
+const songFailed = (a) => !!a.error || a.networkState === HTMLMediaElement.NETWORK_NO_SOURCE || !!a.stuck;
+// loaded again, and played from where it stopped (the start, for one that never loaded)
+function tryAgain(a, src) {
+  const from = a.stuck ? a.currentTime : 0;
+  a.stuck = false;
+  a.src = src;
+  a.load();
+  if (from) a.currentTime = from;
+  play(a);
+}
 function endNowPlaying() {
   if (!NOW) return;
   NOW.audio.pause();
+  NOW.off.abort();
   NOW.box.remove();
   NOW = null;
+  NOW_CHANGED();
 }
 /* and back and next, a song either way through his four: "should we add forward/back buttons?" (Carl, 8 Nov 2026, the
    words and opening quiz). Back past the first or next past the last wraps round. */
@@ -1558,8 +1636,11 @@ function nowPlaying({ audio, at = 0, title, artist }) {
     next = el("button", "np-button", { type: "button" }),
     stop = el("button", "np-close", { type: "button" });
   const song = el("b", "", { textContent: title }),
-    who = el("span", "", { textContent: artist });
-  words.append(song, who);
+    who = el("span", "", { textContent: artist }),
+    note = el("span", "np-note", { hidden: true, textContent: SONG_FAILED, role: "status" }); // A SONG THAT DIDN'T LOAD
+  words.append(song, who, note);
+  watchSong(audio);
+  const off = new AbortController(); // its listeners on the song go with the card
   back.append(icon(BACK, "np-icon"));
   next.append(icon(NEXT, "np-icon"));
   back.setAttribute("aria-label", "Previous song");
@@ -1568,11 +1649,11 @@ function nowPlaying({ audio, at = 0, title, artist }) {
     at = (at + d + TRACKS.length) % TRACKS.length;
     audio.src = TRACKS[at];
     audio.currentTime = 0;
+    audio.stuck = false;
     play(audio);
     song.textContent = SONGS[at]?.song || WORDS.portfolio.tracks?.[at] || "";
     who.textContent = SONGS[at]?.artist || "";
-    toggle.querySelector(".np-icon").replaceWith(icon(PAUSE, "np-icon")); // its icon only: its drawn circle stays
-    name();
+    showing();
     cue("key:play");
   };
   back.addEventListener("click", () => go(-1));
@@ -1587,16 +1668,26 @@ function nowPlaying({ audio, at = 0, title, artist }) {
   x.innerHTML = '<path d="M4.5 4.8 L15.4 15.2 M15.2 4.6 L4.7 15.3" />';
   stop.append(x);
   toggle.classList.add("np-main");
-  const name = () => toggle.setAttribute("aria-label", audio.paused ? "Play" : "Pause");
-  name();
+  /* what it shows, from the song itself: Pause only while it plays, and Play with the line under its name while it
+     didn't load (A SONG THAT DIDN'T LOAD) */
+  const showing = () => {
+    const bad = songFailed(audio),
+      on = !audio.paused && !bad;
+    toggle.querySelector(".np-icon").replaceWith(icon(on ? PAUSE : PLAY, "np-icon")); // its icon only: its drawn circle stays
+    toggle.setAttribute("aria-label", on ? "Pause" : "Play");
+    who.hidden = bad;
+    note.hidden = !bad;
+  };
   stop.setAttribute("aria-label", "Stop and close");
   toggle.addEventListener("click", () => {
-    if (audio.paused) play(audio);
+    if (songFailed(audio)) tryAgain(audio, TRACKS[at]);
+    else if (audio.paused) play(audio);
     else audio.pause();
-    toggle.querySelector(".np-icon").replaceWith(icon(audio.paused ? PLAY : PAUSE, "np-icon"));
-    name();
+    showing();
     cue(audio.paused ? "key:stop" : "key:play");
   });
+  for (const e of ["error", "songstuck", "playing", "pause"]) audio.addEventListener(e, showing, { signal: off.signal });
+  showing();
   stop.addEventListener("click", () => (cue("key:stop"), endNowPlaying()));
   audio.addEventListener("ended", endNowPlaying, { once: true });
   /* the buttons first, then the song: "can the buttons be before the song info? then they won't bounce around when the
@@ -1605,15 +1696,18 @@ function nowPlaying({ audio, at = 0, title, artist }) {
   document.querySelector("#stage").append(box);
   drawBox(box);
   for (const b of [back, toggle, next]) drawBox(b, { round: true });
-  NOW = { audio, box, at: () => at };
+  NOW = { audio, box, off, at: () => at };
+  NOW_CHANGED();
 }
 // the song NOW PLAYING has, taken off its card without stopping it, for the player opening again
 function takeNowPlaying() {
   if (!NOW || NOW.audio.ended) return endNowPlaying(), null;
   const kept = { audio: NOW.audio, at: NOW.at() };
   kept.audio.removeEventListener("ended", endNowPlaying);
+  NOW.off.abort();
   NOW.box.remove();
   NOW = null;
+  NOW_CHANGED();
   return kept;
 }
 function recordEl(cover, cls) {
@@ -1694,11 +1788,18 @@ const SHELLS = {
        silent, a second tap did nothing, and nothing said why. "Fix it: "Ugh, that one didn't load. Tap it to try again.""
        (Carl, 9 Nov 2026, the officers' fixes quiz). The line shows under the sleeves while it can't load, and a tap on
        its sleeve loads it again from the start. */
-    const songNote = el("p", "song-note", { hidden: true, textContent: "Ugh, that one didn\u2019t load. Tap it to try again.", role: "status" });
+    /* and one whose file stopped coming part way, which the deck stops turning for (the 9 Nov round's H12, A SONG THAT
+       DIDN'T LOAD, OR STOPPED PART WAY) */
+    const songNote = el("p", "song-note", { hidden: !(kept && songFailed(audio)), textContent: SONG_FAILED, role: "status" });
     box.append(songNote);
-    const failed = () => !!audio.error || audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE;
+    const failed = () => songFailed(audio);
+    watchSong(audio);
     audio.addEventListener("error", () => (songNote.hidden = false));
-    audio.addEventListener("playing", () => (songNote.hidden = true));
+    audio.addEventListener("songstuck", () => box.isConnected && ((songNote.hidden = false), setDeck({ playing: false })));
+    audio.addEventListener("playing", () => {
+      songNote.hidden = true;
+      if (box.isConnected && loaded) setDeck({ playing: true }); // and turning again once it carries on
+    });
     // the play, stop, what is on and the progress line are on the deck, as on Greg's player (props.mjs drawControls):
     // "Actually now I miss the controls from Greg's", then "1", on the turntable (Carl, 2 Nov 2026)
     // his site's button to Spotify, out to his playlist in a new tab
@@ -1730,9 +1831,8 @@ const SHELLS = {
       if (i === at && loaded && failed()) {
         // loaded again from the start (A SONG THAT DIDN'T LOAD)
         songNote.hidden = true;
-        audio.src = TRACKS[i];
-        audio.load();
-        return resume();
+        setDeck({ playing: true, armTo: "play" });
+        return tryAgain(audio, TRACKS[i]);
       }
       if (i === at && loaded) return audio.paused ? resume() : pause();
       busy = true;
