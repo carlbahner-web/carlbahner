@@ -656,6 +656,11 @@ content in them?", then, shown Buzz's, Contact, StudioLand and Are you my people
 better" (Carl). It ends under its last button rather than at the room's foot; one with more than fits scrolls as before
 (A CARD AS TALL AS ITS WORDS in `index.html`). A phone keeps the bottom 65%.
 
+**A card's drawn line is the card's size on an iPhone, 10 Nov 2026**: shown the StudioLand card on an iPhone SE, its words
+running past its line, which came out 0.88 of the card (Carl's screenshot). Safari kept the line's picture at an older,
+shorter card's height and shrank the drawing to fit; every drawn box now sizes its picture in pixels from the same measure
+as its line (ITS SIZE IN PIXELS in `src/nav.mjs` `drawBox`). Only Safari did it, so no test here can see it.
+
 **Nothing takes a click under the loading screen, 8 Nov 2026**: "it accepts clicks during the loading screen, which makes
 it glitch out" (Carl). Until it lifts (`body.loaded`), every press, wheel, key and touch is stopped before the room hears
 it (NOTHING TAKES A CLICK UNDER THE LOADING SCREEN in `src/studio.mjs`).
